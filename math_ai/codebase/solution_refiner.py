@@ -13,18 +13,8 @@ class SolutionRefiner:
         self.llm = OpenAILLM()
         self.role = "<TODO Here is Solution Refiner's system prompt>"
         self.llm.set_role(self.role)
-    def run(self, problem: Dict) -> Dict:
-        """
-        Gate Controller choose human design strategy here
-        and return strategy in dict
-        you can add anything else such as problem's possible attention in dict.
-        for example:
-        {
-            "strategy": "<content>",
-            "attention": "<"Attention points identified during the determination of problem types.">"
-        }
-        """
+    def run(self, problem: Dict) -> str:
 
-        return {"strategy":"<content>"}
+        return "final result"
 
 

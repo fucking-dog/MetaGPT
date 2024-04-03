@@ -10,9 +10,6 @@ from math_ai.codebase.data_processer import DataProcesser
 from math_ai.codebase.solution_refiner import SolutionRefiner
 from metagpt.roles.di.data_interpreter import DataInterpreter
 
-
-
-
-# TODO 跟达摩院确定如何提交答案 / 代码
-def main():
+def solution(question_path:str):
     pass
+
