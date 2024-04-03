@@ -8,7 +8,7 @@
 from typing import Dict
 from metagpt.roles.di.data_interpreter import DataInterpreter
 # TODO add different phase in codebase.phase
-from math_ai.codebase.llm.llm import OpenAILLM
+from math_ai.codebase.engine.llm import OpenAILLM
 
 
 class MathResolver:

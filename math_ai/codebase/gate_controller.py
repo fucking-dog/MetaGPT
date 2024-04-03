@@ -5,7 +5,7 @@
 # Description: The Gate Controller is the entry to the math AI. Within this class, the GateController formulates problem-solving strategies for subsequent math resolver based on the type of input question and judgments derived from human design.
 
 from typing import Dict
-from math_ai.codebase.llm.llm import OpenAILLM
+from math_ai.codebase.engine.llm import OpenAILLM
 
 
 class GateController:

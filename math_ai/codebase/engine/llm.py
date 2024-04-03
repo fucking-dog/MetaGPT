@@ -18,7 +18,7 @@ from metagpt.config2 import config
 api_key = getattr(config.llm, "api_key")
 base_url = getattr(config.llm, "base_url", "https://api.openai.com/v1")
 
-# Test For metagpt's config
+# TODO Test for MetaGPT's Config
 print(api_key)
 print(base_url)
 
