@@ -61,8 +61,7 @@ class MathResolver:
         if self.result_validate(problem, current_trajectory):
             pass
         else:
-
-
+            pass
         return {"current_trajectory": current_trajectory}
     
     async def multi_run(self):
@@ -83,4 +82,5 @@ class MathResolver:
         validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
         return validate_result
     
-    def inference_final(self, )
+    def inference_final(self, ):
+        pass
