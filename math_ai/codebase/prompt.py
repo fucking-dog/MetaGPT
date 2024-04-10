@@ -27,7 +27,27 @@ resolver_planner = """
 """
 
 inference_prompt = """
-正常推理
+你是全球最杰出的数学竞赛选手，你已经掌握了足够多的数学知识，你对此数学解题有着非常丰富的经验，你无需纠结于解题的过程，你可以直接给出解题的结果。
+你现在要解决的任务是{problem_desc}
+你的合作者已经完成了上游的一些推理，或许其中有一些能辅助到你对当前任务进行推理的内容{trajectory}
+现在，你需要基于你的问题，结合你的经验，给出这个问题的推理和解答。
+最终结果，请你使用JSON格式进行返回，一个可以参考的格式如下：
+{{
+    "inference": <"inference，指的是你得到答案的思维过程，">,
+    "answer": <"answer，对于{problem_desc}中所描述的问题的直接答案"> 
+}}
+"""
+
+logic_validate_prompt = """
+对当前结果与题目进行逻辑验证
+"""
+
+merge_inference_prompt = """
+重览当前轨迹，重新思考当前结果，并进行合并
+"""
+
+result_validate_prompt = """
+
 """
 
 logic_validate_prompt = """
