@@ -40,7 +40,32 @@ inference_prompt = """
 """
 
 logic_validate_prompt = """
-对当前结果与题目进行逻辑验证
+你是全球最杰出的数学竞赛教练，你需要利用你对解题整体流程的理解，检查你的学生的解题过程，确保他们的解题过程在逻辑上是合理的。
+你的学生已经完成了上游的一些推理，这些推理的过程结果被记录成推理轨迹，轨迹轨迹如下
+{trajectory}
+现在你需要对其进行逻辑验证，确保其推理过程是合理的。
+现在，你需要基于你学生的推理轨迹，给出你的判断和修改版本。判断是一个字符串，如果你认为这个推理过程是合理的，请填写"True"，否则请填写"False"。修改版本是一个字符串，描述你对于这个推理过程的修改意见。修改版本是经过你的修改后的推理轨迹，如果你认为这个推理过程是合理的，请直接返回空字符串""。
+对推理轨迹的修改规则如下：
+假设当前推理轨迹是
+{{
+    {{"plan": <"plan1">, "reason": <"reason1">, "answer": <"answer1">}},
+    {{"plan": <"plan2">, "reason": <"reason2">, "answer": <"answer2">}},
+    ...
+    {{"plan": <"plann">, "reason": <"reasonn">, "answer": <"answern">}}
+}}
+如果你认为这个推理过程是不合理的，请你保留合理的部分序列，然后修改第一个不合理的planx(x=1,...,n)，将其修改为一个合理的planx_modified，包括reason_modified和answer_modified，裁断planx后续的序列planx+1,...,plann，然后将修改后的推理轨迹返回。
+比如，如果你认为第七个plan是不合理的，那么你可以将推理轨迹修改为
+{{
+    {{"plan": <"plan1">, "reason": <"reason1">, "answer": <"answer1">}},
+    ...
+    {{"plan": <"plan6">, "reason": <"reason6">, "answer": <"answer6">}},
+    {{"plan": <"plan7_modified">, "reason": <"reason7_modified">, "answer": <"answer7_modified">}}
+}}
+最终结果，请你使用JSON格式进行返回，一个可以参考的格式如下：
+{{
+    "judge": <"judge">,
+    "modified_trajectory": <"modified_trajectory">
+}}
 """
 
 result_validate_prompt = """
