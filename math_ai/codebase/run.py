@@ -13,3 +13,7 @@ from metagpt.roles.di.data_interpreter import DataInterpreter
 def solution(question_path:str):
     pass
 
+# 1. 将RUN函数串起来
+# 2. 为Resolver 构建不同的Phase函数
+# 3. 思考Refiner，是如何根据思考过程与题干给出合适答案的
+# 4. 

@@ -24,6 +24,9 @@ if __name__ == "__main__":
     question = """
     证明对于任意正整数n，n^2 是一个偶数当且仅当n是一个偶数。
     """
+    question = """
+    Tom has a red marble, a green marble, a blue marble, and three identical yellow marbles. How many different groups of two marbles can Tom choose?
+    """
 
     requirement = f"""
     Solve this multiple question: {question}, and return the answer from A to E.
