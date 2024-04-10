@@ -13,19 +13,19 @@ from metagpt.roles.di.data_interpreter import DataInterpreter
 import json
 from ..data_processer import DataProcesser
 from ..gate_controller import GateController
-
+from ..math_resovler import MathResolver
 
 def solution(question_path:str):
+    solutions = dict()
     dp = DataProcesser()
-    dp.load_data()
-    question_json = dp.run()
-
     gc = GateController()
-    strategy_dict = gc.run(question_json)
+    mr = MathResolver()
+    sr = SolutionRefiner()
+
+    problem_dict_list = dp.run() # List[Dict]
+    for problem_dict in problem_dict_list:
+        strategy_dict = gc.run(problem_dict)
+        solution = mr.run(problem_dict, strategy_dict)
+        final_solution = sr.run(problem_dict, strategy_dict, solution)
 
 
-    pass
-
-
-if __name__ == "__main__":
-    solution("")
