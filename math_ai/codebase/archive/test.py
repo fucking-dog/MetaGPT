@@ -4,8 +4,12 @@ from metagpt.roles.di.data_interpreter import DataInterpreter
 
 
 async def main(requirement: str = ""):
+    import json
     di = DataInterpreter()
     record = await di.run(requirement)
+    print(record)
+    with open("record.json", "w") as f:
+        json.dump(record, f, indent=4)
 
 
 if __name__ == "__main__":
@@ -28,8 +32,12 @@ if __name__ == "__main__":
     Tom has a red marble, a green marble, a blue marble, and three identical yellow marbles. How many different groups of two marbles can Tom choose?
     """
 
+    question5 = """
+    对实数$r$，用$\\Vert{r}$表示$r$和最近的整数的距离：$\\Vert{r} = \min {\\vert{r-n}:n\\in\\mathbb{Z}}$.
+    试问是否存在非零实数$s$，满足$\\lim_{n\\to\\infty}\\Vert{(\\sqrt{2}+1)^ns}=0$?
+    """
     requirement = f"""
-    Solve this multiple question: {question4}, and return the answer from A to E.
+    Solve this multiple question: {question3}, and return the answer from A to E.
     Please note that when you solve this problem, you should not only consider using code to solve the problem, the results obtained by the code may have a certain deviation from the real problem, you need to conduct further realistic analysis of the results of the code.
     """
     # answer: C

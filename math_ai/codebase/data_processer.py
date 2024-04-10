@@ -6,7 +6,7 @@
 from typing import List, Dict
 
 import json
-# TODO 这个地方不提交，最后手动就 OK
+# TODO 这个地方Load JSON，然后每次给一个字典，给到下一阶段，完成之后重复给字典的过程。
 
 class DataProcesser:
     def __init__(self):
@@ -17,25 +17,16 @@ class DataProcesser:
         {
             "desc":"<QUESTION DESC>",
             "type":"<select from human design>",
-            "image":{
-                "exist": "<bool>",
-                "base64": "<base64 encode>"
-            }
         }
         """
-        return [{},{}]
+        return {"<example>"}
     
 
     def load_data(self):
-        with open("/Users/mac/Github_project/MathAI/math_ai/dataset/dataset.json", "r") as f:
-            data = json.load(f)
-
-        nd = {}
-        nd["problem"] = data["2023"]["1"]["problem"]
-        nd["strategy"] = "按照你想的做"
-        print(nd)
-        return data
-    
+        """
+        Load JSON 文件
+        """
+        pass
 
 if __name__ == "__main__":
     d = DataProcesser()
