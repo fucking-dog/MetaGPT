@@ -8,7 +8,7 @@
 from typing import Dict
 from metagpt.roles.di.data_interpreter import DataInterpreter
 from math_ai.codebase.engine.llm import OpenAILLM
-from math_ai.codebase.prompt import zero_shot_planner, resolver_planner, inference_prompt, di_prompt, result_validate_prompt
+from math_ai.codebase.prompt import zero_shot_planner, resolver_planner, inference_prompt, di_prompt, result_validate_prompt, inference_final_prompt, logic_validate_prompt
 
 # TODO add different phase in codebase.phase
 
@@ -61,6 +61,8 @@ class MathResolver:
         if self.result_validate(problem, current_trajectory):
             pass
         else:
+            current_trajectory += self.inference_final(problem, current_trajectory)
+
             pass
         return {"current_trajectory": current_trajectory}
     
@@ -72,15 +74,17 @@ class MathResolver:
         return "Hello world"
     
     def inference(self, problem, current_trajectory, subgoal):
-        self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        inference_result = self.llm.llm_response(prompt=inference_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        return inference_result
     
     def logic_validate(self, problem, current_trajectory, subgoal):
-        self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
-        return "OK"
-    
-    def result_validate(self, problem, current_trajectory):
-        validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
         return validate_result
     
-    def inference_final(self, ):
-        pass
+    def result_validate(self, problem, current_trajectory):
+        result_validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        return result_validate_result
+    
+    def inference_final(self, problem, current_trajectory):
+        final_result = self.llm.llm_response(prompt=inference_final_prompt.format(problem=problem, trajectoty=current_trajectory))
+        return final_result
