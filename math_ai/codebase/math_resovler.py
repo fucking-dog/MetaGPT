@@ -9,12 +9,10 @@ from typing import Dict
 from metagpt.roles.di.data_interpreter import DataInterpreter
 from math_ai.codebase.engine.llm import OpenAILLM
 from math_ai.codebase.prompt import zero_shot_planner, resolver_planner, inference_prompt, di_prompt, result_validate_prompt, inference_final_prompt, logic_validate_prompt
-
+from math_ai.codebase.strategies import get_strategy_desc
 # TODO add different phase in codebase.phase
 
-async def main(requirement: str = ""):
-    di = DataInterpreter()
-    await di.run(requirement)
+
 
 class MathResolver:
     def __init__(self):
@@ -37,8 +35,8 @@ class MathResolver:
         Finally, math resolver need to return the solution without refine.
         """
         strategy_name = types["strategy"]
-        strategy = ""
-
+        strategy = get_strategy_desc(strategy_name)
+        
         # 1. 直接要求他解决数学问题，思考这个过程。 zero shot 让他先去对这个题目给出一个计划。
         # 2. 得到这个过程之后，让他结合我们的strategy 跟 Prompt，重新构建phase
         # 3. 每一个Phase的Prompt如何去写 
@@ -49,21 +47,16 @@ class MathResolver:
         current_trajectory = ""
         for phase in resolver_plan:
             if phase["plan"]["phase"] == "inference":
-                # TODO 这里的Prompt 需要修改
                 current_trajectory += self.inference(problem, current_trajectory, subgoal=phase["plan"]["desc"])
             elif phase["plan"]["phase"] == "di":
                 current_trajectory += self.di_run(problem, current_trajectory, subgoal=phase["plan"]["desc"])
             elif phase["plan"]["phase"] == "logic_validate":
-                # TODO 如果Validate 失败，是否需要重新进行plan
                 current_trajectory += self.logic_validate(problem, current_trajectory, subgoal=phase["plan"]["desc"])
         
-        # TODO 在这里result validate
         if self.result_validate(problem, current_trajectory):
             pass
         else:
             current_trajectory += self.inference_final(problem, current_trajectory)
-
-            pass
         return {"current_trajectory": current_trajectory}
     
     async def multi_run(self):
@@ -90,3 +83,4 @@ class MathResolver:
     def inference_final(self, problem, current_trajectory):
         final_result = self.llm.llm_response(prompt=inference_final_prompt.format(problem=problem, trajectoty=current_trajectory))
         return final_result
+    

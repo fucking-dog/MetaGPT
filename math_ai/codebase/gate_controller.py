@@ -13,18 +13,27 @@ class GateController:
         self.llm = OpenAILLM()
         self.role = "<TODO Here is Gate Controller's system prompt>"
         self.llm.set_role(self.role)
+
     def run(self, problem: Dict) -> Dict:
         """
+        problem: 
+        {
+            "desc":"<QUESTION DESC>",
+            "type":"<select from human design>",
+        }
+
         Gate Controller choose human design strategy here
         and return strategy in dict
         you can add anything else such as problem's possible attention in dict.
         for example:
+        
+        return 
         {
-            "strategy": "<content>",
+            "strategy": "策略名称",
             "attention": "<"Attention points identified during the determination of problem types.">"
         }
         """
 
-        return {"strategy":"<content>"}
+        return {"strategy":"知识类型"}
 
 
