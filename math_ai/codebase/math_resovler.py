@@ -70,7 +70,9 @@ class MathResolver:
     
     async def di_run(self, problem, current_trajectory, subgoal):
         # TODO 黄毅把获取的结果放到这里，我来写协程
-        return "Hello world"
+        DI = DataInterpreter()
+        record = await DI.run(di_prompt.format(problem=problem, trajectory=current_trajectory, subgoal=subgoal))
+        return record
     
     def inference(self, problem, current_trajectory, subgoal):
         self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
