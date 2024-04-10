@@ -16,7 +16,7 @@ from ..gate_controller import GateController
 from ..math_resovler import MathResolver
 
 def solution(question_path:str):
-    solutions = dict()
+    final_solutions = []
     dp = DataProcesser()
     gc = GateController()
     mr = MathResolver()
@@ -27,5 +27,8 @@ def solution(question_path:str):
         strategy_dict = gc.run(problem_dict)
         solution = mr.run(problem_dict, strategy_dict)
         final_solution = sr.run(problem_dict, strategy_dict, solution)
+        final_solutions.append(final_solution)
 
+
+    return final_solutions
 
