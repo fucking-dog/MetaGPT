@@ -15,8 +15,10 @@ from openai import OpenAI
 from openai import AsyncClient
 from metagpt.config2 import config
 
-api_key = getattr(config.llm, "api_key")
-base_url = getattr(config.llm, "base_url", "https://api.openai.com/v1")
+# api_key = getattr(config.llm, "api_key")
+# base_url = getattr(config.llm, "base_url", "https://api.openai.com/v1")
+api_key = 'sk-6uLg7KCASTHxoLIL00E0F0C0377449Bd9cE506B04791B23a'
+base_url = 'https://api.aigcbest.top/v1'
 
 # TODO Test for MetaGPT's Config
 print(api_key)

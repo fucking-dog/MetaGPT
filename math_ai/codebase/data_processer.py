@@ -28,7 +28,9 @@ class DataProcesser:
         """
         pass
 
+
 if __name__ == "__main__":
     d = DataProcesser()
     data = d.load_data()
     
+
