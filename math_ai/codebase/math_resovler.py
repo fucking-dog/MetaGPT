@@ -77,18 +77,18 @@ class MathResolver:
         return record
     
     def inference(self, problem, current_trajectory, subgoal):
-        inference_result = self.llm.llm_response(prompt=inference_prompt.format(problem_desc=problem, trajectoty=current_trajectory),json_mode=True)
+        inference_result = self.llm.llm_response(prompt=inference_prompt.format(problem_desc=problem, trajectory=current_trajectory),json_mode=True)
         return inference_result
     
     def logic_validate(self, problem, current_trajectory, subgoal):
-        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem_desc=problem, trajectoty=current_trajectory, subgoal=subgoal),json_mode=True)
+        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem_desc=problem, trajectory=current_trajectory, subgoal=subgoal),json_mode=True)
         return validate_result
     
     def result_validate(self, problem, current_trajectory):
-        result_validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem_desc=problem, trajectoty=current_trajectory),json_mode=True)
+        result_validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem_desc=problem, trajectory=current_trajectory),json_mode=True)
         return result_validate_result
     
     def inference_final(self, problem, current_trajectory):
-        final_result = self.llm.llm_response(prompt=inference_final_prompt.format(problem_desc=problem, trajectoty=current_trajectory))
+        final_result = self.llm.llm_response(prompt=inference_final_prompt.format(problem_desc=problem, trajectory=current_trajectory))
         return final_result
     
