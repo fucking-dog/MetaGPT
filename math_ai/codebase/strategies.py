@@ -1,5 +1,18 @@
 ALGEBRA_NUMBER_THEORY = """
-
+问题：令$n$为正整数。对任一正整数$k$记$0_k$=$\\text{diag}\{0,\\dots,0\}$为$k\\times k$的零矩阵。令
+$$
+Y=
+\\begin{pmatrix}
+0_n & A \\\\
+A^t & 0_{n+1}
+\\end{pmatrix}
+$$
+为一个$(2n+1)\\times(2n+1)$矩阵，其中$A=(x_{i,j})_{1\\leq i\\leq n,1\\leq j\\leq n+1}$是一个$n\\times(n+1)$实矩阵且$A^t$为$A$的转置矩阵，即$(n+1)\\times n$的矩阵，$(j,i)$处的元素为$x_{i,j}$。
+称复数$\\lambda$为$k \\times k$矩阵$X$的一个特征值，如果存在非零列向量$v=(x_1,\\dots,x_k)^t$使得$Xv=\\lambda v$。证明：0是$Y$的特征值且$Y$的其他特征值形如$\\pm\\sqrt{\\lambda}$，其中非负实数$\\lambda$是$AA^t$的特征值。
+解题规划：
+{
+    "plan": <[{"desc":"记$I_n=\\text{diag}\{1,\\dots,1\}$为$n\\times n$恒同矩阵，做初等变换可以证明$\\det(\\lambda I_{2n+1}-Y)=\\lambda\\det(\\lambda^2 I_n-AA^t)$，得证","phase":"di"},{"desc":"验证上述过程是否存在逻辑问题","phase":"logic_validate"}]>
+}
 """
 
 GEOMOTRY_TOPOLOGY = """
