@@ -44,8 +44,8 @@ class MathResolver:
         # 2. 得到这个过程之后，让他结合我们的strategy 跟 Prompt，重新构建phase
         # 3. 每一个Phase的Prompt如何去写
 
-        origin_plan = self.llm.llm_response(prompt=zero_shot_planner.format(problem_desc=problem["desc"]),json_mode=True)
-        resolver_plan = self.llm.llm_response(prompt=resolver_planner.format(problem_desc=problem["desc"], strategy=strategy, origin_plan=origin_plan, type_decompose=type_decompose, type_problem=problem["type"]), json_mode=True)
+        origin_plan = self.llm.llm_response(prompt=zero_shot_planner.format(problem_desc=problem["description"]))
+        resolver_plan = self.llm.llm_response(prompt=resolver_planner.format(problem_desc=problem["description"], strategy=strategy, origin_plan=origin_plan, type_decompose=type_decompose, type_problem=problem["type"]), json_mode=True)
         
         current_trajectory = []
         for index, phase in enumerate(resolver_plan["plan"]):
@@ -73,22 +73,22 @@ class MathResolver:
     
     async def di_run(self, problem, current_trajectory, subgoal):
         DI = DataInterpreter()
-        record = await DI.run(di_prompt.format(problem=problem, trajectory=current_trajectory, subgoal=subgoal))
+        record = await DI.run(di_prompt.format(problem_desc=problem, trajectory=current_trajectory, subgoal=subgoal))
         return record
     
     def inference(self, problem, current_trajectory, subgoal):
-        inference_result = self.llm.llm_response(prompt=inference_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        inference_result = self.llm.llm_response(prompt=inference_prompt.format(problem_desc=problem, trajectoty=current_trajectory),json_mode=True)
         return inference_result
     
     def logic_validate(self, problem, current_trajectory, subgoal):
-        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem_desc=problem, trajectoty=current_trajectory),json_mode=True)
         return validate_result
     
     def result_validate(self, problem, current_trajectory):
-        result_validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem=problem, trajectoty=current_trajectory),json_mode=True)
+        result_validate_result = self.llm.llm_response(prompt=result_validate_prompt.format(problem_desc=problem, trajectoty=current_trajectory),json_mode=True)
         return result_validate_result
     
     def inference_final(self, problem, current_trajectory):
-        final_result = self.llm.llm_response(prompt=inference_final_prompt.format(problem=problem, trajectoty=current_trajectory))
+        final_result = self.llm.llm_response(prompt=inference_final_prompt.format(problem_desc=problem, trajectoty=current_trajectory))
         return final_result
     
