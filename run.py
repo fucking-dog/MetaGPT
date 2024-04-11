@@ -41,5 +41,5 @@ async def main(question_path: str):
     print(solutions)
 
 if __name__ == '__main__':
-    question_path = 'H:/Hack/Ali/dataset/2021.json'
+    question_path = '/Users/mac/Github_project/MathAI/math_ai/dataset/2021.json'
     asyncio.run(main(question_path))
