@@ -81,7 +81,7 @@ class MathResolver:
         return inference_result
     
     def logic_validate(self, problem, current_trajectory, subgoal):
-        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem_desc=problem, trajectory=current_trajectory),json_mode=True)
+        validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem_desc=problem, trajectory=current_trajectory, subgoal = subgoal),json_mode=True)
         return validate_result
     
     def result_validate(self, problem, current_trajectory):
