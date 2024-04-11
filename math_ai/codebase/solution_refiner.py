@@ -6,15 +6,18 @@
 
 from typing import Dict
 from math_ai.codebase.engine.llm import OpenAILLM
+from math_ai.codebase.prompt import solution_refiner
 
 
 class SolutionRefiner:
     def __init__(self):
         self.llm = OpenAILLM()
-        self.role = "<TODO Here is Solution Refiner's system prompt>"
+        self.role = "你是一个数学大师"
         self.llm.set_role(self.role)
-    def run(self, problem: Dict) -> str:
-
-        return "final result"
+        
+    def run(self, problem_dict, strategy_dict, first_solution) -> str:
+        type_decompose = "多个问题" if strategy_dict["if_muti"] == "muti" else "simple"
+        answer = self.llm.llm_response(problem_desc=problem_dict["description"],type_decompose=type_decompose,type_problem=problem_dict["type"],trajectory=first_solution)
+        return answer
 
 
