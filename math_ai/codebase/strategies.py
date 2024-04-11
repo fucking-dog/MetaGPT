@@ -39,5 +39,6 @@ def get_strategy_desc(name):
         return COMPUTATION
     else:
         return "No Strategy"
-    
-print(ANALYSYS_EQUATION)
+
+if __name__ == "__main__":
+    print(ANALYSYS_EQUATION)

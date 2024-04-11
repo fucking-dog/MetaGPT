@@ -6,6 +6,7 @@
 from typing import List, Dict
 
 import json
+import copy
 # TODO 这个地方Load JSON，然后每次给一个字典，给到下一阶段，完成之后重复给字典的过程。
 
 class DataProcesser:
@@ -25,7 +26,8 @@ class DataProcesser:
             problem_dict = json.load(f)
 
         problem_dict_list = []
-        for value in problem_dict.keys():
+        for value in problem_dict.values():
+            value['desc'] = copy.deepcopy(value['description'])
             problem_dict_list.append(value)
 
         return problem_dict_list
