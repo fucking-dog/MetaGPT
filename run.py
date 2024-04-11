@@ -32,6 +32,11 @@ async def solution(question_path: str):
         strategy_dict = gc.run(problem_dict)
         first_solution = await mr.single_run(problem_dict, strategy_dict)  # 使用 await
         final_solution = sr.run(problem_dict, strategy_dict, first_solution)
+
+        print(problem_dict)
+        print("\n\n\n")
+        print(final_solution)
+
         final_solutions.append(final_solution)
 
     return final_solutions

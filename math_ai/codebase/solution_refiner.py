@@ -17,7 +17,7 @@ class SolutionRefiner:
         
     def run(self, problem_dict, strategy_dict, first_solution) -> str:
         type_decompose = "多个问题" if strategy_dict["if_muti"] == "muti" else "simple"
-        answer = self.llm.llm_response(problem_desc=problem_dict["description"],type_decompose=type_decompose,type_problem=problem_dict["type"],trajectory=first_solution)
+        answer = self.llm.llm_response(prompt = solution_refiner.format(problem_desc=problem_dict["description"],type_decompose=type_decompose,type_problem=problem_dict["type"],trajectory=first_solution))
         return answer
 
 
