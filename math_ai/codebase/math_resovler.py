@@ -35,35 +35,43 @@ class MathResolver:
         Finally, math resolver need to return the solution without refine.
         """
         strategy_name = types["strategy"]
+        type_decompose = "多个问题" if types["if_muti"] == "muti" else "simple"
         strategy = get_strategy_desc(strategy_name)
         
+        # TODO 存储 Solution 的地方要做一个修改
+        # TODO 对于这个 modify 之后的 plan 做重新执行
         # 1. 直接要求他解决数学问题，思考这个过程。 zero shot 让他先去对这个题目给出一个计划。
         # 2. 得到这个过程之后，让他结合我们的strategy 跟 Prompt，重新构建phase
         # 3. 每一个Phase的Prompt如何去写 
 
         origin_plan = self.llm.llm_response(prompt=zero_shot_planner.format(problem_desc=problem["desc"]),json_mode=True)
-        resolver_plan = self.llm.llm_response(prompt=resolver_planner.format(problem_desc=problem["desc"], strategy=strategy, origin_plan=origin_plan), json_mode=True)
+        resolver_plan = self.llm.llm_response(prompt=resolver_planner.format(problem_desc=problem["desc"], strategy=strategy, origin_plan=origin_plan, type_decompose=type_decompose, type_problem=problem["type"]), json_mode=True)
         
-        current_trajectory = ""
-        for phase in resolver_plan:
-            if phase["plan"]["phase"] == "inference":
-                current_trajectory += self.inference(problem, current_trajectory, subgoal=phase["plan"]["desc"])
-            elif phase["plan"]["phase"] == "di":
-                current_trajectory += self.di_run(problem, current_trajectory, subgoal=phase["plan"]["desc"])
-            elif phase["plan"]["phase"] == "logic_validate":
-                current_trajectory += self.logic_validate(problem, current_trajectory, subgoal=phase["plan"]["desc"])
-        
+        current_trajectory = []
+        for index, phase in enumerate(resolver_plan["plan"]):
+            if phase["phase"] == "inference":
+                answer = self.inference(problem, current_trajectory, subgoal=phase["desc"])
+                current_trajectory.append({"plan":phase["desc"],"reason":phase["reason"],"answer":answer})
+            elif phase["phase"] == "di":
+                answer = self.di_run(problem, current_trajectory, subgoal=phase["desc"])
+                current_trajectory.append({"plan":phase["desc"],"reason":phase["reason"],"answer":answer})
+            elif phase["phase"] == "logic_validate":
+                result = self.logic_validate(problem, current_trajectory, subgoal=phase["desc"])
+                if result["judge"]:
+                    current_trajectory.append({"plan":phase["desc"],"reason":phase["reason"],"answer":"逻辑正确"})
+                else:
+                    # TODO 如果不是，修改之后的代码
+                    # TODO 这里考虑修改一下Logic Validate 的逻辑，修改为添加一个纠正错误的修改
+                    current_trajectory.append({"plan":phase["desc"],"reason":phase["reason"],"answer":result["reflection"]})
+
         if self.result_validate(problem, current_trajectory):
             pass
         else:
-            current_trajectory += self.inference_final(problem, current_trajectory)
+            current_trajectory.append(self.inference_final(problem, current_trajectory))
         return {"current_trajectory": current_trajectory}
     
-    async def multi_run(self):
-        pass
     
     async def di_run(self, problem, current_trajectory, subgoal):
-        # TODO 黄毅把获取的结果放到这里，我来写协程
         DI = DataInterpreter()
         record = await DI.run(di_prompt.format(problem=problem, trajectory=current_trajectory, subgoal=subgoal))
         return record

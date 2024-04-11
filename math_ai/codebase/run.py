@@ -5,7 +5,7 @@
 # Description: run math ai
 import sys
 import os
-
+import asyncio
 # add metagpt rootpath to syspath
 meta_rootpath = os.getcwd()
 if meta_rootpath not in sys.path:
@@ -15,10 +15,9 @@ from math_ai.codebase.gate_controller import GateController
 from math_ai.codebase.math_resovler import MathResolver
 from math_ai.codebase.data_processer import DataProcesser
 from math_ai.codebase.solution_refiner import SolutionRefiner
-from metagpt.roles.di.data_interpreter import DataInterpreter
 
 
-def solution(question_path:str):
+async def solution(question_path: str):
     final_solutions = []
 
     dp = DataProcesser()
@@ -26,17 +25,19 @@ def solution(question_path:str):
     mr = MathResolver()
     sr = SolutionRefiner()
 
-    problem_dict_list = dp.run(question_path) #  List[Dict]
+    problem_dict_list = dp.run(question_path)  # List[Dict]
     for problem_dict in problem_dict_list:
         strategy_dict = gc.run(problem_dict)
-        first_solution = mr.run(problem_dict, strategy_dict)
+        first_solution = await mr.single_run(problem_dict, strategy_dict)  # 使用 await
         final_solution = sr.run(problem_dict, strategy_dict, first_solution)
-
         final_solutions.append(final_solution)
-
 
     return final_solutions
 
+async def main(question_path: str):
+    solutions = await solution(question_path)
+    print(solutions)
 
 if __name__ == '__main__':
-    solution('H:/Hack/Ali/dataset/2021.json')
+    question_path = '/Users/mac/Github_project/MathAI/math_ai/dataset/dataset.json'
+    asyncio.run(main(question_path))
