@@ -47,9 +47,10 @@ class GateController:
         """
         prob = problem['desc']
         response = self.llm.llm_response(prob, json_mode=True)
-        problem['if_muti'] = 'simple' if 'simple' in response['if_muti'] else 'muti'
-        problem['strategy'] = response['type']
-        return problem
+        strategy = {}
+        strategy['if_muti'] = 'simple' if 'simple' in response['if_muti'] else 'muti'
+        strategy['strategy'] = response['type']
+        return strategy
     
 
 # for test
