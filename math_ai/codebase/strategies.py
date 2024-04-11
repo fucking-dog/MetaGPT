@@ -3,13 +3,10 @@ ALGEBRA_NUMBER_THEORY = """
 """
 
 GEOMOTRY_TOPOLOGY = """
-
-
 """
 
 ANALYSYS_EQUATION = """
-问题：对实数$r$，用$\\Vert{r}$表示$r$和最近的整数的距离：$\\Vert{r} = \min {\\vert{r-n}:n\\in\\mathbb{Z}}$.
-试问是否存在非零实数$s$，满足$\\lim_{n\\to\\infty}\\Vert{(\\sqrt{2}+1)^ns}=0$?
+问题：对实数$r$，用$\\Vert{r}$表示$r$和最近的整数的距离：$\\Vert{r} = \min {\\vert{r-n}:n\\in\\mathbb{Z}}$.试问是否存在非零实数$s$，满足$\\lim_{n\\to\\infty}\\Vert{(\\sqrt{2}+1)^ns}=0$?
 解题规划：
 {
     "plan": <[{"desc":"当$s=1$时，将幂级数的有理整数和无理数部分分开，构造新的级数$(\\sqrt{2}+1)^n=x_n+\\sqrt{2}y_n$","phase":"inference"},{"desc":"求幂级数到最近整数的距离，根据放缩法，先求到某一整数的距离$\\vert{x_n+\\sqrt{2}y_n-2x_n}$","phase":"inference"},{"desc":"观察到$(x+\\sqrt{2}y_n)(x-\\sqrt{2}y_n)=x_n^2-2y_n^2=(-1)^n$","phase":"inference"},{"desc":"因此$\\vert{x_n+\\sqrt{2}y_n-2x_n=\\frac{\\vert{2y_n^2-x_n^2}}{\\sqrt{2}y_n+x_n}}\\rightarrow 0$","phase":"inference"},{"desc":"验证上述过程是否存在逻辑问题","phase":"logic_validate"}]>
@@ -25,8 +22,11 @@ COMBINATION_PROBABILITY = """
 """
 
 COMPUTATION = """
-
-
+问题：在一个虚拟的世界中，每个居民（设想为没有大小的几何点）依次编号为$1,2,\\dots$. 为了抗击某种疫情，这些居民要求接种某疫苗，并在注射后在现场留观一段时间。现在假设留观的场所是平面上一个半径为$\\frac{1}{4}$的圆周。为了安全，要求第m号居民和第n号居民之间的距离$d_{m,n}$满足$(m+n)d_{m,n}\\leq 1$，这里我们考虑的是圆周上的距离，也就是两点之间的劣弧的弧长，那么这个留观场所最多能容纳多少居民？
+解题规划：
+{
+    "plan": <[{"desc":"对于$n\\leq 2$，若第$1,2,\\dots,n-1$号居民的位置已经被安排好，我们考虑第n号居民不能在哪些位置。","phase":"inference"},{"desc":"对于$1\\leq m\\leq n-1$，由$d_{m,n}\\geq \\frac{1}{m+n}$，我们知道从第m号居民的位置开始，沿顺、逆时针各走$\\frac{1}{m+n}$的距离，所形成的长度为$\\frac{2}{m+n}$的圆弧内部是不可以安排第n号居民的","phase":"inference"},{"desc":"这些圆弧的总长度为$\\frac{2}{n+1}+\\frac{2}{n+2}+\\dots+\\frac{2}{2n-1}<2(\\ln\\frac{n+1}{1}+\\ln\\frac{n+2}{n+1}+\\dots+\\ln\\frac{2n-1}{2n-2})=2\\ln\\frac{2n-1}{n}<2\\ln 2$。","phase":"di"},{"desc":"圆弧的总长度不超过$2\\ln 2$，而整个圆周的长度为$\\frac{1}{4}\\dot 2\\pi=\\frac{\\pi}{2}$，故这些圆弧不能覆盖整个圆周，因此第n号居民总可以选择一个合适的位置，使得他与第$1,2,\\dots,n-1$号居民之间的距离均满足条件。由数学归纳法可知，这个圆周可以容纳任意多个居民。","phase":"inference"},{"desc":"验证上述过程是否存在逻辑问题","phase":"logic_validate"}]>
+}
 """
 def get_strategy_desc(name):
     if name == "ALGEBRA_NUMBER_THEORY":
