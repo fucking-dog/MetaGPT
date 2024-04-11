@@ -39,6 +39,11 @@ async def solution(question_path: str):
 
         final_solutions.append(final_solution)
 
+    # 写入结果
+    for i in range(len(final_solutions)):
+        with open(f'result/{i}.txt', 'w') as file:
+            file.write(final_solutions[i])
+
     return final_solutions
 
 async def main(question_path: str):
