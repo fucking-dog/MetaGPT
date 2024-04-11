@@ -3,14 +3,16 @@
 # Author     : Jiayi Zhang
 # email      : didi4goooogle@gmail.com
 # Description: run math ai
-import sys
-import os
-import asyncio
-# add metagpt rootpath to syspath
-meta_rootpath = os.getcwd()
-if meta_rootpath not in sys.path:
-    sys.path.append(meta_rootpath)
 
+# add metagpt rootpath to syspath
+# import sys
+# import os
+# meta_rootpath = os.getcwd()
+# if meta_rootpath not in sys.path:
+#     sys.path.append(meta_rootpath)
+
+
+import asyncio
 from math_ai.codebase.gate_controller import GateController
 from math_ai.codebase.math_resovler import MathResolver
 from math_ai.codebase.data_processer import DataProcesser
@@ -39,5 +41,5 @@ async def main(question_path: str):
     print(solutions)
 
 if __name__ == '__main__':
-    question_path = '/Users/mac/Github_project/MathAI/math_ai/dataset/2021.json'
+    question_path = 'H:/Hack/Ali/dataset/2021.json'
     asyncio.run(main(question_path))
