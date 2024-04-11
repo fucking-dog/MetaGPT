@@ -45,7 +45,6 @@ class GateController:
             "attention": "<"Attention points identified during the determination of problem types.">"
         }
         """
-
         prob = problem['desc']
         response = json.loads(self.llm.llm_response(prob))
         problem['if_muti'] = 'simple' if 'simple' in response['if_muti'] else 'muti'
@@ -54,8 +53,9 @@ class GateController:
     
 
 # for test
-mygate = GateController()
-prob = """对实数$r$，用$\\Vert{r}$表示$r$和最近的整数的距离：$\\Vert{r} = \min {\\vert{r-n}:n\\in\\mathbb{Z}}$.
-试问是否存在非零实数$s$，满足$\\lim_{n\\to\\infty}\\Vert{(\\sqrt{2}+1)^ns}=0$?
-"""
-print(mygate.run({'desc': prob, 'type': ''}))
+if __name__ == "__main__":
+    mygate = GateController()
+    prob = """对实数$r$，用$\\Vert{r}$表示$r$和最近的整数的距离：$\\Vert{r} = \min {\\vert{r-n}:n\\in\\mathbb{Z}}$.
+    试问是否存在非零实数$s$，满足$\\lim_{n\\to\\infty}\\Vert{(\\sqrt{2}+1)^ns}=0$?
+    """
+    print(mygate.run({'desc': prob, 'type': ''}))

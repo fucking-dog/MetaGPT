@@ -21,8 +21,8 @@ api_key = 'sk-6uLg7KCASTHxoLIL00E0F0C0377449Bd9cE506B04791B23a'
 base_url = 'https://api.aigcbest.top/v1'
 
 # TODO Test for MetaGPT's Config
-print(api_key)
-print(base_url)
+# print(api_key)
+# print(base_url)
 
 class OpenAILLM:
     def __init__(self, timeout=60):
