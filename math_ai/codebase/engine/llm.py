@@ -56,7 +56,7 @@ class OpenAILLM:
                 completion_tokens = usage.completion_tokens
                 if json_mode:
                     result = response.choices[0].message.content
-                    result = json.loads(response.choices[0].message.content)
+                    result = json.loads(result)
                 else:
                     result = response.choices[0].message.content
                 return result
