@@ -43,7 +43,7 @@ class MathResolver:
         # 1. 直接要求他解决数学问题，思考这个过程。 zero shot 让他先去对这个题目给出一个计划。
         # 2. 得到这个过程之后，让他结合我们的strategy 跟 Prompt，重新构建phase
         # 3. 每一个Phase的Prompt如何去写
-        
+
         origin_plan = self.llm.llm_response(prompt=zero_shot_planner.format(problem_desc=problem["desc"]),json_mode=True)
         resolver_plan = self.llm.llm_response(prompt=resolver_planner.format(problem_desc=problem["desc"], strategy=strategy, origin_plan=origin_plan, type_decompose=type_decompose, type_problem=problem["type"]), json_mode=True)
         
