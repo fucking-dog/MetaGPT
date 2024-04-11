@@ -14,8 +14,8 @@ import openai
 from openai import OpenAI
 from openai import AsyncClient
 
-api_key = getattr(config.llm, "api_key")
-base_url = getattr(config.llm, "base_url", "https://api.openai.com/v1")
+api_key = 'sk-6uLg7KCASTHxoLIL00E0F0C0377449Bd9cE506B04791B23a'
+base_url = "https://api.aigcbest.top/v1"
 
 class OpenAILLM:
     def __init__(self, timeout=60):
