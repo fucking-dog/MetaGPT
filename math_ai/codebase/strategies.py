@@ -26,6 +26,18 @@ COMPUTATION = """
 
 
 """
-
-
+def get_strategy_desc(name):
+    if name == "ALGEBRA_NUMBER_THEORY":
+        return ALGEBRA_NUMBER_THEORY
+    elif name == "GEOMOTRY_TOPOLOGY":
+        return GEOMOTRY_TOPOLOGY
+    elif name == "ANALYSYS_EQUATION":
+        return ANALYSYS_EQUATION
+    elif name == "COMBINATION_PROBABILITY":
+        return COMBINATION_PROBABILITY
+    elif name == "COMPUTATION":
+        return COMPUTATION
+    else:
+        return "No Strategy"
+    
 print(ANALYSYS_EQUATION)
