@@ -21,11 +21,13 @@ from math_ai.codebase.solution_refiner import SolutionRefiner
 
 async def solution(question_path: str):
     final_solutions = []
+    idx = 1
 
     dp = DataProcesser()
     gc = GateController()
     mr = MathResolver()
     sr = SolutionRefiner()
+
 
     problem_dict_list = dp.run(question_path)  # List[Dict]
     for problem_dict in problem_dict_list:
@@ -37,12 +39,11 @@ async def solution(question_path: str):
         print("\n\n\n")
         print(final_solution)
 
+        # 写入结果
+        with open(f'result/{idx}.txt', 'w') as file:
+            idx += 1
+            file.write(final_solution)
         final_solutions.append(final_solution)
-
-    # 写入结果
-    for i in range(len(final_solutions)):
-        with open(f'result/{i}.txt', 'w') as file:
-            file.write(final_solutions[i])
 
     return final_solutions
 
