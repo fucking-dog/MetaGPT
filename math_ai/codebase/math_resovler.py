@@ -46,14 +46,14 @@ class MathResolver:
 
         origin_plan = self.llm.llm_response(prompt=zero_shot_planner.format(problem_desc=problem["description"]))
         resolver_plan = self.llm.llm_response(prompt=resolver_planner.format(problem_desc=problem["description"], strategy=strategy, origin_plan=origin_plan, type_decompose=type_decompose, type_problem=problem["type"]), json_mode=True)
-        
+        print(resolver_plan)
         current_trajectory = []
         for index, phase in enumerate(resolver_plan["plan"]):
             if phase["phase"] == "inference":
                 answer = self.inference(problem, current_trajectory, subgoal=phase["desc"])
                 current_trajectory.append({"plan":phase["desc"],"reason":phase["reason"],"answer":answer})
             elif phase["phase"] == "di":
-                answer = self.di_run(problem, current_trajectory, subgoal=phase["desc"])
+                answer = await self.di_run(problem, current_trajectory, subgoal=phase["desc"])
                 current_trajectory.append({"plan":phase["desc"],"reason":phase["reason"],"answer":answer})
             elif phase["phase"] == "logic_validate":
                 result = self.logic_validate(problem, current_trajectory, subgoal=phase["desc"])
@@ -72,15 +72,20 @@ class MathResolver:
     
     
     async def di_run(self, problem, current_trajectory, subgoal):
+        print("run di_run")
         DI = DataInterpreter()
         record = await DI.run(di_prompt.format(problem_desc=problem, trajectory=current_trajectory, subgoal=subgoal))
+        with open("/Users/mac/Github_project/MathAI/result/di_result.txt", "a") as f:
+            f.write(record)
         return record
     
     def inference(self, problem, current_trajectory, subgoal):
+        print("run inference")
         inference_result = self.llm.llm_response(prompt=inference_prompt.format(problem_desc=problem, trajectory=current_trajectory),json_mode=True)
         return inference_result
     
     def logic_validate(self, problem, current_trajectory, subgoal):
+        print("run logic validate")
         validate_result = self.llm.llm_response(prompt=logic_validate_prompt.format(problem_desc=problem, trajectory=current_trajectory, subgoal = subgoal),json_mode=True)
         return validate_result
     
