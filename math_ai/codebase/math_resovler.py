@@ -75,9 +75,7 @@ class MathResolver:
         print("run di_run")
         DI = DataInterpreter()
         record = await DI.run(di_prompt.format(problem_desc=problem, trajectory=current_trajectory, subgoal=subgoal))
-        with open("/Users/mac/Github_project/MathAI/result/di_result.txt", "a") as f:
-            f.write(record)
-        return record
+        return record.content
     
     def inference(self, problem, current_trajectory, subgoal):
         print("run inference")
