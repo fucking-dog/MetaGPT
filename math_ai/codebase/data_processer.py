@@ -7,7 +7,6 @@ from typing import List, Dict
 
 import json
 import copy
-# TODO 这个地方Load JSON，然后每次给一个字典，给到下一阶段，完成之后重复给字典的过程。
 
 class DataProcesser:
     def __init__(self):
@@ -31,10 +30,6 @@ class DataProcesser:
             problem_dict_list.append(value)
 
         return problem_dict_list
-    
-
-
-
 if __name__ == "__main__":
     d = DataProcesser()
 
