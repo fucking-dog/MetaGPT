@@ -3,19 +3,15 @@
 # Author     : Jiayi Zhang
 # email      : didi4goooogle@gmail.com
 # Description: LLM Class
-import os
 import json
 import time
-import asyncio
-from typing import List
-from functools import cache
 
 import openai
 from openai import OpenAI
 from openai import AsyncClient
 
-api_key = 'sk-6uLg7KCASTHxoLIL00E0F0C0377449Bd9cE506B04791B23a'
-base_url = "https://api.aigcbest.top/v1"
+api_key = '<your api key>'
+base_url = "<your base url>"
 
 class OpenAILLM:
     def __init__(self, timeout=60):
@@ -29,7 +25,6 @@ class OpenAILLM:
     def set_role(self, role: str):
         self.system_prompt = role
 
-    # model:str="gpt-4-0125-preview"
     def llm_response(self, prompt: str, model: str = "gpt-4-turbo", json_mode: bool = False, temperature: float = 0.7,
                      retries: int = 5):
         response_type = "text" if not json_mode else "json_object"
@@ -56,12 +51,8 @@ class OpenAILLM:
                 print("Occur RateLimitError, sleep 20s")
                 time.sleep(20)
                 print("Rate limit retry")
-            # except Exception as e:
-            #     print(f"{__name__} occurs: {e}")
-
-    async def async_llm_response(self, prompt: str, model: str = "gpt-4-0125-preview", json_mode: bool = False,
-                                 temperature: float = 0.7, retries: int = 5):
-        pass
+            except Exception as e:
+                print(f"{__name__} occurs: {e}")
 
 
 if __name__ == "__main__":

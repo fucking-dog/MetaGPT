@@ -12,11 +12,12 @@ MetaGPT团队最新推出的DataInterpreter框架，以其独特的代码建模�
 `inference`阶段：适用于那些不需要复杂代码建模和精确计算，而是更依赖于逻辑推理的子问题。
 `logic_validate`阶段：适用于需要对已有推理进行逻辑验证，确保推理过程的合理性和正确性的子问题。
 `data_interpreter`阶段：适用于那些需要精确的代码建模和计算，而简单的逻辑推理可能不足以解决问题的复杂子问题。
+
 为了将这一推理链条转化为人类可读的形式，`MathAI`框架特别引入了润色代理，它能够将推理过程整合并以LaTeX格式呈现，使得最终的解答既准确无误，又易于理解。
 
 Math AI框架的工作流程可以通过以下图表进行直观展示：
 
-![img.png](result/mathai.png)
+![img.png](result/mathai.jpg)
 
 所有的prompt可以在`math_ai/codebase/prompt.py`中找到
 ## 运行过程

@@ -10,8 +10,6 @@ from metagpt.roles.di.data_interpreter import DataInterpreter
 from math_ai.codebase.engine.llm import OpenAILLM
 from math_ai.codebase.prompt import zero_shot_planner, resolver_planner, inference_prompt, di_prompt, result_validate_prompt, inference_final_prompt, logic_validate_prompt
 from math_ai.codebase.strategies import get_strategy_desc
-# TODO add different phase in codebase.phase
-
 
 
 class MathResolver:

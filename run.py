@@ -4,14 +4,6 @@
 # email      : didi4goooogle@gmail.com
 # Description: run math ai
 
-# add metagpt rootpath to syspath
-# import sys
-# import os
-# meta_rootpath = os.getcwd()
-# if meta_rootpath not in sys.path:
-#     sys.path.append(meta_rootpath)
-
-
 import asyncio
 from math_ai.codebase.gate_controller import GateController
 from math_ai.codebase.math_resovler import MathResolver
