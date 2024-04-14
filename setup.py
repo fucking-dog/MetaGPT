@@ -19,7 +19,7 @@ class InstallMermaidCLI(Command):
 
 
 here = Path(__file__).resolve().parent
-long_description = (here / "README.md").read_text(encoding="utf-8")
+long_description = (here / "Meta_README.md").read_text(encoding="utf-8")
 requirements = (here / "requirements.txt").read_text(encoding="utf-8").splitlines()
 
 

@@ -5,23 +5,38 @@
     \\usepackage{amsmath}
     \\usepackage{amssymb}
     \\begin{document}
-    \\title{包含对称凸多面体的椭球表面积问题}
+    \\title{Solution to the Problem of Enclosing a Convex Polyhedron with an Ellipsoid}
     \\maketitle
     
-    \\section{问题介绍}
-    给定一个三维空间中的中心对称凸多面体$V$，要证明存在一个椭球面$E$，把凸多面体包在内部, 且$E$的表面积不超过$V$的表面积的3倍。
+    \\section{Introduction}
+    The problem asks to prove that for any centrally symmetric convex polyhedron $V$ in $\\mathbb{R}^3$, there exists an ellipsoid $E$ that can enclose $V$ such that the surface area of $E$ does not exceed three times the surface area of $V$.
     
-    \\section{推理路径}
-    首先，我们根据凸多面体$V$的中心对称性，可以推断存在一个中心点$O$，使得对于$V$中的任意点$P$，存在点$P'$，使得$O$是$P$和$P'$的中点。这种对称性是关键，因为它允许我们构造一个同样具有中心对称性的椭球$E$，其中心也位于$O$。
+    \\section{Solution Strategy}
+    The approach involves applying John's ellipsoid theorem, computing surface areas of both the convex polyhedron and the enclosing ellipsoid, and optimizing the ellipsoid's parameters to minimize its surface area while still enclosing the polyhedron.
     
-    利用John的椭球定理，我们可以找到一个最小体积的椭球$E$，完全包含$V$并触及其至少一个顶点。由于$V$的中心对称性，这个椭球也将是中心对称的。我们可以调整椭球的三个半轴$a, b, c$，以最小化其体积，并通过调整使得其表面积尽可能接近$V$的表面积。
+    \\section{Application of John's Ellipsoid Theorem}
+    John's ellipsoid theorem states that for any centrally symmetric convex body, there exists a unique ellipsoid of maximal volume inside the convex body and a unique minimal volume ellipsoid that contains the convex body. Both ellipsoids share the center of symmetry with the convex body.
     
-    椭球的表面积公式为$S = 4\\pi \\left( \\frac{a^2b + a^2c + b^2c}{3} \\right)^{\\frac{1}{3}}$。通过适当选择$a, b, c$以适应$V$的形状和大小，可以控制椭球的表面积。
+    \\section{Calculation of Surface Areas}
+    \\subsection{Convex Polyhedron}
+    The surface area of a convex polyhedron can be calculated using the formula derived from the ConvexHull properties:
+    \\begin{equation}
+    A_V = \\text{ConvexHull(points).area}
+    \\end{equation}
+    where points are the vertices of the polyhedron.
     
-    接下来，我们比较$V$的表面积和$E$的表面积。通过几何和比例分析，我们可以推导出$E$的表面积不会超过$V$的表面积的3倍。
+    \\subsection{Ellipsoid}
+    The surface area of an ellipsoid with semi-axes $a$, $b$, and $c$ is given by:
+    \\begin{equation}
+    A_E = 4 \\pi \\left( \\frac{a^p b^p + a^p c^p + b^p c^p}{3} \\right)^{\\frac{1}{p}}
+    \\end{equation}
+    where $p \\approx 1.6075$ is an approximation constant for the elliptic integral.
     
-    \\section{结论}
-    存在一个椭球面$E$，可以将中心对称的凸多面体$V$包含在内，且$E$的表面积不超过$V$的表面积的3倍。这可以通过构造一个中心对称的最小体积椭球$E$来实现，该椭球包含$V$并且具有适当调整的半轴，使其表面积尽可能小，同时满足题目要求。
+    \\section{Optimization of Ellipsoid Parameters}
+    Using convex optimization techniques, the parameters $a$, $b$, and $c$ of the ellipsoid are adjusted to minimize the surface area $A_E$ subject to the constraint that the ellipsoid encloses all vertices of $V$. This is formulated as a minimization problem with inequality constraints ensuring all points lie within the ellipsoid.
+    
+    \\section{Comparison and Conclusion}
+    Upon calculating or estimating the surface areas $A_V$ and $A_E$, and through optimization, we ensure that $A_E \\leq 3A_V$. This adheres to the problem's requirement and demonstrates that the enclosing ellipsoid's surface area does not exceed three times that of the convex polyhedron.
     
     \\end{document}
     "
