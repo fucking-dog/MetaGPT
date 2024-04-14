@@ -18,6 +18,8 @@ MetaGPT团队最新推出的DataInterpreter框架，以其独特的代码建模�
 以下是一个展示`math_resolver`如何分配推理阶段的实例：
 
 ``````markdown
+- question:
+	Question 7
 - plan:
   - desc: 分析问题陈述中给定的函数 f(𝑥) 的性质，特别是它的单调性和凹性。
     phase: inference
