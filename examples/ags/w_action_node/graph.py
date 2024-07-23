@@ -19,7 +19,7 @@ class Graph:
         pass
 
 class HumanEvalGraph(Graph):
-    def __init__(self, name:str, llm: LLM, criteria:str, vote_count:int =5) -> None:
+    def __init__(self, name:str, llm: LLM, criteria:str, vote_count:int = 10) -> None:
         super().__init__(name, llm)
         self.criteria = criteria # TODO 自动构建图时，图的初始参数与图所使用的算子要求的外部参数相匹配
         self.generate_code = GenerateCode(llm=llm)
@@ -29,7 +29,7 @@ class HumanEvalGraph(Graph):
         self.fuensemble = FuEnsemble(llm=llm)
         self.mdensemble = MdEnsemble(llm=llm, vote_count=vote_count)
 
-    async def __call__(self, problem:str, ensemble_count:int = 3):
+    async def __call__(self, case_id:str, problem:str, ensemble_count:int = 5):
         solution_list = []
         for _ in range(ensemble_count):
             for retry_count in range(5):
@@ -42,7 +42,7 @@ class HumanEvalGraph(Graph):
                 except Exception as e:
                     print(e)
             # solution list 有5个
-        solution = await self.mdensemble("code", solution_list, problem)
+        solution = await self.mdensemble(case_id, "code", solution_list, problem)
         return solution
     
     async def review_revise_ensemble(self, problem:str, ensemble_count:int = 2):

@@ -46,7 +46,7 @@ async def samples_generate(mode:str, result_path:str="samples.jsonl"):
                 'solution': solution_result['code_solution']
                 }
             elif mode == "ags":
-                solution_result = await solver(case['prompt'], ensemble_count=5)
+                solution_result = await solver(case['task_id'], case['prompt'], ensemble_count = 5)
                 sample_dict = {
                 'task_id': case['task_id'],
                 'solution': solution_result['final_solution']

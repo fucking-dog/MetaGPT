@@ -123,6 +123,8 @@ class OpenAILLM(BaseLLM):
         return full_reply_content
 
     def _cons_kwargs(self, messages: list[dict], timeout=USE_CONFIG_TIMEOUT, **extra_kwargs) -> dict:
+        system_msg = "You are a helpful assistant good at coding."
+        messages = [{"role": "system", "content": system_msg}] + messages
         kwargs = {
             "messages": messages,
             "max_tokens": self._get_max_tokens(messages),

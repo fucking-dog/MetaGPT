@@ -4,6 +4,7 @@
 # @Desc    : operator demo of ags
 import ast
 import random
+import json
 from typing import List, Tuple, Any, Dict
 from collections import Counter
 
@@ -106,7 +107,7 @@ class MdEnsemble(Operator):
         answer_mapping = {chr(65 + i): solutions.index(solution) for i, solution in enumerate(shuffled_solutions)}
         return shuffled_solutions, answer_mapping
 
-    async def __call__(self, solution_type:str ,solutions:List[str], problem_description:str):
+    async def __call__(self, case_id:str, solution_type:str ,solutions:List[str], problem_description:str):
         all_responses = []
         # 如果Solution方案是Code，我们利用AST去重
         if solution_type == "code":
@@ -114,7 +115,16 @@ class MdEnsemble(Operator):
             unique_structures = {}
             updated_solutions = []
 
-            for solution in solutions:
+            for id, solution in enumerate(solutions):
+
+                # sample_dict = {
+                # 'task_id': case_id,
+                # 'solution': solution
+                # }
+
+                # with open(f"Sol{id}.jsonl", mode='a') as f:
+                #     f.write(json.dumps(sample_dict) + '\n')
+
                 try:
                     tree = ast.parse(solution)
                     structure_key = ast.dump(tree, annotate_fields=False, include_attributes=False)
@@ -125,10 +135,11 @@ class MdEnsemble(Operator):
                 except SyntaxError:
                     # If the solution has a syntax error, we'll skip it
                     continue
+
             solutions = updated_solutions
             updated_length = len(solutions)
-            # print(f"Original number of solutions: {original_length}")
-            # print(f"Updated number of solutions: {updated_length}")
+            print(f"Original number of solutions: {original_length}")
+            print(f"Updated number of solutions: {updated_length}")
             if updated_length == 1:
                 return {"final_solution": solutions[0]}
         for _ in range(self.vote_count):
@@ -136,7 +147,7 @@ class MdEnsemble(Operator):
             
             solution_text = ""
             for index, solution in enumerate(shuffled_solutions):
-                solution_text += f"{chr(65 + index)}: \n{str(solution)}\n\n\n"
+                solution_text += f"{chr(65 + index)}: {str(solution)}\n"
     
             prompt = MD_ENSEMBLE_PROMPT.format(solutions=solution_text, problem_description=problem_description)
             node = await ActionNode.from_pydantic(MdEnsembleOp).fill(context=prompt, llm=self.llm)
