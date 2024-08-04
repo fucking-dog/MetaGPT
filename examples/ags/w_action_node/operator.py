@@ -8,6 +8,43 @@ import json
 from typing import List, Tuple, Any, Dict
 from collections import Counter
 
+<<<<<<< Updated upstream
+=======
+from tenacity import retry, stop_after_attempt
+
+from examples.ags.w_action_node.operator_an import (
+    FuEnsembleOp,
+    GenerateCodeBlockOp,
+    GenerateCodeOp,
+    GenerateOnContextOp,
+    GenerateOp,
+    MdEnsembleOp,
+    ReflectionTestOp,
+    RephraseOp,
+    ReviewOp,
+    ReviseOp,
+)
+from examples.ags.w_action_node.prompt import (
+    DE_ENSEMBLE_ANGEL_PROMPT,
+    DE_ENSEMBLE_CODE_FORMAT_PROMPT,
+    DE_ENSEMBLE_DEVIL_PROMPT,
+    DE_ENSEMBLE_JUDGE_FINAL_PROMPT,
+    DE_ENSEMBLE_JUDGE_UNIVERSAL_PROMPT,
+    DE_ENSEMBLE_TXT_FORMAT_PROMPT,
+    FU_ENSEMBLE_PROMPT,
+    GENERATE_ON_CONTEXT_PROMPT,
+    GENERATE_CODE_PROMPT,
+    GENERATE_CODEBLOCK_PROMPT,
+    GENERATE_CODEBLOCK_REPHRASE_PROMPT,
+    GENERATE_PROMPT,
+    MD_ENSEMBLE_PROMPT,
+    REFLECTION_ON_PUBLIC_TEST_PROMPT,
+    REPHRASE_ON_PROBLEM_PROMPT,
+    REVIEW_PROMPT,
+    REVISE_PROMPT,
+)
+from examples.ags.w_action_node.utils import test_cases_2_test_functions
+>>>>>>> Stashed changes
 from metagpt.actions.action_node import ActionNode
 from metagpt.llm import LLM 
 
@@ -42,7 +79,21 @@ class GenerateCode(Operator):
         node = await ActionNode.from_pydantic(GenerateCodeOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response
+<<<<<<< Updated upstream
     
+=======
+
+class GenerateOnContext(Operator):
+    def __init__(self, name: str = "GenerateOnContext", llm: LLM = LLM()):
+        super().__init__(name, llm)
+
+    async def __call__(self, question, context):
+        prompt = GENERATE_ON_CONTEXT_PROMPT.format(problem_description=question, context=context)
+        node = await ActionNode.from_pydantic(GenerateOnContextOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
+
+>>>>>>> Stashed changes
 class GenerateCodeBlock(Operator):
 
     def __init__(self, name:str ="Coder", llm: LLM = LLM()):

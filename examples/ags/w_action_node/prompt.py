@@ -53,9 +53,21 @@ Please provide a self-contained Python script that solves the following problem 
 {problem_description}
 """
 
+<<<<<<< Updated upstream
 # GENERATE_CODE_PROMPT = """
 # Generate Code Solution for the following problem: {problem_description}
 # """
+=======
+GENERATE_ON_CONTEXT_PROMPT = """
+Please generate a solution for the following problem based on the provided context:
+
+### Problem Description
+{problem_description}
+
+### Context
+{context}
+"""
+>>>>>>> Stashed changes
 
 REVIEW_PROMPT = """
 For the question described as {problem_description},
