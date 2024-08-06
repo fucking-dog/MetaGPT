@@ -8,8 +8,6 @@ import json
 from typing import List, Tuple, Any, Dict
 from collections import Counter
 
-<<<<<<< Updated upstream
-=======
 from tenacity import retry, stop_after_attempt
 
 from examples.ags.w_action_node.operator_an import (
@@ -19,8 +17,8 @@ from examples.ags.w_action_node.operator_an import (
     GenerateOnContextOp,
     GenerateOp,
     MdEnsembleOp,
-    ReflectionTestOp,
-    RephraseOp,
+    # ReflectionTestOp,
+    # RephraseOp,
     ReviewOp,
     ReviseOp,
 )
@@ -35,16 +33,15 @@ from examples.ags.w_action_node.prompt import (
     GENERATE_ON_CONTEXT_PROMPT,
     GENERATE_CODE_PROMPT,
     GENERATE_CODEBLOCK_PROMPT,
-    GENERATE_CODEBLOCK_REPHRASE_PROMPT,
+    # GENERATE_CODEBLOCK_REPHRASE_PROMPT,
     GENERATE_PROMPT,
     MD_ENSEMBLE_PROMPT,
-    REFLECTION_ON_PUBLIC_TEST_PROMPT,
-    REPHRASE_ON_PROBLEM_PROMPT,
+    # REFLECTION_ON_PUBLIC_TEST_PROMPT,
+    # REPHRASE_ON_PROBLEM_PROMPT,
     REVIEW_PROMPT,
     REVISE_PROMPT,
 )
-from examples.ags.w_action_node.utils import test_cases_2_test_functions
->>>>>>> Stashed changes
+# from examples.ags.w_action_node.utils import test_cases_2_test_functions
 from metagpt.actions.action_node import ActionNode
 from metagpt.llm import LLM 
 
@@ -79,9 +76,6 @@ class GenerateCode(Operator):
         node = await ActionNode.from_pydantic(GenerateCodeOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response
-<<<<<<< Updated upstream
-    
-=======
 
 class GenerateOnContext(Operator):
     def __init__(self, name: str = "GenerateOnContext", llm: LLM = LLM()):
@@ -93,7 +87,6 @@ class GenerateOnContext(Operator):
         response = node.instruct_content.model_dump()
         return response
 
->>>>>>> Stashed changes
 class GenerateCodeBlock(Operator):
 
     def __init__(self, name:str ="Coder", llm: LLM = LLM()):

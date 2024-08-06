@@ -10,6 +10,8 @@ from metagpt.logs import logger
 # from examples.ags.w_action_node.graph import HotpotQAGraph
 from examples.ags.w_action_node.operator import GenerateOnContext
 
+HOTPOTQA_PATH = "hotpot_100_hard.jsonl"
+
 def sort_json_by_key(input_path, output_path):
     with open(input_path) as f:
         data = [json.loads(line) for line in f]
@@ -24,7 +26,7 @@ generate_on_context = GenerateOnContext(llm=LLM())
 
 ModeType = Literal["ags", "alpha_codium", "llm"]
 
-def get_hotpotqa(path: str = "hotpot.jsonl"):
+def get_hotpotqa(path: str = HOTPOTQA_PATH):
 
     #Parses each jsonl line and yields it as a dictionary
     def parse_jsonl(path):
@@ -59,7 +61,7 @@ async def sample_generate(id, result_path: str = "samples.jsonl", mode: ModeType
         await f.write(json.dumps(sample_dict) + "\n")
     sort_json_by_key(result_path, result_path)
 
-async def samples_generate(mode: ModeType, data_path: str = "hotpot.jsonl", result_path: str = "samples.jsonl"):
+async def samples_generate(mode: ModeType, data_path: str = HOTPOTQA_PATH, result_path: str = "samples.jsonl"):
     ids = list(get_hotpotqa().keys())
 
     file_lock = asyncio.Lock()
@@ -90,7 +92,7 @@ async def samples_generate(mode: ModeType, data_path: str = "hotpot.jsonl", resu
     sort_json_by_key(result_path, result_path)
 
     if not failed_ids:
-        eval_path = result_path[:-6] + "_eval.json"
+        # eval_path = result_path[:-6] + "_eval.json"
         logger.info(eval(result_path, data_path))
 
 def normalize_answer(s):
@@ -114,7 +116,7 @@ def normalize_answer(s):
 def exact_match_score(prediction, ground_truth):
     return (normalize_answer(prediction) == normalize_answer(ground_truth))
 
-async def eval(prediction_file, gold_file):
+def eval(prediction_file, gold_file):
     sort_json_by_key(prediction_file, prediction_file)
     with open(prediction_file) as f:
         predictions = [json.loads(line) for line in f]
@@ -127,7 +129,7 @@ async def eval(prediction_file, gold_file):
     for prediction, gold in zip(predictions, golds):
         if(prediction["task_id"] != gold["_id"]):
             raise ValueError("Task IDs do not match")
-        em += exact_match_score(prediction["answer"], gold["answer"])
+        em += exact_match_score(prediction["answer"]["solution"], gold["answer"])
 
     logger.info(f"EM: {em/len(predictions)}")
     

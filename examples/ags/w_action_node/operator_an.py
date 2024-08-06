@@ -14,12 +14,9 @@ class GenerateCodeOp(BaseModel):
 class GenerateCodeBlockOp(BaseModel):
     code_solution: str = Field(default="", description="Your complete code solution for this problem")
 
-<<<<<<< Updated upstream
-=======
 class GenerateOnContextOp(BaseModel):
     solution: str = Field(default="", description="Your Solution for this problem based on the provided context")
 
->>>>>>> Stashed changes
 class ReviewOp(BaseModel):
     review_result: bool = Field(default=False, description="The Review Result (Bool). If you think this solution looks good for you, return 'true'; If not, return 'false'")
     feedback: str = Field(default="", description="Your FeedBack for this problem based on the criteria. If the review result is true, you can put it 'nothing here'.")
