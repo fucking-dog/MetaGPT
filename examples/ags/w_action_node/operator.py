@@ -43,7 +43,8 @@ from examples.ags.w_action_node.prompt import (
     MATH_REPHRASE_ON_PROBLEM_PROMPT,
     MATH_ANSWER_FORMAT_PROMPT,
     MATH_CORE_PROMPT,
-    MATH_EXTRACT_PROMPT
+    MATH_EXTRACT_PROMPT,
+    DIRECT_TEST
 )
 from examples.ags.w_action_node.utils import test_cases_2_test_functions
 from metagpt.actions.action_node import ActionNode
@@ -81,6 +82,13 @@ class Generate(Operator):
         node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response
+
+    async def direct_test(self, problem_description: str) -> dict:
+        prompt = DIRECT_TEST.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
+
 
 
 class GenerateCode(Operator):

@@ -8,6 +8,7 @@ from pydantic import BaseModel, Field
 
 class GenerateOp(BaseModel):
     solution: str = Field(default="", description="Your Solution for this problem")
+    schema: str = 'raw'
 
 
 class GenerateCodeOp(BaseModel):

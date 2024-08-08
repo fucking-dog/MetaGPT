@@ -5,6 +5,8 @@
 
 from typing import List
 
+
+
 from evalplus.data import get_human_eval_plus
 
 from examples.ags.w_action_node.operator import (
@@ -107,18 +109,64 @@ class HumanEvalGraph(Graph):
 
 
 class Gsm8kGraph(Graph):
-    def __init__(self, name: str, llm: LLM) -> None:
+    def __init__(self, name: str, llm: LLM, criteria: str, vote_count: int = 5) -> None:
         super().__init__(name, llm)
+        self.criteria = criteria
         self.generate = Generate(llm=llm)
         self.rephrase = Rephrase(llm=llm)
         self.fuensemble = FuEnsemble(llm=llm)
-
+        self.mdensemble = MdEnsemble(llm=llm, vote_count=vote_count)
+        self.review = Review(llm=llm, criteria=criteria)
+        self.revise = Revise(llm=llm)
 
     async def __call__(self, problem: str):
         formatted_problem = await self.rephrase.math_rephrase(problem)
         solution = await self.generate.math_generate(formatted_problem)  # 等待 generate 方法完成
         solution0 = solution['solution']
         formatted_solution = await self.generate.math_answer_format(solution0)
+        return formatted_solution
+
+    async def direct_test(self, problem: str):
+        solution = await self.generate.direct_test(problem)  # 等待 generate 方法完成
+        solution0 = solution['solution']
+        formatted_solution = await self.generate.math_answer_format(solution0)
+        return formatted_solution
+
+    async def simple_ensemble(self, problem: str, ensemble_count: int = 3):
+        formatted_problem = await self.rephrase.math_rephrase(problem)
+        solution_list = []
+        answer_list = []
+        answer0_list = []
+        for _ in range(ensemble_count):
+            solution = await self.generate.math_generate(formatted_problem)
+            # solution = await self.generate_code_block(problem)
+            solution = solution.get("solution")
+            answer = await self.generate.math_answer_format(solution)
+            answer0 = answer.get("solution")
+            solution_list.append(solution)
+            answer_list.append(answer)
+            answer0_list.append(answer0)
+
+        if len(set(answer0_list)) == 1:
+            formatted_solution = answer_list[0]
+        else:
+            solution = await self.mdensemble("math", solution_list, problem)
+            solution0 = solution.get("final_solution")
+            formatted_solution = await self.generate.math_answer_format(solution0)
+
+        return formatted_solution
+
+    async def single_solve(self, problem: str, max_loop: int = 3):
+        formatted_problem = await self.rephrase.math_rephrase(problem)
+        solution = await self.generate.math_generate(formatted_problem)  # 等待 generate 方法完成
+        solution0 = solution['solution']
+        for _ in range(max_loop):
+            review_feedback = await self.review(formatted_problem, solution0)
+            if review_feedback["review_result"]:
+                break
+            solution = await self.revise(formatted_problem, solution0, review_feedback["feedback"])
+            solution = solution.get("revised_solution")
+        formatted_solution = await self.generate.math_answer_format(solution)
         return formatted_solution
 
     async def cot_ensemble(self, problem: str, ensemble_count: int = 1):
