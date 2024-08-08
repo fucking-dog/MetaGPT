@@ -5,7 +5,18 @@
 
 import json
 import re
-from typing import List, Dict, Any
+from typing import List, Dict
+
+def get_hotpotqa(path: str):
+
+    #Parses each jsonl line and yields it as a dictionary
+    def parse_jsonl(path):
+        with open(path) as f:
+            for line in f:
+                yield json.loads(line)
+    
+    datas = list(parse_jsonl(path))
+    return {data["_id"]: data for data in datas}
 
 def extract_task_id(task_id: str) -> int:
     """Extract the numeric part of the task_id."""

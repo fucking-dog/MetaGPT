@@ -17,6 +17,9 @@ class GenerateCodeBlockOp(BaseModel):
 class GenerateOnContextOp(BaseModel):
     solution: str = Field(default="", description="Your Solution for this problem based on the provided context")
 
+class FormatOp(BaseModel):
+    solution: str = Field(default="", description="Your formatted solution for this problem")
+
 class ReviewOp(BaseModel):
     review_result: bool = Field(default=False, description="The Review Result (Bool). If you think this solution looks good for you, return 'true'; If not, return 'false'")
     feedback: str = Field(default="", description="Your FeedBack for this problem based on the criteria. If the review result is true, you can put it 'nothing here'.")

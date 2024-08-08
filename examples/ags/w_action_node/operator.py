@@ -40,12 +40,13 @@ from examples.ags.w_action_node.prompt import (
     # REPHRASE_ON_PROBLEM_PROMPT,
     REVIEW_PROMPT,
     REVISE_PROMPT,
+    FORMAT_PROMPT,
 )
 # from examples.ags.w_action_node.utils import test_cases_2_test_functions
 from metagpt.actions.action_node import ActionNode
 from metagpt.llm import LLM 
 
-from examples.ags.w_action_node.operator_an import GenerateOp, GenerateCodeOp, GenerateCodeBlockOp ,ReviewOp, ReviseOp, FuEnsembleOp, MdEnsembleOp
+from examples.ags.w_action_node.operator_an import GenerateOp, GenerateCodeOp, GenerateCodeBlockOp ,ReviewOp, ReviseOp, FuEnsembleOp, MdEnsembleOp, FormatOp
 from examples.ags.w_action_node.prompt import GENERATE_PROMPT, GENERATE_CODE_PROMPT, GENERATE_CODEBLOCK_PROMPT, REVIEW_PROMPT, REVISE_PROMPT, FU_ENSEMBLE_PROMPT, MD_ENSEMBLE_PROMPT, DE_ENSEMBLE_ANGEL_PROMPT, DE_ENSEMBLE_DEVIL_PROMPT, DE_ENSEMBLE_JUDGE_UNIVERSAL_PROMPT, DE_ENSEMBLE_JUDGE_FINAL_PROMPT
 from examples.ags.w_action_node.prompt import DE_ENSEMBLE_CODE_FORMAT_PROMPT, DE_ENSEMBLE_TXT_FORMAT_PROMPT
 class Operator:
@@ -78,12 +79,23 @@ class GenerateCode(Operator):
         return response
 
 class GenerateOnContext(Operator):
-    def __init__(self, name: str = "GenerateOnContext", llm: LLM = LLM()):
+    def __init__(self, name: str = "GenerateOnContext", llm: LLM = LLM(), requirement: str = "solution"):
+        self.requirement = requirement
         super().__init__(name, llm)
 
     async def __call__(self, question, context):
-        prompt = GENERATE_ON_CONTEXT_PROMPT.format(problem_description=question, context=context)
+        prompt = GENERATE_ON_CONTEXT_PROMPT.format(requirement = self.requirement, problem_description=question, context=context)
         node = await ActionNode.from_pydantic(GenerateOnContextOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
+    
+class Format(Operator):
+    def __init__(self, name:str ="Formatter", llm: LLM = LLM()):
+        super().__init__(name, llm)
+
+    async def __call__(self, problem_description, solution):
+        prompt = FORMAT_PROMPT.format(problem_description=problem_description, solution=solution)
+        node = await ActionNode.from_pydantic(FormatOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response
 

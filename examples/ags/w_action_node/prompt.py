@@ -54,13 +54,19 @@ Please provide a self-contained Python script that solves the following problem 
 """
 
 GENERATE_ON_CONTEXT_PROMPT = """
-Please generate a solution for the following problem based on the provided context:
+Please provide a {requirement} for the following problem based on the provided context, ensuring you consider all relevant information.
 
-### Problem Description
+Problem Description:
 {problem_description}
 
-### Context
+Context:
 {context}
+"""
+
+FORMAT_PROMPT = """
+For the question described as {problem_description},
+please extract a short and concise answer contains only one word/few words from the following solution: {solution}.
+Make sure there are no additional comments or explanations in your response.
 """
 
 REVIEW_PROMPT = """
