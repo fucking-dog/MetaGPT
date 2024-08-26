@@ -3,7 +3,6 @@
 # @Author  : didi
 # @Desc    : Experiment of graph optimization
 
-
 from examples.ags.w_action_node.optimizer import Optimizer
 from metagpt.configs.models_config import ModelsConfig
 
@@ -15,7 +14,7 @@ optimized_path = "examples/ags/w_action_node/optimized"  # 优化结果保存路
 
 # 初始化LLM模型
 deepseek_llm_config = ModelsConfig.default().get("deepseek-coder")
-claude_llm_config = ModelsConfig.default().get("claude-3.5-sonnet")
+claude_llm_config = ModelsConfig.default().get("claude-3-5-sonnet-20240620")
 
 # 初始化操作符列表
 gsm8k_operators = [

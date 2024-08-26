@@ -32,7 +32,7 @@ config_iterate_path = "iterate"
 DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
 OptimizerType = Literal["Complete", "Graph", "Operator"]
 
-evaluator = Evaluator(eval_path="eval")
+
 
 
 class OperatorOptimize(BaseModel):
@@ -138,11 +138,13 @@ class Optimizer:
         """
         动态加载指定轮次的 Graph 类。
         """
+        graphs_path = graphs_path.replace("\\", ".").replace("/", ".")
         graph_module_name = f"{graphs_path}.round_{round_number}.graph"
+
         try:
             graph_module = __import__(graph_module_name, fromlist=[""])
             # TODO 这里似乎有BUG
-            graph_class = getattr(graph_module, f"{self.dataset}Graph")
+            graph_class = getattr(graph_module, "SolveGraph")
             self.graph = graph_class
         except ImportError as e:
             print(f"Error loading graph for round {round_number}: {e}")
@@ -153,10 +155,10 @@ class Optimizer:
         动态读取指定轮次的 Prompt和Graph。
         """
         # 构建 prompt.py 文件的相对路径
-        # examples/ags/w_action_node/optimized/gsm8k/graphs/round_1
-        prompt_file_path = os.path.join(graphs_path, "prompt.py")
-        graph_file_path = os.path.join(graphs_path, "graph.py")
-        operator_file_path = os.path.join(graphs_path, "operator.py")
+        # examples/ags/w_action_node/optimized/Gsm8k/graphs/round_1
+        prompt_file_path = os.path.join(graphs_path, f"round_{round_number}", "prompt.py")
+        graph_file_path = os.path.join(graphs_path, f"round_{round_number}", "graph.py")
+        operator_file_path = os.path.join(graphs_path, f"round_{round_number}", "operator.py")
 
         try:
             with open(prompt_file_path, "r", encoding="utf-8") as file:
@@ -322,7 +324,7 @@ class Optimizer:
 
         print(top_rounds)
 
-        prompt, graph_load, operator = self._read_files(sample["round"])
+        prompt, graph_load, operator = self._read_files(sample["round"], graph_path)
         score = sample["score"]
 
         # 正则表达式匹配 SolveGraph 开始的内容
@@ -349,7 +351,7 @@ class Optimizer:
             experience = f"No experience data found for round {current_round}."
 
         graph_input = GRAPH_INPUT.format(
-            experinece=experience, score=score, graph=graph[0], prompt=prompt, type=self.type
+            experience=experience, score=score, graph=graph[0], prompt=prompt, type=self.type
         )
         graph_system = GRAPH_OPTIMIZE_PROMPT.format(type=self.type)
 
@@ -357,7 +359,7 @@ class Optimizer:
 
         # TODO 从这里开始，Graph Optimize 可以作为一个Operator放入 Operator.py 之中
         graph_optimize_node = await ActionNode.from_pydantic(GraphOptimize).fill(
-            context=graph_optimize_prompt, mode="context_fill", llm=self.llm
+            context=graph_optimize_prompt, mode="context_fill", llm=self.optimize_llm
         )
 
         max_retries = 5
@@ -379,12 +381,10 @@ class Optimizer:
                 time.sleep(5)
 
         graph_match = response["graph"]
-        prompt_match = response["prompt"]
-        modification_match = response["modification"]
+        prompt = response["prompt"]
+        modification = response["modification"]
 
-        modification = modification_match.group(1)
-        prompt = prompt_match.group(1)
-        graph = GRAPH_TEMPLATE.format(graph=graph_match.group(1), round=self.round + 1)
+        graph = GRAPH_TEMPLATE.format(graph=graph_match, round=self.round + 1)
 
         # 将 graph.py 文件写入到目录中
         with open(os.path.join(directory, "graph.py"), "w", encoding="utf-8") as file:
@@ -409,8 +409,12 @@ class Optimizer:
         with open(os.path.join(directory, "experience.json"), "w", encoding="utf-8") as file:
             json.dump(experience, file, ensure_ascii=False, indent=4)
 
-        score = evaluator.validation_evaluate(
-            self.dataset, self.graph, {"dataset": self.dataset, "llm_config": self.execute_llm_config}
+        self._load_graph(self.round + 1, graph_path)
+
+        evaluator = Evaluator(eval_path=directory)
+
+        score = await evaluator.validation_evaluate(
+            self.dataset, self.graph, {"dataset": self.dataset, "llm_config": self.execute_llm_config}, directory
         )
         experience["after"] = score
         experience["succeed"] = bool(score > experience["before"])

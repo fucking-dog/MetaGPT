@@ -41,33 +41,15 @@ Here is a Graph and corresponding Prompt that performed excellently in a previou
 First provide optimization ideas. Note that ANSWER_FORMAT_PROMPT must exist and cannot be modified. Only add/modify/delete one detail point, extensive modifications are prohibited.\n\n"
 """
 
-GRAPH_TEMPLATE = """import os
-        from agentG.llm import LLM
-        import logging
-        from agentG.graphs.gsm8k.round_{round}.prompt import *
-        from logging.handlers import RotatingFileHandler
+GRAPH_TEMPLATE = """from typing import Literal
+from examples.ags.w_action_node.optimized.Gsm8K.graphs.round_{round}.operator import *
+from examples.ags.w_action_node.optimized.Gsm8K.graphs.round_{round}.prompt import *
+from metagpt.provider.llm_provider_registry import create_llm_instance
+from metagpt.utils.cost_manager import CostManager
 
-        # 获取项目的根目录
-        ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
-        LOG_FILE = os.path.join(ROOT_DIR, 'app.log')
+DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
 
-        # 创建一个RotatingFileHandler
-        file_handler = RotatingFileHandler(LOG_FILE, maxBytes=1024*1024, backupCount=5, encoding='utf-8')
-        file_handler.setLevel(logging.INFO)
-
-        # 创建一个格式化器
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-        file_handler.setFormatter(formatter)
-
-        # 配置根日志记录器
-        logging.basicConfig(level=logging.INFO,
-                            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                            handlers=[file_handler])
-
-        # 获取当前模块的logger
-        logger = logging.getLogger(__name__)
-
-        {graph}
+{graph}
                     """
 
 OPERATOR_OPTIMIZE_PROMPT = """You are building a Operator and corresponding Prompt to jointly solve {type} problems.
