@@ -71,7 +71,7 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 1  # 起始轮次
+        self.round = 2  # 起始轮次
 
     def _initialize_oprimizer(self):
         pass
@@ -442,9 +442,6 @@ class Optimizer:
             "after": None,
             "succeed": None,
         }
-        # TODO 把这个放到最后，这样succeed等参数才能被设置
-        with open(os.path.join(directory, "experience.json"), "w", encoding="utf-8") as file:
-            json.dump(experience, file, ensure_ascii=False, indent=4)
 
         self._load_graph(self.round + 1, graph_path)
 
@@ -455,6 +452,10 @@ class Optimizer:
         )
         experience["after"] = score
         experience["succeed"] = bool(score > experience["before"])
+
+        with open(os.path.join(directory, "experience.json"), "w", encoding="utf-8") as file:
+            json.dump(experience, file, ensure_ascii=False, indent=4)
+
         return score
 
     async def _optimize_operator(self):

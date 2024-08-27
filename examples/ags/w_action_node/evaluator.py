@@ -44,7 +44,7 @@ class Evaluator:
         """
         pass
 
-    async def _gsm8k_eval(self, graph_class, params, path, samples: int = 10):
+    async def _gsm8k_eval(self, graph_class, params, path, samples: int = 264):
         """
         Evaluate on GSM8K dataset.
         """
@@ -131,7 +131,7 @@ class Evaluator:
             return data[:samples]
 
         # 并行评估所有问题
-        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 50):
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 100):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
             async def sem_evaluate(problem):

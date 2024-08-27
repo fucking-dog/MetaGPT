@@ -28,7 +28,7 @@ class Generate(Operator):
         super().__init__(name, llm)
 
     async def __call__(self, input, prompt):
-        prompt = prompt.format(input=input)
+        prompt = prompt + input
         node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm, mode="single_fill", schema='raw')
         response = node.instruct_content.model_dump()
         return response

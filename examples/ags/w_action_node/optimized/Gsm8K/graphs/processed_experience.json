@@ -1,20 +1,22 @@
 {
-    "2": {
-        "score": 0,
+    "1": {
+        "score": 0.95833,
         "success": [],
         "failure": [
             {
-                "modification": "Add a self-reflection step after generating the solution to critically evaluate and potentially improve the answer before validation.",
-                "score": null
-            },
-            {
-                "modification": "Add a step to simplify the problem before generating the solution, which could help in tackling complex problems more effectively.",
-                "score": null
-            },
-            {
-                "modification": "Add a step to check if the problem requires numerical calculations and, if so, perform them using Python's `eval()` function.",
-                "score": null
+                "modification": "Add a review step to check the generated solution for accuracy and completeness before formatting.",
+                "score": 0.91667
             }
         ]
+    },
+    "2": {
+        "score": 0.91667,
+        "success": [
+            {
+                "modification": "Add a self-questioning step before generating the solution to ensure all aspects of the problem are considered.",
+                "score": 0.9545454545454546
+            }
+        ],
+        "failure": []
     }
 }

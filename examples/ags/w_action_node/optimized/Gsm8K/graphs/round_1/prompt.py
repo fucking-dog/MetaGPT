@@ -1,9 +1,8 @@
 GENERATE_PROMPT = """
-Generate Solution for the following problem: {input}
+Please reason step by step,and solve the problem.
 """
 
 REPHRASE_PROMPT = """
-{input}
 ### Instructions
 When faced with this math problem, your goal is to:
 
@@ -17,4 +16,5 @@ When faced with this math problem, your goal is to:
 
 5. Represent the problem mathematically: Use mathematical expressions or equations to represent the problem, preparing for the solution process.
 
-6. Analyze the question: Provide an analysis of the question without giving away the answer."""
+6. Analyze the question: Provide an analysis of the question without giving away the answer.
+"""

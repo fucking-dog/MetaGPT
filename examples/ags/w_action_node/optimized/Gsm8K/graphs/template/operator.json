@@ -22,13 +22,13 @@
         "input": {
             "input": {
                 "type": "str",
-                "description": "The input data that needs to be formatted."
+                "description": "original question and final solution that needs to be formatted."
             }
         },
         "output": {
             "type": "dict",
             "keys": ["content"],
-            "description": "The formatted content, represented as a dictionary with a single key 'content' containing the formatted text."
+            "description": "The formatted solution, represented as a dictionary with a single key 'content' containing the formatted text."
         }
     }
 }

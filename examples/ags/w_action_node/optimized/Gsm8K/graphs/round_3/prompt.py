@@ -1,9 +1,8 @@
 GENERATE_PROMPT = """
-Generate Solution for the following problem: {input}
+Please reason step by step, and solve the problem.
 """
 
 REPHRASE_PROMPT = """
-{input}
 ### Instructions
 When faced with this math problem, your goal is to:
 
@@ -20,43 +19,23 @@ When faced with this math problem, your goal is to:
 6. Analyze the question: Provide an analysis of the question without giving away the answer.
 """
 
-VALIDATE_PROMPT = """
-Please review and validate the following solution:
+REVIEW_PROMPT = """
+Please review the generated solution for accuracy and completeness. Check for:
+1. Correct application of mathematical concepts and formulas
+2. Logical flow of steps
+3. Completeness of the solution
+4. Correct final answer
 
-{input}
-
-Instructions:
-1. Check if the solution addresses all parts of the original problem.
-2. Verify the mathematical accuracy of the solution.
-3. Ensure the solution's logic is sound and well-explained.
-4. Identify any potential errors or areas for improvement.
-5. If the solution is correct and complete, state "The solution is valid."
-6. If the solution needs improvement, provide specific feedback on what needs to be corrected or added.
+If any issues are found, please provide specific feedback for improvement.
 """
 
-SELF_REFLECT_PROMPT = """
-Critically evaluate the following solution:
+SELF_QUESTION_PROMPT = """
+Before solving the problem, ask yourself the following questions:
+1. What are the key components of this problem?
+2. Are there any hidden assumptions or constraints?
+3. What mathematical concepts or formulas are relevant to this problem?
+4. Are there any special cases or edge conditions to consider?
+5. What potential difficulties might arise in solving this problem?
 
-{input}
-
-Instructions:
-1. Analyze the solution step by step.
-2. Check for any logical errors or missed steps.
-3. Ensure all parts of the problem are addressed.
-4. Consider alternative approaches or simplifications.
-5. Suggest improvements or corrections if necessary.
-6. If the solution seems correct and complete, state "The solution appears sound."
-"""
-
-SIMPLIFY_PROMPT = """
-Simplify the following math problem without losing any essential information:
-
-{input}
-
-Instructions:
-1. Identify the core components of the problem.
-2. Remove any unnecessary details or repetitive information.
-3. Break down complex parts into simpler terms if possible.
-4. Ensure that the simplified version still contains all necessary information to solve the problem.
-5. Present the simplified problem in a clear and concise manner.
+Please provide brief answers to these questions.
 """

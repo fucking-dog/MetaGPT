@@ -25,12 +25,10 @@ INITIALIZE_OPERATOR_PROMPT = """
 GRAPH_OPTIMIZE_PROMPT = """You are building a Graph and corresponding Prompt to jointly solve {type} problems.
 Referring to the given combination of graph and prompt, which forms a basic example of a {type} solution approach, please reconstruct and optimize the Prompt and Graph. You can add, modify, or delete nodes and parameters in the graph, as well as modify, delete, or add new Prompts.
 Put your modification (only make one point of change, i.e., one sentence), and the modified Prompt and Graph in XML tags in your reply. They will be used as new Prompt and Graph for calculation and iteration. Please ensure they are complete and correct, otherwise it may lead to runtime failures.
-All prompts can and must contain only the `input` placeholder.
 When optimizing, you can refer to critical thinking, and can incorporate methods such as Review, Revise, Ensemble, selfAsk, etc. Don't be limited to the previous format.You can consider Python's built-in loops (like for, while, and list comprehensions) or conditional statements (such as if-elif-else and ternary operators), or even machine learning methods ranging from basic supervised learning techniques (e.g., linear regression, decision trees) to more advanced approaches like neural networks and clustering algorithms. the complexity of the graph does not exceed 10."""
 
 GRAPH_INPUT = """
 Here is a Graph and corresponding Prompt that performed excellently in a previous iteration (maximum score is 1):\n
-All prompts can and must contain only the `input` placeholder.
 <sample>
     <experience>{experience}</experience>
     <modification>None</modification>
@@ -39,7 +37,6 @@ All prompts can and must contain only the `input` placeholder.
     <prompt>{prompt}</prompt>
     <operator_description>{operator_description}</operator_description>
 </sample>
-**"In all cases, the `self.generate` method only accepts `input` as the input information and passes it to the `input` placeholder within the `prompt`; the `prompt` can only contain this single `input` placeholder, and no others are valid."**
 First provide optimization ideas. Only add/modify/delete one detail point, extensive modifications are prohibited.\n\n"
 """
 
