@@ -47,3 +47,16 @@ Instructions:
 5. Suggest improvements or corrections if necessary.
 6. If the solution seems correct and complete, state "The solution appears sound."
 """
+
+SIMPLIFY_PROMPT = """
+Simplify the following math problem without losing any essential information:
+
+{input}
+
+Instructions:
+1. Identify the core components of the problem.
+2. Remove any unnecessary details or repetitive information.
+3. Break down complex parts into simpler terms if possible.
+4. Ensure that the simplified version still contains all necessary information to solve the problem.
+5. Present the simplified problem in a clear and concise manner.
+"""

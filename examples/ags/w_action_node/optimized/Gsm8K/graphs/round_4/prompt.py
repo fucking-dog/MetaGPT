@@ -47,3 +47,16 @@ Instructions:
 5. Suggest improvements or corrections if necessary.
 6. If the solution seems correct and complete, state "The solution appears sound."
 """
+
+CALCULATE_PROMPT = """
+Analyze the following problem and solution:
+
+{input}
+
+If the problem requires numerical calculations:
+1. Identify the mathematical expression that needs to be evaluated.
+2. Format this expression so it can be safely evaluated using Python's eval() function.
+3. Provide the formatted expression as the output.
+
+If no numerical calculation is required, simply state "No calculation needed."
+"""

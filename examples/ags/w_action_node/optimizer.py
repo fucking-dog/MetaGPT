@@ -150,7 +150,7 @@ class Optimizer:
             print(f"Error loading graph for round {round_number}: {e}")
             raise
 
-    def _read_files(self, round_number, graphs_path):
+    def _read_graph_files(self, round_number, graphs_path):
         """
         动态读取指定轮次的 Prompt和Graph。
         """
@@ -158,22 +158,20 @@ class Optimizer:
         # examples/ags/w_action_node/optimized/Gsm8k/graphs/round_1
         prompt_file_path = os.path.join(graphs_path, f"round_{round_number}", "prompt.py")
         graph_file_path = os.path.join(graphs_path, f"round_{round_number}", "graph.py")
-        operator_file_path = os.path.join(graphs_path, f"round_{round_number}", "operator.py")
 
         try:
             with open(prompt_file_path, "r", encoding="utf-8") as file:
                 prompt_content = file.read()
             with open(graph_file_path, "r", encoding="utf-8") as file:
                 graph_content = file.read()
-            with open(operator_file_path, "r", encoding="utf-8") as file:
-                operator_content = file.read()
+
         except FileNotFoundError as e:
             print(f"Error: File not found for round {round_number}: {e}")
             raise
         except Exception as e:
             print(f"Error loading prompt for round {round_number}: {e}")
             raise
-        return prompt_content, graph_content, operator_content
+        return prompt_content, graph_content
 
     def _load_scores(self):
         rounds_dir = os.path.join(self.root_path, "graphs")
@@ -307,6 +305,43 @@ class Optimizer:
         print(f"Processed experience data saved to {output_path}")
         return experience_data
 
+    def _load_operators_description(self):
+        def format_operator_description(id, operator_name, operator_data):
+            """
+            格式化每个Operator的描述信息
+            """
+            description = f"{id}. {operator_name}: {operator_data['description']}\n"
+
+            # Format input parameters
+            input_description = "Input parameters:\n"
+            for param_name, param_info in operator_data['input'].items():
+                input_description += f"  - {param_name} ({param_info['type']}): {param_info['description']}\n"
+
+            # Format output
+            output_info = operator_data['output']
+            output_description = (f"Output: {output_info['type']} with keys {output_info['keys']} "
+                                  f"({output_info['description']})\n")
+
+            # Combine all parts
+            operator_description = f"{description}{input_description}{output_description}"
+            return operator_description
+
+        path = f"{self.root_path}/graphs/template/operator.json"
+
+        # Load JSON data
+        with open(path, "r") as f:
+            operators_data = json.load(f)
+
+        # Initialize description text
+        operators_description = ""
+
+        # Iterate through each operator in the JSON
+        for id, (operator_name, operator_data) in enumerate(operators_data.items(), start=1):
+            operator_description = format_operator_description(id, operator_name, operator_data)
+            operators_description += operator_description + "\n"
+
+        return operators_description
+
     async def _optimize_graph(self):
         """
         Optimize Graph's Structure and Prompt
@@ -324,7 +359,7 @@ class Optimizer:
 
         print(top_rounds)
 
-        prompt, graph_load, operator = self._read_files(sample["round"], graph_path)
+        prompt, graph_load = self._read_graph_files(sample["round"], graph_path)
         score = sample["score"]
 
         # 正则表达式匹配 SolveGraph 开始的内容
@@ -350,8 +385,10 @@ class Optimizer:
         else:
             experience = f"No experience data found for round {current_round}."
 
+        operator_description = self._load_operators_description()
+
         graph_input = GRAPH_INPUT.format(
-            experience=experience, score=score, graph=graph[0], prompt=prompt, type=self.type
+            experience=experience, score=score, graph=graph[0], prompt=prompt, operator_description=operator_description, type=self.type
         )
         graph_system = GRAPH_OPTIMIZE_PROMPT.format(type=self.type)
 
@@ -405,7 +442,7 @@ class Optimizer:
             "after": None,
             "succeed": None,
         }
-
+        # TODO 把这个放到最后，这样succeed等参数才能被设置
         with open(os.path.join(directory, "experience.json"), "w", encoding="utf-8") as file:
             json.dump(experience, file, ensure_ascii=False, indent=4)
 

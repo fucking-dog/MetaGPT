@@ -11,6 +11,9 @@ import pandas as pd
 import json
 import aiofiles
 import asyncio
+import asyncio
+from typing import List
+from tqdm.asyncio import tqdm_asyncio
 
 
 # TODO 完成实验数据集的手动划分
@@ -41,7 +44,7 @@ class Evaluator:
         """
         pass
 
-    async def _gsm8k_eval(self, graph_class, params, path,samples: int = 10):
+    async def _gsm8k_eval(self, graph_class, params, path, samples: int = 10):
         """
         Evaluate on GSM8K dataset.
         """
@@ -57,7 +60,7 @@ class Evaluator:
         # 清理文本并提取单个数字
         def extract_number(text: str) -> Optional[float]:
             # 使用正则表达式提取数字，包括整数和浮点数
-            matches = re.findall(r"[-+]?\d{1,3}(?:,\d{3})*(?:\.\d+)?|\d+\.\d+", text)
+            matches = re.findall(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?|\d+\.\d+", text)
             print(matches)
             if matches:
                 # 获取最后一个匹配的数字
@@ -104,7 +107,7 @@ class Evaluator:
                     print(type(prediction))
                     print("预测", prediction)
 
-                    score = loose_match_score(expected_output, prediction[0]['solution'])
+                    score = loose_match_score(expected_output, prediction[0]['content'])
                     break
 
                 except Exception as e:
@@ -128,7 +131,7 @@ class Evaluator:
             return data[:samples]
 
         # 并行评估所有问题
-        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 20):
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 50):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
             async def sem_evaluate(problem):
@@ -138,7 +141,9 @@ class Evaluator:
                     return await _evaluate_problem(input_text, graph, expected_output)
 
             tasks = [sem_evaluate(problem) for problem in data]
-            return await asyncio.gather(*tasks)
+
+            # 使用tqdm.gather来显示进度条
+            return await tqdm_asyncio.gather(*tasks, desc="Evaluating problems", total=len(data))
 
         # 保存结果到CSV文件
         def save_results_to_csv(results: List[Tuple[str, str, str, int]], path):

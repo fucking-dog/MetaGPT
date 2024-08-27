@@ -1,12 +1,6 @@
-# -*- coding: utf-8 -*-
-# @Date    : 6/27/2024 22:07 PM
-# @Author  : didi
-# @Desc    : Basic Graph Class
-
 from typing import Literal
-
 from examples.ags.w_action_node.optimized.Gsm8K.graphs.template.operator import *
-from examples.ags.w_action_node.optimized.Gsm8K.graphs.round_1.prompt import *
+from examples.ags.w_action_node.optimized.Gsm8K.graphs.round_3.prompt import *
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 
@@ -31,6 +25,14 @@ class SolveGraph:
         Implementation of the graph
         """
         question = await self.generate(input=problem, prompt=REPHRASE_PROMPT)
-        solution = await self.generate(input=question['content'], prompt=GENERATE_PROMPT)
+        simplified_problem = await self.generate(input=question['content'], prompt=SIMPLIFY_PROMPT)
+        solution = await self.generate(input=simplified_problem['content'], prompt=GENERATE_PROMPT)
+        reflection = await self.generate(input=f"Problem: {problem}\n\nSolution: {solution['content']}", prompt=SELF_REFLECT_PROMPT)
+        if "The solution appears sound" not in reflection['content']:
+            solution = await self.generate(input=f"{simplified_problem['content']}\n\nPrevious solution feedback: {reflection['content']}", prompt=GENERATE_PROMPT)
+        validation = await self.generate(input=f"Original Problem: {problem}\n\nGenerated Solution: {solution['content']}", prompt=VALIDATE_PROMPT)
+        if "The solution is valid" not in validation['content']:
+            solution = await self.generate(input=f"{simplified_problem['content']}\n\nPrevious solution feedback: {validation['content']}", prompt=GENERATE_PROMPT)
         format_solution = await self.format(input=f"Original question:{problem} \n\nFinal solution:{solution['content']}")
         return format_solution, self.llm.cost_manager.total_cost
+                    

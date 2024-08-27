@@ -25,24 +25,26 @@ INITIALIZE_OPERATOR_PROMPT = """
 GRAPH_OPTIMIZE_PROMPT = """You are building a Graph and corresponding Prompt to jointly solve {type} problems.
 Referring to the given combination of graph and prompt, which forms a basic example of a {type} solution approach, please reconstruct and optimize the Prompt and Graph. You can add, modify, or delete nodes and parameters in the graph, as well as modify, delete, or add new Prompts.
 Put your modification (only make one point of change, i.e., one sentence), and the modified Prompt and Graph in XML tags in your reply. They will be used as new Prompt and Graph for calculation and iteration. Please ensure they are complete and correct, otherwise it may lead to runtime failures.
-Only modify the parts in Prompt and Graph within /async def __call__(self, problem: str):/, otherwise it will cause parsing failure.
-
-When optimizing, you can refer to critical thinking, and can incorporate methods such as Review, Revise, Ensemble, selfAsk, etc. Don't be limited to the previous format.You can consider Python's built-in loops (like for, while, and list comprehensions) or conditional statements (such as if-elif-else and ternary operators), or even machine learning methods ranging from basic supervised learning techniques (e.g., linear regression, decision trees) to more advanced approaches like neural networks and clustering algorithms. However, you must ensure that each call to the Graph internally involves at most 10 interactions, i.e., the complexity of the graph does not exceed 15."""
+All prompts can and must contain only the `input` placeholder.
+When optimizing, you can refer to critical thinking, and can incorporate methods such as Review, Revise, Ensemble, selfAsk, etc. Don't be limited to the previous format.You can consider Python's built-in loops (like for, while, and list comprehensions) or conditional statements (such as if-elif-else and ternary operators), or even machine learning methods ranging from basic supervised learning techniques (e.g., linear regression, decision trees) to more advanced approaches like neural networks and clustering algorithms. the complexity of the graph does not exceed 10."""
 
 GRAPH_INPUT = """
 Here is a Graph and corresponding Prompt that performed excellently in a previous iteration (maximum score is 1):\n
+All prompts can and must contain only the `input` placeholder.
 <sample>
     <experience>{experience}</experience>
     <modification>None</modification>
     <score>{score}</score>
     <graph>{graph}</graph>
     <prompt>{prompt}</prompt>
+    <operator_description>{operator_description}</operator_description>
 </sample>
-First provide optimization ideas. Note that ANSWER_FORMAT_PROMPT must exist and cannot be modified. Only add/modify/delete one detail point, extensive modifications are prohibited.\n\n"
+**"In all cases, the `self.generate` method only accepts `input` as the input information and passes it to the `input` placeholder within the `prompt`; the `prompt` can only contain this single `input` placeholder, and no others are valid."**
+First provide optimization ideas. Only add/modify/delete one detail point, extensive modifications are prohibited.\n\n"
 """
 
 GRAPH_TEMPLATE = """from typing import Literal
-from examples.ags.w_action_node.optimized.Gsm8K.graphs.round_{round}.operator import *
+from examples.ags.w_action_node.optimized.Gsm8K.graphs.template.operator import *
 from examples.ags.w_action_node.optimized.Gsm8K.graphs.round_{round}.prompt import *
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager

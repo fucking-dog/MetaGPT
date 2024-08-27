@@ -30,8 +30,9 @@ Instructions:
 2. Verify the mathematical accuracy of the solution.
 3. Ensure the solution's logic is sound and well-explained.
 4. Identify any potential errors or areas for improvement.
-5. If the solution is correct and complete, state "The solution is valid."
-6. If the solution needs improvement, provide specific feedback on what needs to be corrected or added.
+5. Perform an independent calculation to verify the numerical results.
+6. If the solution is correct, complete, and numerically accurate, state "The solution is valid."
+7. If the solution needs improvement, provide specific feedback on what needs to be corrected or added.
 """
 
 SELF_REFLECT_PROMPT = """
@@ -46,4 +47,17 @@ Instructions:
 4. Consider alternative approaches or simplifications.
 5. Suggest improvements or corrections if necessary.
 6. If the solution seems correct and complete, state "The solution appears sound."
+"""
+
+SIMPLIFY_PROMPT = """
+Simplify the following math problem without losing any essential information:
+
+{input}
+
+Instructions:
+1. Identify the core components of the problem.
+2. Remove any unnecessary details or repetitive information.
+3. Break down complex parts into simpler terms if possible.
+4. Ensure that the simplified version still contains all necessary information to solve the problem.
+5. Present the simplified problem in a clear and concise manner.
 """

@@ -41,10 +41,10 @@ class ReviseMode(Enum):
 TAG = "CONTENT"
 MODE_CODE_FILL = "code_fill"
 CONTEXT_FILL = "context_fill"
+SINGLE_FILL = "single_fill"
 
 LANGUAGE_CONSTRAINT = "Language: Please use the same language as Human INPUT."
 FORMAT_CONSTRAINT = f"Format: output wrapped inside [{TAG}][/{TAG}] like format example, nothing else."
-
 
 SIMPLE_TEMPLATE = """
 ## context
@@ -153,14 +153,14 @@ class ActionNode:
     nexts: List["ActionNode"]  # next nodes
 
     def __init__(
-        self,
-        key: str,
-        expected_type: Type,
-        instruction: str,
-        example: Any,
-        content: str = "",
-        children: dict[str, "ActionNode"] = None,
-        schema: str = "",
+            self,
+            key: str,
+            expected_type: Type,
+            instruction: str,
+            example: Any,
+            content: str = "",
+            children: dict[str, "ActionNode"] = None,
+            schema: str = "",
     ):
         self.key = key
         self.expected_type = expected_type
@@ -412,14 +412,14 @@ class ActionNode:
         after=general_after_log(logger),
     )
     async def _aask_v1(
-        self,
-        prompt: str,
-        output_class_name: str,
-        output_data_mapping: dict,
-        images: Optional[Union[str, list[str]]] = None,
-        system_msgs: Optional[list[str]] = None,
-        schema="markdown",  # compatible to original format
-        timeout=USE_CONFIG_TIMEOUT,
+            self,
+            prompt: str,
+            output_class_name: str,
+            output_data_mapping: dict,
+            images: Optional[Union[str, list[str]]] = None,
+            system_msgs: Optional[list[str]] = None,
+            schema="markdown",  # compatible to original format
+            timeout=USE_CONFIG_TIMEOUT,
     ) -> (str, BaseModel):
         """Use ActionOutput to wrap the output of aask"""
         content = await self.llm.aask(prompt, system_msgs, images=images, timeout=timeout)
@@ -452,7 +452,7 @@ class ActionNode:
         self.set_recursive("context", context)
 
     async def simple_fill(
-        self, schema, mode, images: Optional[Union[str, list[str]]] = None, timeout=USE_CONFIG_TIMEOUT, exclude=None
+            self, schema, mode, images: Optional[Union[str, list[str]]] = None, timeout=USE_CONFIG_TIMEOUT, exclude=None
     ):
         prompt = self.compile(context=self.context, schema=schema, mode=mode, exclude=exclude)
         if schema != "raw":
@@ -517,6 +517,13 @@ class ActionNode:
         result = {field_name: extracted_code}
         return result
 
+    async def single_fill(self, context):
+        field_name = self.get_field_name()
+        prompt = context
+        content = await self.llm.aask(prompt)
+        result = {field_name: content}
+        return result
+
     async def context_fill(self, context):
         """
         Fill Context with XML TAG
@@ -534,16 +541,16 @@ class ActionNode:
         return extracted_data
 
     async def fill(
-        self,
-        context,
-        llm,
-        schema="json",
-        mode="auto",
-        strgy="simple",
-        images: Optional[Union[str, list[str]]] = None,
-        timeout=USE_CONFIG_TIMEOUT,
-        exclude=[],
-        function_name: str = None,
+            self,
+            context,
+            llm,
+            schema="json",
+            mode="auto",
+            strgy="simple",
+            images: Optional[Union[str, list[str]]] = None,
+            timeout=USE_CONFIG_TIMEOUT,
+            exclude=[],
+            function_name: str = None,
     ):
         """Fill the node(s) with mode.
 
@@ -581,6 +588,11 @@ class ActionNode:
             """
             context = self.xml_compile(context=self.context)
             result = await self.context_fill(context)
+            self.instruct_content = self.create_class()(**result)
+            return self
+
+        elif mode == SINGLE_FILL:
+            result = await self.single_fill(context)
             self.instruct_content = self.create_class()(**result)
             return self
 
@@ -702,7 +714,7 @@ class ActionNode:
         return nodes_output
 
     async def auto_revise(
-        self, revise_mode: ReviseMode = ReviseMode.AUTO, template: str = REVISE_TEMPLATE
+            self, revise_mode: ReviseMode = ReviseMode.AUTO, template: str = REVISE_TEMPLATE
     ) -> dict[str, str]:
         """revise the value of incorrect keys"""
         # generate review comments
