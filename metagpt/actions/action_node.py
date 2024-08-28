@@ -9,6 +9,7 @@ NOTE: You should use typing.List instead of list to do type annotation. Because 
   we can use typing to extract the type of the node, but we cannot use built-in list to extract.
 """
 import json
+import re
 import typing
 from enum import Enum
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
@@ -17,6 +18,7 @@ from pydantic import BaseModel, Field, create_model, model_validator
 from tenacity import retry, stop_after_attempt, wait_random_exponential
 
 from metagpt.actions.action_outcls_registry import register_action_outcls
+from metagpt.actions.code_sanitize import sanitize
 from metagpt.const import USE_CONFIG_TIMEOUT
 from metagpt.llm import BaseLLM
 from metagpt.logs import logger
@@ -37,6 +39,8 @@ class ReviseMode(Enum):
 
 
 TAG = "CONTENT"
+MODE_CODE_FILL = "code_fill"
+CONTEXT_FILL = "context_fill"
 
 LANGUAGE_CONSTRAINT = "Language: Please use the same language as Human INPUT."
 FORMAT_CONSTRAINT = f"Format: output wrapped inside [{TAG}][/{TAG}] like format example, nothing else."
@@ -147,8 +151,6 @@ class ActionNode:
     # For ActionGraph
     prevs: List["ActionNode"]  # previous nodes
     nexts: List["ActionNode"]  # next nodes
-
-    MODE_CODE_FILL = "code_fill"
 
     def __init__(
         self,
@@ -473,58 +475,63 @@ class ActionNode:
         """
         model_class = self.create_class()
         fields = model_class.model_fields
-        
+
         # Assuming there's only one field in the model
         if len(fields) == 1:
             return next(iter(fields))
-        
+
         # If there are multiple fields, we might want to use self.key to find the right one
         return self.key
-    
-    async def code_fill(
-        self,
-        context,
-        timeout=USE_CONFIG_TIMEOUT
-    ):
-        """
-        fill CodeBlock Node
-        """
 
-        def extract_code_from_response(response):
-            """
-            Extracts code wrapped in triple backticks from the response,
-            removing any language specifier.
-            
-            :param response: The full response from the LLM
-            :return: The extracted code, or None if no code is found
-            """
-            code_pattern = r"```(?:\w+\n)?([\s\S]*?)```"
-            matches = re.findall(code_pattern, response)
-            
-            if matches:
-                # The first group in the regex contains the code without the language specifier
-                code = matches[0].strip()
-                return code
-            return None
-        
-        import re
+    def get_field_names(self):
+        """
+        Get the field names from the Pydantic model associated with this ActionNode.
+        """
+        model_class = self.create_class()
+        return model_class.model_fields.keys()
+
+    def xml_compile(self, context):
+        field_names = self.get_field_names()
+        # Construct the example using the field names
+        examples = []
+        for field_name in field_names:
+            examples.append(f"<{field_name}>content</{field_name}>")
+
+        # Join all examples into a single string
+        example_str = "\n".join(examples)
+        # Add the example to the context
+        context += f"""
+### format example (must be strictly followed) (do not include any other formats except for the given XML format)
+{example_str}
+"""
+        return context
+
+    async def code_fill(self, context, function_name=None, timeout=USE_CONFIG_TIMEOUT):
+        """
+        Fill CodeBlock Using ``` ```
+        """
         field_name = self.get_field_name()
         prompt = context
-        # prompt += "\nPlease wrap the generated code within triple backticks, like this: ```<code>```"
         content = await self.llm.aask(prompt, timeout=timeout)
-        
-        extracted_code = extract_code_from_response(content)    
+        extracted_code = sanitize(code=content, entrypoint=function_name)
         result = {field_name: extracted_code}
         return result
-    
-    async def messages_fill(
-        self,
-    ):
+
+    async def context_fill(self, context):
         """
-        参考这个代码，只不过LLM调用方式改成使用；
-        参考
+        Fill Context with XML TAG
         """
-        pass
+        field_names = self.get_field_names()
+        extracted_data = {}
+        content = await self.llm.aask(context)
+
+        for field_name in field_names:
+            # Use regex to find content within XML tags matching the field name
+            pattern = rf"<{field_name}>(.*?)</{field_name}>"
+            match = re.search(pattern, content, re.DOTALL)
+            if match:
+                extracted_data[field_name] = match.group(1).strip()
+        return extracted_data
 
     async def fill(
         self,
@@ -536,6 +543,7 @@ class ActionNode:
         images: Optional[Union[str, list[str]]] = None,
         timeout=USE_CONFIG_TIMEOUT,
         exclude=[],
+        function_name: str = None,
     ):
         """Fill the node(s) with mode.
 
@@ -562,8 +570,17 @@ class ActionNode:
         if self.schema:
             schema = self.schema
 
-        if mode == self.MODE_CODE_FILL:
-            result = await self.code_fill(context, timeout)
+        if mode == MODE_CODE_FILL:
+            result = await self.code_fill(context, function_name, timeout)
+            self.instruct_content = self.create_class()(**result)
+            return self
+
+        elif mode == CONTEXT_FILL:
+            """
+            使用xml_compile，但是这个版本没有办法实现system message 跟 temperature
+            """
+            context = self.xml_compile(context=self.context)
+            result = await self.context_fill(context)
             self.instruct_content = self.create_class()(**result)
             return self
 

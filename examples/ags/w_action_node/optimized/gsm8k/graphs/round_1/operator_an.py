@@ -1,25 +1,8 @@
-# -*- coding: utf-8 -*-
-# @Date    : 6/27/2024 19:46 PM
-# @Author  : didi
-# @Desc    : action nodes for operator
-
 from pydantic import BaseModel, Field
 
 
 class GenerateOp(BaseModel):
     solution: str = Field(default="", description="Your solution for this problem")
-
-
-class CodeGenerateOp(BaseModel):
-    code_solution: str = Field(default="", description="Your complete code solution for this problem")
-
-
-class GenerateCodeSolution(BaseModel):
-    content: str = Field(default="", description="A description of the solution")
-    thought: str = Field(
-        default="",
-        description="Shortly explain why this solution correctly solves the problem. Be specific and detailed regarding the problem rules and goals.",
-    )
 
 
 class FormatOp(BaseModel):
@@ -64,28 +47,8 @@ class MdEnsembleOp(BaseModel):
     solution_letter: str = Field(default="", description="The letter of the chosen best solution (only one letter).")
 
 
-class TestCaseExtractOp(BaseModel):
-    test_cases: list = Field(
-        default=[
-            "assert candidate([1.0, 2.0, 3.9, 4.0, 5.0, 2.2], 0.3) == True",
-            "assert candidate([1.0, 2.0, 3.9, 4.0, 5.0, 2.2], 0.05) == False",
-            "",
-        ],
-        description="Extracted test cases from the problem description",
-    )
-
-
 class RephraseOp(BaseModel):
     rephrased_problem: str = Field(default="", description="Rephrased problem description for this problem")
-
-
-class ReflectionTestOp(BaseModel):
-    reflection: str = Field(
-        default="", description="Step-by-step reflection on code execution errors or test case failures"
-    )
-    refined_solution: str = Field(
-        default="", description="Corrective solution for code execution errors or test case failures"
-    )
 
 
 class ScEnsembleOp(BaseModel):

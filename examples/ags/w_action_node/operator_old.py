@@ -12,30 +12,42 @@ from typing import Dict, List, Tuple
 from tenacity import retry, stop_after_attempt
 
 from examples.ags.w_action_node.operator_an import (
-    CodeGenerateOp,
     FormatOp,
     FuEnsembleOp,
+    GenerateCodeBlockOp,
+    GenerateCodeSolution,
     GenerateOp,
     MdEnsembleOp,
     ReflectionTestOp,
     RephraseOp,
     ReviewOp,
     ReviseOp,
-    ScEnsembleOp,
 )
 from examples.ags.w_action_node.prompt import (
-    CODE_CONTEXTUAL_GENERATE_PROMPT,
-    CONTEXTUAL_GENERATE_PROMPT,
+    DE_ENSEMBLE_ANGEL_PROMPT,
+    DE_ENSEMBLE_CODE_FORMAT_PROMPT,
+    DE_ENSEMBLE_DEVIL_PROMPT,
+    DE_ENSEMBLE_JUDGE_FINAL_PROMPT,
+    DE_ENSEMBLE_JUDGE_UNIVERSAL_PROMPT,
+    DE_ENSEMBLE_TXT_FORMAT_PROMPT,
     FORMAT_PROMPT,
     FU_ENSEMBLE_PROMPT,
+    GENERATE_CODE_SOLUTION_PROMPT,
     GENERATE_CODEBLOCK_PROMPT,
+    GENERATE_CODEBLOCK_REPHRASE_PROMPT,
+    GENERATE_ON_CONTEXT_PROMPT,
     GENERATE_PROMPT,
+    MATH_ANSWER_FORMAT_PROMPT,
+    MATH_CORE_PROMPT,
+    MATH_EXTRACT_PROMPT,
+    MATH_GENERATE_PROMPT,
+    MATH_REPHRASE_ON_PROBLEM_PROMPT,
     MD_ENSEMBLE_PROMPT,
     REFLECTION_ON_PUBLIC_TEST_PROMPT,
+    REPHRASE_ON_CODE_PROMPT,
     REPHRASE_ON_PROBLEM_PROMPT,
     REVIEW_PROMPT,
     REVISE_PROMPT,
-    SC_ENSEMBLE_PROMPT,
 )
 from examples.ags.w_action_node.utils import test_case_2_test_function
 from metagpt.actions.action_node import ActionNode
@@ -57,7 +69,7 @@ class Generate(Operator):
     基于Action Node Fill Function的 Generate 算子
     """
 
-    def __init__(self, llm: LLM, name: str = "Generate"):
+    def __init__(self, name: str = "Generate", llm: LLM = LLM()):
         super().__init__(name, llm)
 
     async def __call__(self, problem_description):
@@ -66,55 +78,62 @@ class Generate(Operator):
         response = node.instruct_content.model_dump()
         return response
 
+    async def math_generate(self, problem_description):
+        prompt = MATH_GENERATE_PROMPT.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
 
-class ContextualGenerate(Operator):
-    def __init__(self, llm: LLM, name: str = "ContextualGenerate"):
-        super().__init__(name, llm)
-
-    @retry(stop=stop_after_attempt(3))
-    async def __call__(self, problem_description, thought, function_name):
-        prompt = CONTEXTUAL_GENERATE_PROMPT.format(problem_description=problem_description, thought=thought)
-        node = await ActionNode.from_pydantic(GenerateOp).fill(
-            context=prompt, llm=self.llm, function_name=function_name
+    async def code_solution_generate(self, problem_description: str, rephrase_problem: str):
+        prompt = GENERATE_CODE_SOLUTION_PROMPT.format(
+            problem_description=problem_description, rephrase_problem=rephrase_problem
         )
+        node = await ActionNode.from_pydantic(GenerateCodeSolution).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
+
+    async def context_solution_generate(self, question, context):
+        prompt = GENERATE_ON_CONTEXT_PROMPT.format(problem_description=question, context=context)
+        node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response
 
 
-class CodeGenerate(Operator):
-    def __init__(self, name: str = "CodeGenerate", llm: LLM = LLM()):
+class GenerateCodeBlock(Operator):
+    def __init__(self, name: str = "GenerateCodeBlock", llm: LLM = LLM()):
         super().__init__(name, llm)
 
     @retry(stop=stop_after_attempt(3))
     async def __call__(self, problem_description, function_name):
         prompt = GENERATE_CODEBLOCK_PROMPT.format(problem_description=problem_description)
-        node = await ActionNode.from_pydantic(CodeGenerateOp).fill(
+        node = await ActionNode.from_pydantic(GenerateCodeBlockOp).fill(
             context=prompt, llm=self.llm, mode="code_fill", function_name=function_name
         )
         response = node.instruct_content.model_dump()
         return response
-
-
-class CodeContextualGenerate(Operator):
-    def __init__(self, llm: LLM, name: str = "CodeContextualGenerate"):
-        super().__init__(name, llm)
 
     @retry(stop=stop_after_attempt(3))
-    async def __call__(self, problem_description, thought, function_name):
-        prompt = CODE_CONTEXTUAL_GENERATE_PROMPT.format(problem_description=problem_description, thought=thought)
-        node = await ActionNode.from_pydantic(CodeGenerateOp).fill(
+    async def rephrase_generate(self, problem_description, thought, function_name):
+        prompt = GENERATE_CODEBLOCK_REPHRASE_PROMPT.format(problem_description=problem_description, thought=thought)
+        node = await ActionNode.from_pydantic(GenerateCodeBlockOp).fill(
             context=prompt, llm=self.llm, mode="code_fill", function_name=function_name
         )
         response = node.instruct_content.model_dump()
         return response
 
 
-class Format(Generate):
+class Format(Operator):
     def __init__(self, name: str = "Format", llm: LLM = LLM()):
         super().__init__(name, llm)
 
     async def __call__(self, problem_description, solution):
         prompt = FORMAT_PROMPT.format(problem_description=problem_description, solution=solution)
+        node = await ActionNode.from_pydantic(FormatOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
+
+    async def math_answer_format(self, problem_description: str) -> dict:
+        prompt = MATH_ANSWER_FORMAT_PROMPT.format(problem_description=problem_description)
         node = await ActionNode.from_pydantic(FormatOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response
@@ -284,28 +303,128 @@ class ScEnsemble(Operator):
     """
     Paper: Self-Consistency Improves Chain of Thought Reasoning in Language Models
     Link: https://arxiv.org/abs/2203.11171
-    Paper: Universal Self-Consistency for Large Language Model Generation
-    Link: https://arxiv.org/abs/2311.17311
     """
 
-    def __init__(self, name: str = "ScEnsemble", llm: LLM = LLM()):
+    pass
+
+
+class MADEnsemble(Operator):
+    """
+    Paper: Should we be going MAD? A Look at Multi-Agent Debate Strategies for LLMs
+    Link: https://arxiv.org/abs/2311.17371
+    """
+
+    def __init__(self, name: str = "DebateEnsemble", llm: LLM = LLM()):
         super().__init__(name, llm)
+        self.agents = ["angel", "devil", "judge"]
+        self.format_requirements = {"txt": DE_ENSEMBLE_TXT_FORMAT_PROMPT, "code": DE_ENSEMBLE_CODE_FORMAT_PROMPT}
 
-    async def __call__(self, solutions: List[str], problem_description: str):
-        answer_mapping = {}
-        solution_text = ""
-        for index, solution in enumerate(solutions):
-            answer_mapping[chr(65 + index)] = index
-            solution_text += f"{chr(65 + index)}: \n{str(solution)}\n\n\n"
+    def get_system_prompt(self, name: str, mode: str = "txt"):
+        if name == "angel":
+            if mode == "code":
+                return DE_ENSEMBLE_ANGEL_PROMPT + "\n" + DE_ENSEMBLE_CODE_FORMAT_PROMPT
+            return DE_ENSEMBLE_ANGEL_PROMPT + "\n" + DE_ENSEMBLE_TXT_FORMAT_PROMPT
+        elif name == "devil":
+            if mode == "code":
+                return DE_ENSEMBLE_DEVIL_PROMPT + "\n" + DE_ENSEMBLE_CODE_FORMAT_PROMPT
+            return DE_ENSEMBLE_DEVIL_PROMPT + "\n" + DE_ENSEMBLE_TXT_FORMAT_PROMPT
+        elif name == "judge":
+            if mode == "final":
+                return DE_ENSEMBLE_JUDGE_FINAL_PROMPT
+            return DE_ENSEMBLE_JUDGE_UNIVERSAL_PROMPT
 
-        prompt = SC_ENSEMBLE_PROMPT.format(solutions=solution_text, problem_description=problem_description)
-        node = await ActionNode.from_pydantic(ScEnsembleOp).fill(context=prompt, llm=self.llm)
-        response = node.instruct_content.model_dump()
+    def construct_messages(self, message_history_with_name, name, mode: str = "txt", phase: str = "universal"):
+        """
+        基于name与mode来构建system message.
+        基于name来构建messages
+        """
+        messages = []
+        messages.append({"role": "system", "content": self.get_system_prompt(name, mode)})
 
-        answer = response.get("solution_letter", "")
-        answer = answer.strip().upper()
+        if name in ["angel", "devil"]:
+            messages = self._construct_debate(message_history_with_name, name, messages)
+        elif name == "judge":
+            messages = self._construct_judge(message_history_with_name, mode, messages)
+        return messages
 
-        return {"final_solution": solutions[answer_mapping[answer]]}
+    def _construct_debate(self, message_history_with_name, name, messages):
+        user_message = ""
+
+        for message in message_history_with_name:
+            if message["name"] == "Judge":
+                continue
+            elif message["name"] == name:
+                if user_message:
+                    messages.append(
+                        {
+                            "role": "user",
+                            "name": "user",
+                            "content": user_message.strip("\n"),
+                        }
+                    )
+                messages.append(
+                    {
+                        "role": "assistant",
+                        "name": name,
+                        "content": message["content"],
+                    }
+                )
+                user_message = ""
+            else:
+                user_message += message["content"]
+
+        if user_message:
+            messages.append(
+                {
+                    "role": "user",
+                    "name": "user",
+                    "content": user_message.strip("\n"),
+                }
+            )
+
+        return messages
+
+    def _construct_judge(self, message_history_with_name, mode, messages):
+        pass
+
+    async def debate_answer(self, message_history: List, role: str = "angel"):
+        messages = self.construct_messages(message_history, role)
+        response = await self.llm.acompletion_text(messages=messages)
+        message_history.append({"role": "user", "name": role, "content": response})
+        return message_history, response
+
+    async def judge_answer(self, message_history: List, phase: str = "universal"):
+        messages = self.construct_messages(message_history, "judge", phase=phase)
+        response = await self.llm.acompletion_text(messages=messages)
+        message_history.append({"role": "user", "name": "judge", "content": response})
+        return message_history, response
+
+    async def __call__(self, origin_solution: str, problem_description: str, max_round: int = 3, mode: str = "txt"):
+        # 思路，输入一个原始答案，构建一个agent代表这个答案进行辩论；另一个agent（devil）使用debate llm的内容进行辩论；法官在每一轮次做出决定是否终止，到了maxround还没终止就由法官进行总结。
+        message_history_with_name = [{"role": "user", "name": "angel", "content": origin_solution}]
+
+        for index in range(max_round):
+            for agent in self.agents:
+                if agent == "angel":
+                    if index == 0:
+                        pass
+                    message_history_with_name, rsp = self.debate_answer(message_history_with_name, role="angel")
+                elif agent == "devil":
+                    message_history_with_name, rsp = self.debate_answer(message_history_with_name, role="devil")
+                elif agent == "judge":
+                    message_history_with_name, judge_result = self.judge_answer(
+                        message_history_with_name, phase="universal"
+                    )
+                    if not judge_result["is_debating"]:
+                        """
+                        这里需要在 self.judge_answer 中设置一个自动给出solution的地方
+                        """
+                        return {"final_solution": judge_result["final_solution"]}
+
+        message_history_with_name.pop(-1)
+        message_history_with_name, judge_answer = self.judge_answer(message_history_with_name, phase="final")
+
+        return {"final_solution": judge_answer["debate_answer"]}
 
 
 class Rephrase(Operator):
@@ -321,6 +440,30 @@ class Rephrase(Operator):
 
     async def __call__(self, problem_description: str) -> str:
         prompt = REPHRASE_ON_PROBLEM_PROMPT.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(RephraseOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response["rephrased_problem"]
+
+    async def code_rephrase(self, problem_description: str) -> str:
+        prompt = REPHRASE_ON_CODE_PROMPT.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(RephraseOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response["rephrased_problem"]
+
+    async def math_rephrase(self, problem_description: str) -> str:
+        prompt = MATH_REPHRASE_ON_PROBLEM_PROMPT.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(RephraseOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response["rephrased_problem"]
+
+    async def math_core(self, problem_description: str) -> str:
+        prompt = MATH_CORE_PROMPT.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(RephraseOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response["rephrased_problem"]
+
+    async def math_extract(self, problem_description: str) -> str:
+        prompt = MATH_EXTRACT_PROMPT.format(problem_description=problem_description)
         node = await ActionNode.from_pydantic(RephraseOp).fill(context=prompt, llm=self.llm)
         response = node.instruct_content.model_dump()
         return response["rephrased_problem"]
@@ -360,9 +503,7 @@ class Test(Operator):
         else:
             return "no error"
 
-    async def __call__(
-        self, problem_id, problem, rephrase_problem, solution, test_cases, entry_point, test_loop: int = 3
-    ):
+    async def __call__(self, problem_id, problem, rephrase_problem, solution, test_cases, entry_point, test_loop):
         solution = solution["final_solution"]
         for _ in range(test_loop):
             result = self.exec_code(solution, test_cases, problem_id, entry_point)
@@ -392,3 +533,18 @@ class Test(Operator):
                 response = node.instruct_content.model_dump()
                 solution = response["refined_solution"]
         return {"final_solution": solution}
+
+
+class FindFact(Operator):
+    def __init__(self, name: str = "FindFact", llm: LLM = LLM()):
+        super().__init__(name, llm)
+
+
+class SelfAsk(Operator):
+    def __init__(self, name: str = "SelfAsk", llm: LLM = LLM()):
+        super().__init__(name, llm)
+
+
+class Verify(Operator):
+    def __init__(self, name: str = "Verify", llm: LLM = LLM()):
+        super().__init__(name, llm)
