@@ -22,13 +22,18 @@ INITIALIZE_OPERATOR_PROMPT = """
 
 # TODO 这里也需要自适应的完成针对不同数据集的GRAPH OPTIMIZE PROMPT
 
-GRAPH_OPTIMIZE_PROMPT = """You are building a Graph and corresponding Prompt to jointly solve {type} problems.
-Referring to the given combination of graph and prompt, which forms a basic example of a {type} solution approach, please reconstruct and optimize the Prompt and Graph. You can add, modify, or delete nodes and parameters in the graph, as well as modify, delete, or add new Prompts.
-Put your modification (only make one point of change, i.e., one sentence), and the modified Prompt and Graph in XML tags in your reply. They will be used as new Prompt and Graph for calculation and iteration. Please ensure they are complete and correct, otherwise it may lead to runtime failures.
-When optimizing, you can refer to critical thinking, and can incorporate methods such as Review, Revise, Ensemble, selfAsk, etc. Don't be limited to the previous format.You can consider Python's built-in loops (like for, while, and list comprehensions) or conditional statements (such as if-elif-else and ternary operators), or even machine learning methods ranging from basic supervised learning techniques (e.g., linear regression, decision trees) to more advanced approaches like neural networks and clustering algorithms. the complexity of the graph does not exceed 10."""
+GRAPH_OPTIMIZE_PROMPT = """You are building a Graph and corresponding Prompt to jointly solve {type} problems. 
+Referring to the given graph and prompt, which forms a basic example of a {type} solution approach, 
+please reconstruct and optimize them. You can add, modify, or delete nodes, parameters, or prompts. Include your 
+single modification in XML tags in your reply. Ensure they are complete and correct to avoid runtime failures. When 
+optimizing, you can incorporate critical thinking methods like Review, Revise, Ensemble, selfAsk, etc. Consider 
+Python's loops (for, while, list comprehensions), conditional statements (if-elif-else, ternary operators), 
+or machine learning techniques (e.g., linear regression, decision trees, neural networks, clustering). The graph 
+complexity should not exceed 10. Use logical and control flow (IF-ELSE, loops) for a more enhanced graphical 
+representation. The Prompt only relate to the Custom method."""
 
 GRAPH_INPUT = """
-Here is a Graph and corresponding Prompt that performed excellently in a previous iteration (maximum score is 1):\n
+Here is a Graph and corresponding Prompt(only relate to the Custom method) that performed excellently in a previous iteration (maximum score is 1):\n
 <sample>
     <experience>{experience}</experience>
     <modification>None</modification>

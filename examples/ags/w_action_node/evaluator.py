@@ -95,7 +95,7 @@ class Evaluator:
 
         # 异步评估单个问题
         async def _evaluate_problem(input: str, graph, expected_output: str) -> Tuple[
-            str, str, str, int]:
+            str, str, str, int, str]:
             prompt = input
             max_retries = 5
             retries = 0
@@ -104,10 +104,10 @@ class Evaluator:
                 try:
                     # 假设模型有一个异步生成函数
                     prediction = await graph(prompt) if graph else "None"  # 这是一个占位符，替换成实际的模型生成逻辑
-                    print(type(prediction))
-                    print("预测", prediction)
+                    cost = prediction[1]
+                    output = prediction[0]['solution']
 
-                    score = loose_match_score(expected_output, prediction[0]['content'])
+                    score = loose_match_score(expected_output, prediction[0]['solution'])
                     break
 
                 except Exception as e:
@@ -116,11 +116,12 @@ class Evaluator:
 
                     if retries == max_retries:
                         print("Maximum retries reached. Skipping this sample.")
-                        prediction = None
+                        output = None
+                        cost = None
                         score = 0
                         break
 
-            return input, prediction, expected_output, score
+            return input, output, expected_output, score, cost
 
         # 异步读取JSONL文件
         async def load_data(file_path: str) -> List[dict]:
@@ -131,7 +132,7 @@ class Evaluator:
             return data[:samples]
 
         # 并行评估所有问题
-        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 100):
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 300):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
             async def sem_evaluate(problem):
@@ -147,7 +148,7 @@ class Evaluator:
 
         # 保存结果到CSV文件
         def save_results_to_csv(results: List[Tuple[str, str, str, int]], path):
-            df = pd.DataFrame(results, columns=["question", "prediction", "expected_output", "score"])
+            df = pd.DataFrame(results, columns=["question", "prediction", "expected_output", "score", "cost"])
             average_score = df["score"].mean()
 
             # 生成文件名，保留五位小数

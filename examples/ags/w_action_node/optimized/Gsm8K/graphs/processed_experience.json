@@ -1,22 +1,65 @@
 {
     "1": {
-        "score": 0.95833,
-        "success": [],
-        "failure": [
-            {
-                "modification": "Add a review step to check the generated solution for accuracy and completeness before formatting.",
-                "score": 0.91667
+        "score": 0.93939,
+        "success": {
+            "2": {
+                "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed.",
+                "score": 0.9507575757575758
             }
-        ]
+        },
+        "failure": {}
     },
     "2": {
-        "score": 0.91667,
-        "success": [
-            {
-                "modification": "Add a self-questioning step before generating the solution to ensure all aspects of the problem are considered.",
+        "score": 0.95076,
+        "success": {},
+        "failure": {
+            "3": {
+                "modification": "Add a self-consistency check by generating multiple solutions and using the ScEnsemble operator to select the best one.",
+                "score": 0.946969696969697
+            }
+        }
+    },
+    "3": {
+        "score": 0.94697,
+        "success": {
+            "9": {
+                "modification": "Add a rephrase step after the initial thinking step to provide a different perspective on the problem, potentially leading to more diverse solutions.",
                 "score": 0.9545454545454546
             }
-        ],
-        "failure": []
+        },
+        "failure": {
+            "4": {
+                "modification": "Add a self-ask step after the initial thinking step to further refine the problem-solving approach.",
+                "score": 0.9356060606060606
+            },
+            "7": {
+                "modification": "Add a self-ask step after the initial thinking step to further refine the problem-solving approach, but implement it differently from the failed attempt.",
+                "score": 0.9393939393939394
+            },
+            "8": {
+                "modification": "Add a self-review step after generating each solution to improve the quality of solutions before ensemble.",
+                "score": 0.9356060606060606
+            }
+        }
+    },
+    "4": {
+        "score": 0.93561,
+        "success": {
+            "5": {
+                "modification": "Add a rephrase step before the think step to provide a fresh perspective on the problem.",
+                "score": 0.9431818181818182
+            }
+        },
+        "failure": {}
+    },
+    "5": {
+        "score": 0.94318,
+        "success": {
+            "6": {
+                "modification": "Add a \"Revise\" step after the \"Review\" step to further improve the solution if the review result is not satisfactory. This will create a more robust problem-solving process by allowing for iterative improvement.",
+                "score": 0.9431818181818182
+            }
+        },
+        "failure": {}
     }
 }

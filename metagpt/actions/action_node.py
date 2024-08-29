@@ -501,7 +501,7 @@ class ActionNode:
         example_str = "\n".join(examples)
         # Add the example to the context
         context += f"""
-### format example (must be strictly followed) (do not include any other formats except for the given XML format)
+### response format (must be strictly followed) (do not include any other formats except for the given XML format):\n
 {example_str}
 """
         return context

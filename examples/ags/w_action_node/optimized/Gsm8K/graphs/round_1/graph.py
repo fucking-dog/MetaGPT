@@ -25,12 +25,13 @@ class SolveGraph:
         self.llm.cost_manager = CostManager()
         self.generate = Generate(self.llm)
         self.format = Format(self.llm)
+        self.custom = Custom(self.llm)
 
     async def __call__(self, problem: str):
         """
         Implementation of the graph
         """
-        question = await self.generate(input=problem, prompt=REPHRASE_PROMPT)
-        solution = await self.generate(input=question['content'], prompt=GENERATE_PROMPT)
-        format_solution = await self.format(input=f"Original question:{problem} \n\nFinal solution:{solution['content']}")
+        think = await self.custom(input=problem, instruction=THINK_PROMPT)
+        solution = await self.generate(problem=problem+think['response'])
+        format_solution = await self.format(problem=problem, solution=solution['response'])
         return format_solution, self.llm.cost_manager.total_cost
