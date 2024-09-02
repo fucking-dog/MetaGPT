@@ -30,7 +30,7 @@ optimizing, you can incorporate critical thinking methods like Review, Revise, E
 Python's loops (for, while, list comprehensions), conditional statements (if-elif-else, ternary operators), 
 or machine learning techniques (e.g., linear regression, decision trees, neural networks, clustering). The graph 
 complexity should not exceed 10. Use logical and control flow (IF-ELSE, loops) for a more enhanced graphical 
-representation. The Prompt only relate to the Custom method."""
+representation.You must include all the prompts related to the custom method. No other prompts are allowed."""
 
 GRAPH_INPUT = """
 Here is a Graph and corresponding Prompt(only relate to the Custom method) that performed excellently in a previous iteration (maximum score is 1):\n
@@ -39,7 +39,7 @@ Here is a Graph and corresponding Prompt(only relate to the Custom method) that 
     <modification>None</modification>
     <score>{score}</score>
     <graph>{graph}</graph>
-    <prompt>{prompt}</prompt>
+    <prompt>{prompt}</prompt>(Custom method)
     <operator_description>{operator_description}</operator_description>
 </sample>
 First provide optimization ideas. Only add/modify/delete one detail point, extensive modifications are prohibited.\n\n"

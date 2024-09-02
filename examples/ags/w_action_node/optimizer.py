@@ -38,8 +38,8 @@ class OperatorOptimize(BaseModel):
 
 class GraphOptimize(BaseModel):
     modification: str = Field(default="", description="modification")
-    prompt: str = Field(default="", description="prompt")
     graph: str = Field(default="", description="graph")
+    prompt: str = Field(default="", description="prompt(Only Custom method Prompt)")
 
 
 class Optimizer:
@@ -68,7 +68,7 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 6  # 起始轮次
+        self.round = 1  # 起始轮次
 
     def _initialize_oprimizer(self):
         pass

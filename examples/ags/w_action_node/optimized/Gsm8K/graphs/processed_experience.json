@@ -1,81 +1,30 @@
 {
-    "5": {
-        "score": 0.94318,
-        "success": {
-            "10": {
-                "modification": "Add a \"Revise\" step after the \"Review\" step to further improve the solution if the review result is not satisfactory. This will create a more robust problem-solving process by allowing for iterative improvement.",
-                "score": 0.9431818181818182
-            },
-            "6": {
-                "modification": "Add a \"Revise\" step after the \"Review\" step to further improve the solution if the review result is not satisfactory. This will create a more robust problem-solving process by allowing for iterative improvement.",
-                "score": 0.9431818181818182
-            }
-        },
-        "failure": {}
-    },
-    "3": {
-        "score": 0.94697,
-        "success": {
-            "11": {
-                "modification": "Add a rephrase step after the initial thinking step to provide a different perspective on the problem, potentially leading to more diverse solutions. This approach wasn't tried in the failed modifications and could potentially improve the overall performance.",
-                "score": 0.9545454545454546
-            },
-            "9": {
-                "modification": "Add a rephrase step after the initial thinking step to provide a different perspective on the problem, potentially leading to more diverse solutions.",
-                "score": 0.9545454545454546
-            }
-        },
-        "failure": {
-            "4": {
-                "modification": "Add a self-ask step after the initial thinking step to further refine the problem-solving approach.",
-                "score": 0.9356060606060606
-            },
-            "7": {
-                "modification": "Add a self-ask step after the initial thinking step to further refine the problem-solving approach, but implement it differently from the failed attempt.",
-                "score": 0.9393939393939394
-            },
-            "8": {
-                "modification": "Add a self-review step after generating each solution to improve the quality of solutions before ensemble.",
-                "score": 0.9356060606060606
-            }
-        }
-    },
-    "9": {
-        "score": 0.95455,
-        "success": {},
-        "failure": {
-            "12": {
-                "modification": "Add a self-ask step after the initial \"think\" step to encourage deeper problem analysis and potentially uncover additional solution approaches.",
-                "score": 0.946969696969697
-            }
-        }
-    },
     "1": {
         "score": 0.93939,
         "success": {
             "2": {
                 "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed.",
-                "score": 0.9507575757575758
+                "score": 0.9621212121212122
             }
         },
         "failure": {}
     },
     "2": {
-        "score": 0.95076,
+        "score": 0.96212,
         "success": {},
         "failure": {
             "3": {
-                "modification": "Add a self-consistency check by generating multiple solutions and using the ScEnsemble operator to select the best one.",
-                "score": 0.946969696969697
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or approaches.",
+                "score": 0.9166666666666666
             }
         }
     },
-    "4": {
-        "score": 0.93561,
+    "3": {
+        "score": 0.91667,
         "success": {
-            "5": {
-                "modification": "Add a rephrase step before the think step to provide a fresh perspective on the problem.",
-                "score": 0.9431818181818182
+            "4": {
+                "modification": "Add a rephrase step before the thinking step to potentially simplify or clarify the problem statement.",
+                "score": 0.9545454545454546
             }
         },
         "failure": {}
