@@ -11,6 +11,7 @@ from metagpt.utils.cost_manager import CostManager
 
 DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
 
+cost_manager = CostManager()
 
 class SolveGraph:
     def __init__(
@@ -29,8 +30,5 @@ class SolveGraph:
         """
         Implementation of the graph
         """
-        solution = await self.generate(problem, Prompt)
-        review = await self.generate(problem, Prompt)
-
-
+        solution = await self.generate(problem)
         return solution, self.llm.cost_manager.total_cost
