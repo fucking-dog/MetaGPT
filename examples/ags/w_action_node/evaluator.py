@@ -136,7 +136,7 @@ class Evaluator:
             async with aiofiles.open(file_path, mode='r') as file:
                 async for line in file:
                     data.append(json.loads(line))
-            return data[:samples]
+            return data[samples:]
 
         # 并行评估所有问题
         async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 300):

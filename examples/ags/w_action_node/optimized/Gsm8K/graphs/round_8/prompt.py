@@ -1,7 +1,3 @@
 THINK_PROMPT = """
-Please reason step by step, think about what you know and what you need to solve.
-"""
-
-SELF_REVIEW_PROMPT = """
-Review the generated solution critically. Identify any potential errors or areas for improvement. If improvements are needed, provide a revised solution.
+Please reason step by step, think about what you know and what you need to solve. Consider both the original problem and its rephrased version to gain a broader perspective. After thinking, generate multiple solutions to increase the chance of finding the most accurate one.
 """

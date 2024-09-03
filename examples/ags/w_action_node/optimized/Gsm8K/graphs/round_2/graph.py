@@ -29,8 +29,10 @@ class SolveGraph:
         think = await self.custom(input=problem, instruction=THINK_PROMPT)
         solution = await self.generate(problem=problem+think['response'])
         review_result = await self.review(problem=problem, solution=solution['response'])
-        if not review_result['review_result']:
-            solution = await self.generate(problem=problem+think['response']+review_result['feedback'])
-        format_solution = await self.format(problem=problem, solution=solution['response'])
+        if review_result['review_result']:
+            format_solution = await self.format(problem=problem, solution=solution['response'])
+        else:
+            revised_solution = await self.generate(problem=problem+think['response']+review_result['feedback'])
+            format_solution = await self.format(problem=problem, solution=revised_solution['response'])
         return format_solution, self.llm.cost_manager.total_cost
                     

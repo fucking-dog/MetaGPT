@@ -21,9 +21,7 @@ class SolveGraph:
         self.format = Format(self.llm)
         self.custom = Custom(self.llm)
         self.review = Review(self.llm)
-        self.sc_ensemble = ScEnsemble(self.llm)
         self.rephrase = Rephrase(self.llm)
-        self.revise = Revise(self.llm)
 
     async def __call__(self, problem: str):
         """
@@ -32,18 +30,13 @@ class SolveGraph:
         rephrased_problem = await self.rephrase(problem=problem)
         think = await self.custom(input=rephrased_problem['rephrased_problem'], instruction=THINK_PROMPT)
         self_ask = await self.custom(input=rephrased_problem['rephrased_problem']+think['response'], instruction=SELF_ASK_PROMPT)
-        solutions = []
-        for _ in range(3):  # Generate 3 solutions
-            solution = await self.generate(problem=rephrased_problem['rephrased_problem']+think['response']+self_ask['response'])
-            solutions.append(solution['response'])
-        
-        best_solution = await self.sc_ensemble(solutions=solutions, problem=problem)
-        review_result = await self.review(problem=problem, solution=best_solution['solution'])
-        if not review_result['review_result']:
-            revised_solution = await self.revise(problem=problem, solution=best_solution['solution'], feedback=review_result['feedback'])
-            solution = {'response': revised_solution['solution']}
+        solution = await self.generate(problem=rephrased_problem['rephrased_problem']+think['response']+self_ask['response'])
+        self_reflect = await self.custom(input=solution['response'], instruction=SELF_REFLECT_PROMPT)
+        review_result = await self.review(problem=problem, solution=solution['response']+self_reflect['response'])
+        if review_result['review_result']:
+            format_solution = await self.format(problem=problem, solution=solution['response']+self_reflect['response'])
         else:
-            solution = {'response': best_solution['solution']}
-        format_solution = await self.format(problem=problem, solution=solution['response'])
+            revised_solution = await self.generate(problem=rephrased_problem['rephrased_problem']+think['response']+self_ask['response']+self_reflect['response']+review_result['feedback'])
+            format_solution = await self.format(problem=problem, solution=revised_solution['response'])
         return format_solution, self.llm.cost_manager.total_cost
                     

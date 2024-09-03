@@ -21,29 +21,20 @@ class SolveGraph:
         self.format = Format(self.llm)
         self.custom = Custom(self.llm)
         self.review = Review(self.llm)
-        self.revise = Revise(self.llm)
         self.sc_ensemble = ScEnsemble(self.llm)
-        self.rephrase = Rephrase(self.llm)
 
     async def __call__(self, problem: str):
         """
         Implementation of the graph
         """
-        rephrased_problem = await self.rephrase(problem=problem)
-        think = await self.custom(input=rephrased_problem['rephrased_problem'], instruction=THINK_PROMPT)
-        self_ask = await self.custom(input=rephrased_problem['rephrased_problem']+think['response'], instruction=SELF_ASK_PROMPT)
-        solutions = []
-        for _ in range(3):  # Generate 3 solutions
-            solution = await self.generate(problem=rephrased_problem['rephrased_problem']+think['response']+self_ask['response'])
-            solutions.append(solution['response'])
-        
-        best_solution = await self.sc_ensemble(solutions=solutions, problem=problem)
-        review_result = await self.review(problem=problem, solution=best_solution['solution'])
-        if not review_result['review_result']:
-            revised_solution = await self.revise(problem=problem, solution=best_solution['solution'], feedback=review_result['feedback'])
-            solution = revised_solution
+        think = await self.custom(input=problem, instruction=THINK_PROMPT)
+        initial_solutions = [await self.generate(problem=problem+think['response']) for _ in range(3)]
+        solution = await self.sc_ensemble(solutions=[s['response'] for s in initial_solutions], problem=problem)
+        review_result = await self.review(problem=problem, solution=solution['solution'])
+        if review_result['review_result']:
+            format_solution = await self.format(problem=problem, solution=solution['solution'])
         else:
-            solution = {'response': best_solution['solution']}
-        format_solution = await self.format(problem=problem, solution=solution['response'])
+            revised_solution = await self.generate(problem=problem+think['response']+review_result['feedback'])
+            format_solution = await self.format(problem=problem, solution=revised_solution['response'])
         return format_solution, self.llm.cost_manager.total_cost
                     

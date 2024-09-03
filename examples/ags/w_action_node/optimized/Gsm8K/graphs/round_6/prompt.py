@@ -3,13 +3,9 @@ Please reason step by step, think about what you know and what you need to solve
 """
 
 SELF_ASK_PROMPT = """
-Based on your initial thoughts, what additional questions should you ask to further clarify the problem or approach? List these questions and provide answers to them.
+Based on your initial thoughts, what additional questions should you ask yourself to gain a deeper understanding of the problem? List these questions and provide brief answers to each.
 """
 
-REPHRASE_PROMPT = """
-Please rephrase the given problem in your own words, ensuring that all important information is retained. This rephrasing should provide a fresh perspective on the problem.
-"""
-
-REVISE_PROMPT = """
-Based on the review feedback, please revise the solution. Address the issues mentioned in the feedback and improve the solution accordingly.
+SELF_REFLECT_PROMPT = """
+Review your solution critically. Are there any potential errors or oversights? Can you improve the solution or approach? Provide a brief self-reflection on your problem-solving process.
 """

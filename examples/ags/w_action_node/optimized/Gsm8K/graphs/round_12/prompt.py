@@ -1,11 +1,3 @@
 THINK_PROMPT = """
-Please reason step by step, think about what you know and what you need to solve.
-"""
-
-REPHRASE_PROMPT = """
-Please rephrase the given problem in a different way, maintaining its core meaning but potentially revealing new aspects or approaches to solve it.
-"""
-
-SELF_ASK_PROMPT = """
-Based on your initial thoughts, what additional questions should you ask yourself to deepen your understanding of the problem? Provide both the questions and their potential answers.
+Please reason step by step, think about what you know and what you need to solve. Consider both the original problem and its rephrased version to gain a broader perspective. After thinking, generate multiple solutions to increase the chance of finding the most accurate one.
 """
