@@ -136,7 +136,7 @@ class Evaluator:
             async with aiofiles.open(file_path, mode='r') as file:
                 async for line in file:
                     data.append(json.loads(line))
-            return data[samples:]
+            return data[:samples]
 
         # 并行评估所有问题
         async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 300):
@@ -184,7 +184,7 @@ class Evaluator:
 
         return score
 
-    async def _math_eval(self, graph_class, params, path, samples: int = 5):
+    async def _math_eval(self, graph_class, params, path, samples: int = 200):
         """
         Evaluate on MATH dataset.
         """

@@ -1,0 +1,290 @@
+{
+    "2": {
+        "score": 0.96212,
+        "success": {
+            "7": {
+                "modification": "Add a rephrase step before the thinking step to potentially gain a different perspective on the problem and enhance the overall problem-solving approach. This modification was previously tried and failed, but we can implement it differently by using the rephrased problem as additional context rather than replacing the original problem.",
+                "score": 0.9621212121212122
+            },
+            "9": {
+                "modification": "Add a rephrase step before the thinking step to potentially gain a different perspective on the problem and enhance the overall problem-solving approach. We'll implement it by using the rephrased problem as additional context rather than replacing the original problem.",
+                "score": 0.9659090909090909
+            }
+        },
+        "failure": {
+            "10": {
+                "modification": "Add a self-consistency check after the initial solution generation to improve reliability.",
+                "score": 0.9583333333333334
+            },
+            "11": {
+                "modification": "Add a self-consistency check after the initial solution generation to improve reliability. We'll implement this by generating multiple solutions and using the ScEnsemble operator to select the best one.",
+                "score": 0.9545454545454546
+            },
+            "13": {
+                "modification": "Add a self-consistency check after the initial solution generation to improve reliability. We'll implement this by generating multiple solutions and using the ScEnsemble operator to select the best one.",
+                "score": 0.9431818181818182
+            },
+            "15": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or approaches. We'll implement this by using the Custom operator twice, first for thinking and then for self-asking.",
+                "score": 0.8787878787878788
+            },
+            "3": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or approaches.",
+                "score": 0.9166666666666666
+            },
+            "5": {
+                "modification": "Add a rephrase step before the thinking step to potentially gain a different perspective on the problem and enhance the overall problem-solving approach.",
+                "score": 0.9545454545454546
+            }
+        }
+    },
+    "8": {
+        "score": 0.96212,
+        "success": {
+            "12": {
+                "modification": "Add a loop to generate multiple solutions and use the ScEnsemble to select the best one. This will increase the chances of finding the most accurate solution.",
+                "score": 0.9621212121212122
+            }
+        },
+        "failure": {}
+    },
+    "9": {
+        "score": 0.96591,
+        "success": {
+            "16": {
+                "modification": "Add a self-consistency check after the initial solution generation to improve reliability.",
+                "score": 0.9696969696969697
+            }
+        },
+        "failure": {
+            "14": {
+                "modification": "Add a self-asking step after the initial thinking process to encourage deeper analysis and problem-solving strategies. This can help in identifying potential pitfalls or alternative approaches before generating the solution.",
+                "score": 0.928030303030303
+            },
+            "17": {
+                "modification": "Add a self-consistency check after the initial solution generation to improve reliability and accuracy.",
+                "score": 0.9659090909090909
+            }
+        }
+    },
+    "16": {
+        "score": 0.9697,
+        "success": {
+            "25": {
+                "modification": "Add a conditional statement to check if the review result is positive. If it's negative, we'll use the Revise operator instead of generating a new solution. This can potentially improve the quality of the final answer by leveraging the review feedback more effectively.",
+                "score": 0.9734848484848485
+            }
+        },
+        "failure": {
+            "18": {
+                "modification": "Add a loop to generate multiple solutions and use the FuEnsemble operator to synthesize an enhanced integrated solution. This can potentially improve the quality and robustness of the final answer.",
+                "score": 0.9696969696969697
+            },
+            "20": {
+                "modification": "Add a conditional statement to check if the review result is positive. If it is, we'll use the FuEnsemble operator to further improve the solution by combining it with the original solution. This can potentially enhance the quality of the final answer.",
+                "score": 0.9583333333333334
+            },
+            "23": {
+                "modification": "Add a conditional statement to check if the review result is negative. If it is, we'll use the Revise operator instead of generating a new solution. This can potentially improve the quality of the final answer by leveraging the review feedback more effectively.",
+                "score": 0.9659090909090909
+            },
+            "31": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking.",
+                "score": 0.8977272727272727
+            },
+            "40": {
+                "modification": "Add a self-consistency check with three solutions before the review step to improve the robustness of the solution.",
+                "score": 0.9621212121212122
+            },
+            "42": {
+                "modification": "Add a loop to generate multiple solutions and use the FuEnsemble operator to synthesize an enhanced integrated solution. This can potentially improve the quality and robustness of the final answer.",
+                "score": 0.9696969696969697
+            },
+            "47": {
+                "modification": "Add a loop to generate multiple solutions with different thinking approaches, then use the FuEnsemble operator to synthesize an enhanced integrated solution. This can potentially improve the quality and robustness of the final answer by considering various problem-solving strategies.",
+                "score": 0.9583333333333334
+            },
+            "52": {
+                "modification": "Add a loop to generate multiple solutions with different thinking approaches, then use the FuEnsemble operator to synthesize an enhanced integrated solution. This can potentially improve the quality and robustness of the final answer by considering various problem-solving strategies.",
+                "score": 0.9621212121212122
+            },
+            "53": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking, but limit it to one question to avoid excessive complexity.",
+                "score": 0.8371212121212122
+            },
+            "55": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking, but limit it to one question to avoid excessive complexity.",
+                "score": 0.8863636363636364
+            }
+        }
+    },
+    "17": {
+        "score": 0.96591,
+        "success": {},
+        "failure": {
+            "19": {
+                "modification": "Add a loop to generate multiple solutions and use the FuEnsemble operator to critically evaluate and synthesize an enhanced integrated solution. This can potentially improve the quality and robustness of the final solution.",
+                "score": 0.9545454545454546
+            },
+            "24": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or solution approaches.",
+                "score": 0.8977272727272727
+            },
+            "27": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or solution approaches. Although this approach failed previously, we can implement it differently by using a more focused self-ask prompt that specifically targets areas of uncertainty or potential oversights in the initial thinking step.",
+                "score": 0.9128787878787878
+            },
+            "35": {
+                "modification": "Add a self-review step after the initial solution generation to encourage the model to critically evaluate its own work before proceeding to the formal review step.",
+                "score": 0.9545454545454546
+            },
+            "46": {
+                "modification": "Add a self-review step after the initial solution generation to encourage the model to critically evaluate its own work before proceeding to the formal review step. This can potentially improve the quality of the solution before it reaches the review stage.",
+                "score": 0.9621212121212122
+            }
+        }
+    },
+    "1": {
+        "score": 0.93939,
+        "success": {
+            "2": {
+                "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed.",
+                "score": 0.9621212121212122
+            },
+            "21": {
+                "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed. If the review fails, use the Revise operator to improve the solution.",
+                "score": 0.946969696969697
+            },
+            "29": {
+                "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed. If the review fails, use the Revise operator to improve the solution. Implement this using a while loop for multiple revision attempts.",
+                "score": 0.9431818181818182
+            },
+            "39": {
+                "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed. If the review fails, use the Revise operator to improve the solution. Implement this using a while loop for multiple revision attempts, with a maximum of 3 attempts.",
+                "score": 0.9507575757575758
+            },
+            "49": {
+                "modification": "Add a Review step after generating the solution to ensure its correctness and provide feedback if needed. If the review fails, use the Revise operator to improve the solution. Implement this using a while loop for a maximum of 2 revision attempts.",
+                "score": 0.9659090909090909
+            }
+        },
+        "failure": {}
+    },
+    "18": {
+        "score": 0.9697,
+        "success": {},
+        "failure": {
+            "22": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover hidden aspects of the problem.",
+                "score": 0.9545454545454546
+            },
+            "30": {
+                "modification": "Add a conditional statement to check if the review result is positive. If it is, use the ScEnsemble method to further improve the solution before formatting.",
+                "score": 0.9507575757575758
+            },
+            "36": {
+                "modification": "Add a conditional statement to check if the review result is negative. If it is, use the Revise method instead of Generate to improve the solution before formatting.",
+                "score": 0.9545454545454546
+            },
+            "41": {
+                "modification": "Add a self-consistency check after generating multiple solutions to improve the quality of the final solution before applying FuEnsemble.",
+                "score": 0.9621212121212122
+            },
+            "44": {
+                "modification": "Add a self-consistency check after generating multiple solutions to improve the quality of the final solution before applying FuEnsemble. This can be achieved by using the ScEnsemble method on the generated solutions before passing them to FuEnsemble.",
+                "score": 0.9583333333333334
+            },
+            "50": {
+                "modification": "Add a loop to generate multiple solutions with different approaches, then use ScEnsemble to select the best solution before applying FuEnsemble. This can potentially improve the quality and diversity of solutions.",
+                "score": 0.9621212121212122
+            },
+            "51": {
+                "modification": "Add a loop to generate multiple solutions with different approaches, then use ScEnsemble to select the best solution before applying FuEnsemble. This can potentially improve the quality and diversity of solutions.",
+                "score": 0.9583333333333334
+            }
+        }
+    },
+    "23": {
+        "score": 0.96591,
+        "success": {},
+        "failure": {
+            "26": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or solution approaches.",
+                "score": 0.8825757575757576
+            }
+        }
+    },
+    "25": {
+        "score": 0.97348,
+        "success": {
+            "71": {
+                "modification": "Add a step to check if the problem requires numerical calculations, and if so, use a specialized numerical solver before generating the solution. This can potentially improve the accuracy of solutions for mathematical problems that involve complex calculations.",
+                "score": 1.0
+            }
+        },
+        "failure": {
+            "28": {
+                "modification": "Add a self-ask step after the initial thinking step to encourage deeper analysis and problem-solving. This can help in breaking down complex problems and identifying key information.",
+                "score": 0.9318181818181818
+            },
+            "32": {
+                "modification": "Add a step to break down the problem into smaller subproblems before generating the solution. This can help in tackling complex problems more effectively.",
+                "score": 0.9583333333333334
+            },
+            "33": {
+                "modification": "Add a loop to generate multiple solutions and use the ScEnsemble to select the best one, increasing the chances of finding the optimal solution.",
+                "score": 0.9583333333333334
+            },
+            "37": {
+                "modification": "Add a loop to generate multiple initial solutions and use the FuEnsemble to synthesize an enhanced integrated solution, potentially improving the overall quality of the final answer.",
+                "score": 0.9621212121212122
+            },
+            "38": {
+                "modification": "Add a loop to generate multiple initial solutions and use the FuEnsemble to synthesize an enhanced integrated solution, potentially improving the overall quality of the final answer.",
+                "score": 0.9507575757575758
+            },
+            "43": {
+                "modification": "Add a step to check if the problem requires numerical calculations, and if so, use a specialized numerical solver before generating the solution.",
+                "score": 0.9659090909090909
+            },
+            "45": {
+                "modification": "Add a step to check if the problem requires external knowledge or context, and if so, use the ContextualGenerate operator instead of the regular Generate operator. This can help in solving problems that require specific domain knowledge or additional context.",
+                "score": 0.9583333333333334
+            },
+            "48": {
+                "modification": "Add a step to check if the problem requires external knowledge or context, and if so, use the ContextualGenerate operator instead of the regular Generate operator. This can help in solving problems that require specific domain knowledge or additional context.",
+                "score": 0.9507575757575758
+            }
+        }
+    },
+    "3": {
+        "score": 0.91667,
+        "success": {
+            "4": {
+                "modification": "Add a rephrase step before the thinking step to potentially simplify or clarify the problem statement.",
+                "score": 0.9545454545454546
+            }
+        },
+        "failure": {}
+    },
+    "4": {
+        "score": 0.95455,
+        "success": {},
+        "failure": {
+            "6": {
+                "modification": "Add a self-reflection step after the initial solution generation to enhance critical thinking and problem-solving accuracy.",
+                "score": 0.9356060606060606
+            }
+        }
+    },
+    "7": {
+        "score": 0.96212,
+        "success": {
+            "8": {
+                "modification": "Add a self-consistency check to improve the reliability of the solution by generating multiple solutions and comparing them.",
+                "score": 0.9621212121212122
+            }
+        },
+        "failure": {}
+    }
+}

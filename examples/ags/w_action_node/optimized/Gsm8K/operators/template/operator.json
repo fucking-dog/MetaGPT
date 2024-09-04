@@ -1,0 +1,62 @@
+{
+    "Custom": {
+        "description": "Generates anything based on customized input and instruction.",
+        "interface": "custom(input: str, instruction: str) -> dict with key 'response' of type str"
+    },
+    "Generate": {
+        "description": "Generates solution based on a problem description.",
+        "interface": "generate(problem: str) -> dict with key 'response' of type str"
+    },
+    "ContextualGenerate": {
+        "description": "Generates solution based on a problem description.",
+        "interface": "contextual_generate(problem: str, context: str) -> dict with key 'response' of type str"
+    },
+    "Format": {
+        "description": "Formats a given solution based on the problem.",
+        "interface": "format(problem: str, solution: str) -> dict with key 'solution' of type str"
+    },
+    "Review": {
+        "description": "Reviews a solution based on problem description and criteria.",
+        "interface": "review(problem: str, solution: str) -> dict with key 'review_result' of type bool and key 'feedback' of type str"
+    },
+    "Revise": {
+        "description": "Revises a solution based on problem description, solution, and review's feedback.",
+        "interface": "revise(problem: str, solution: str, feedback: str) -> dict with key 'solution' of type str"
+    },
+    "FuEnsemble": {
+        "description": "Critically evaluates multiple solutions and synthesizes an enhanced integrated solution.",
+        "interface": "fu_ensemble(solutions: List[str], problem: str) -> dict with key 'solution' of type str"
+    },
+    "MdEnsemble": {
+        "description": "Uses multiple votes to choose the best solution from a set of candidate solutions.",
+        "interface": "md_ensemble(solutions: List[str], problem: str) -> dict with key 'solution' of type str"
+    },
+    "ScEnsemble": {
+        "description": "Uses self-consistency to improve the selection of the best solution.",
+        "interface": "sc_ensemble(solutions: List[str], problem: str) -> dict with key 'solution' of type str"
+    },
+    "Rephrase": {
+        "description": "Rephrases a problem description.",
+        "interface": "rephrase(problem: str) -> dict with key 'rephrased_problem' of type str"
+    },
+    "MathStepByStep": {
+        "description": "Breaks down complex math problems into step-by-step solutions, providing detailed explanations for each step.",
+        "interface": "math_step_by_step(problem: str) -> dict with key 'steps' of type List[str] and key 'final_answer' of type str"
+    },
+    "MathStepBreakdown": {
+        "description": "Breaks down a complex math problem into a series of simpler steps, making it easier to solve and understand.",
+        "interface": "math_step_breakdown(problem: str) -> dict with key 'steps' of type List[str]"
+    },
+    "MathProblemDecomposition": {
+        "description": "Decomposes a complex math problem into a series of simpler sub-problems, making it easier to solve and understand. This operator analyzes the given problem, identifies key components, and creates a structured breakdown of steps to solve the problem.",
+        "interface": "math_problem_decomposition(problem: str) -> dict with key 'sub_problems' of type List[str] and key 'solution_strategy' of type str"
+    },
+    "MathConceptExplanation": {
+        "description": "Explains mathematical concepts and principles related to a given problem, enhancing understanding and problem-solving capabilities.",
+        "interface": "math_concept_explanation(problem: str) -> dict with key 'concept_explanation' of type str and key 'related_formulas' of type List[str]"
+    },
+    "MathVisualizer": {
+        "description": "Creates a textual description of visual aids, diagrams, or graphs to help solve and understand mathematical problems. This operator analyzes the problem, determines appropriate visual representations, and provides a detailed description of how to create and interpret these visuals.",
+        "interface": "math_visualizer(problem: str) -> dict with key 'visual_description' of type str and key 'interpretation_guide' of type str"
+    }
+}

@@ -17,6 +17,7 @@ from pydantic import BaseModel, Field
 
 from examples.ags.w_action_node.evaluator import Evaluator
 from examples.ags.w_action_node.prompts.optimize_prompt import (
+    GRAPH_CUSTOM_USE,
     GRAPH_INPUT,
     GRAPH_OPTIMIZE_PROMPT,
     GRAPH_TEMPLATE,
@@ -45,9 +46,8 @@ class OperatorExtend(BaseModel):
     description: str = Field(default="", description="description")
     interface: str = Field(default="", description="interface")
     prompt_variable_name: str = Field(default="", description="prompt_name")
-    prompt: str = Field(default="", description="prompt")
     code: str = Field(default="", description="code")
-
+    prompt: str = Field(default="", description="prompt")
 
 class OperatorSelect(BaseModel):
     selected_operators: str = Field(default="", description="selected operators")
@@ -63,7 +63,7 @@ class OperatorOptimze(BaseModel):
 class GraphOptimize(BaseModel):
     modification: str = Field(default="", description="modification")
     graph: str = Field(default="", description="graph")
-    prompt: str = Field(default="", description="prompt(Only Custom method Prompt)")
+    prompt: str = Field(default="", description="prompt")
 
 
 class Optimizer:
@@ -93,7 +93,7 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 1  # 起始轮次
+        self.round = 0  # 起始轮次
 
     def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 100):
         """
@@ -107,7 +107,7 @@ class Optimizer:
             loop = asyncio.new_event_loop()
             asyncio.set_event_loop(loop)
             try:
-                score = loop.run_until_complete(self._optimize_operator(1))
+                score = loop.run_until_complete(self._optimize_operator(5))
             finally:
                 loop.close()
 
@@ -182,7 +182,7 @@ class Optimizer:
 
     def _load_scores(self, path=None, mode="Graph"):
         if mode == "Graph":
-            rounds_dir = f"{self.root_path}/graphs"
+            rounds_dir = os.path.join(self.root_path, "graphs")
         else:
             rounds_dir = path
         self.top_scores = []
@@ -199,7 +199,6 @@ class Optimizer:
 
                         if filename.endswith(".csv"):
                             # 文件名就是分数
-                            # TODO 在这个版本里面，使用csv文件存储分数不太行
                             score = float(filename[:-4])  # 去除.csv
 
                         self.top_scores.append(
@@ -277,7 +276,7 @@ class Optimizer:
             rounds_dir = os.path.join(self.root_path, "graphs")
         else:
             rounds_dir = path  # 这个path对应的是具体的operator的路径
-        experience_data = defaultdict(lambda: {"score": None, "success": [], "failure": []})
+        experience_data = defaultdict(lambda: {"score": None, "success": {}, "failure": {}})
 
         # 遍历所有轮次的文件夹
         for round_dir in os.listdir(rounds_dir):
@@ -354,6 +353,22 @@ class Optimizer:
 
         return operators_description
 
+    def _load_prompt_description(self, mode: OptimizerType = "Graph"):
+        if mode == "Graph":
+            path = f"{self.root_path}/graphs/template/prompt_lib.json"
+        else:
+            path = f"{self.root_path}/operators/template/prompt_lib.json"
+        prompt_description = ""
+
+        with open(path, "r") as f:
+            operator_data = json.load(f)
+            for key in operator_data.keys():
+                data = operator_data['key']
+                desc = data["description"]
+                prompt_description += f"{key} description: {desc}."
+
+        return prompt_description
+
     async def _optimize_graph(self):
         """
         Optimize Graph's Structure and Prompt
@@ -366,97 +381,99 @@ class Optimizer:
             directory = os.path.join(graph_path, f"round_{self.round + 1}")
             os.makedirs(directory, exist_ok=True)
 
-            # top_rounds = self._get_top_rounds()
-            #
-            # sample = self._select_round(top_rounds)
-            #
-            # print(sample)
-            #
-            # prompt, graph_load = self._read_graph_files(sample["round"], graph_path)
-            # score = sample["score"]
-            #
-            # # 正则表达式匹配 SolveGraph 开始的内容
-            # pattern = r"class SolveGraph:.+"
-            #
-            # # 使用re.findall找到所有匹配项
-            # graph = re.findall(pattern, graph_load, re.DOTALL)
-            #
-            # # 加载处理过的 experience 数据
-            # processed_experience = self._load_experience()
-            #
-            # # 获取当前轮次的 experience 数据
-            # current_round = int(sample["round"])  # 确保是字符串类型
-            # experience_data = processed_experience.get(current_round)
-            #
-            # if experience_data:
-            #     # 构建 experience 字符串
-            #     experience = f"Original Score: {experience_data['score']}\n"
-            #     experience += "Failed modifications:\n"
-            #     for key, value in experience_data["failure"].items():
-            #         experience += f"- {value['modification']} (Score: {value['score']})\n"
-            #     for key, value in experience_data["success"].items():
-            #         experience += f"- {value['modification']} \n"
-            #     experience += "\n\nNote: Reference failed experiences, avoid trying failed approaches again, attempt to change your thinking, not limited to using more advanced Python syntax like for, if, else, etc., or modifying the Prompt part"
-            # else:
-            #     experience = f"No experience data found for round {current_round}."
-            #
-            # operator_description = self._load_operators_description()
-            #
-            # graph_input = GRAPH_INPUT.format(
-            #     experience=experience, score=score, graph=graph[0], prompt=prompt, operator_description=operator_description, type=self.type
-            # )
-            # graph_system = GRAPH_OPTIMIZE_PROMPT.format(type=self.type)
-            #
-            # graph_optimize_prompt = graph_system + graph_input  # TODO 看一眼谁先谁后这个地方
-            #
-            # # TODO 从这里开始，Graph Optimize 可以作为一个Operator放入 Operator.py 之中
-            # graph_optimize_node = await ActionNode.from_pydantic(GraphOptimize).fill(
-            #     context=graph_optimize_prompt, mode="context_fill", llm=self.optimize_llm
-            # )
-            #
-            # max_retries = 5
-            # retries = 0
-            #
-            # while retries < max_retries:
-            #     try:
-            #         # TODO 需要和评测的模型分开（传入模型或其它方法），如果能实现Temperature调整更好
-            #         response = graph_optimize_node.instruct_content.model_dump()
-            #         break
-            #
-            #     except Exception as e:
-            #         retries += 1
-            #         print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
-            #
-            #         if retries == max_retries:
-            #             print("Maximum retries reached. Skipping this sample.")
-            #             break
-            #         time.sleep(5)
-            #
-            # graph_match = response["graph"]
-            # prompt = response["prompt"]
-            # modification = response["modification"]
-            #
-            # graph = GRAPH_TEMPLATE.format(graph=graph_match, round=self.round + 1)
-            #
-            # # 将 graph.py 文件写入到目录中
-            # with open(os.path.join(directory, "graph.py"), "w", encoding="utf-8") as file:
-            #     file.write(graph)
-            #
-            # # 将 prompt.py 文件写入到目录中
-            # with open(os.path.join(directory, "prompt.py"), "w", encoding="utf-8") as file:
-            #     file.write(prompt)
-            #
-            # # 将 prompt.py 文件写入到目录中
-            # with open(os.path.join(directory, "__init__.py"), "w", encoding="utf-8") as file:
-            #     file.write("")
-            #
-            # experience = {
-            #     "father node": sample["round"],
-            #     "modification": modification,
-            #     "before": sample["score"],
-            #     "after": None,
-            #     "succeed": None,
-            # }
+            top_rounds = self._get_top_rounds()
+
+            sample = self._select_round(top_rounds)
+
+            print(sample)
+
+            prompt, graph_load = self._read_graph_files(sample["round"], graph_path)
+            score = sample["score"]
+
+            # 正则表达式匹配 SolveGraph 开始的内容
+            pattern = r"class SolveGraph:.+"
+
+            # 使用re.findall找到所有匹配项
+            graph = re.findall(pattern, graph_load, re.DOTALL)
+
+            # 加载处理过的 experience 数据
+            processed_experience = self._load_experience()
+
+            # 获取当前轮次的 experience 数据
+            current_round = int(sample["round"])  # 确保是字符串类型
+            experience_data = processed_experience.get(current_round)
+
+            if experience_data:
+                # 构建 experience 字符串
+                experience = f"Original Score: {experience_data['score']}\n"
+                experience += "Failed modifications:\n"
+                for key, value in experience_data["failure"].items():
+                    experience += f"- {value['modification']} (Score: {value['score']})\n"
+                for key, value in experience_data["success"].items():
+                    experience += f"- {value['modification']} \n"
+                experience += "\n\nNote: Reference failed experiences, avoid trying failed approaches again, attempt to change your thinking, not limited to using more advanced Python syntax like for, if, else, etc., or modifying the Prompt part"
+            else:
+                experience = f"No experience data found for round {current_round}."
+
+            operator_description = self._load_operators_description()
+
+            prompt_description = self._load_prompt_description()
+
+            graph_input = GRAPH_INPUT.format(
+                experience=experience, score=score, graph=graph[0], prompt=prompt, operator_description=operator_description, type=self.type, prompt_lib=prompt_description
+            )
+            graph_system = GRAPH_OPTIMIZE_PROMPT.format(type=self.type)
+
+            graph_optimize_prompt = graph_input+GRAPH_CUSTOM_USE+graph_system
+
+            # TODO 从这里开始，Graph Optimize 可以作为一个Operator放入 Operator.py 之中
+            graph_optimize_node = await ActionNode.from_pydantic(GraphOptimize).fill(
+                context=graph_optimize_prompt, mode="context_fill", llm=self.optimize_llm
+            )
+
+            max_retries = 5
+            retries = 0
+
+            while retries < max_retries:
+                try:
+                    # TODO 需要和评测的模型分开（传入模型或其它方法），如果能实现Temperature调整更好
+                    response = graph_optimize_node.instruct_content.model_dump()
+                    break
+
+                except Exception as e:
+                    retries += 1
+                    print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+
+                    if retries == max_retries:
+                        print("Maximum retries reached. Skipping this sample.")
+                        break
+                    time.sleep(5)
+
+            graph_match = response["graph"]
+            prompt = response["prompt"]
+            modification = response["modification"]
+
+            graph = GRAPH_TEMPLATE.format(graph=graph_match, round=self.round + 1, dataset=self.dataset)
+
+            # 将 graph.py 文件写入到目录中
+            with open(os.path.join(directory, "graph.py"), "w", encoding="utf-8") as file:
+                file.write(graph)
+
+            # 将 prompt.py 文件写入到目录中
+            with open(os.path.join(directory, "prompt.py"), "w", encoding="utf-8") as file:
+                file.write(prompt)
+
+            # 将 prompt.py 文件写入到目录中
+            with open(os.path.join(directory, "__init__.py"), "w", encoding="utf-8") as file:
+                file.write("")
+
+            experience = {
+                "father node": sample["round"],
+                "modification": modification,
+                "before": sample["score"],
+                "after": None,
+                "succeed": None,
+            }
 
             self._load_graph(self.round + 1, graph_path)
 
@@ -468,11 +485,11 @@ class Optimizer:
             score = await evaluator.validation_evaluate(
                 self.dataset, self.graph, {"dataset": self.dataset, "llm_config": self.execute_llm_config}, directory
             )
-            # experience["after"] = score
-            # experience["succeed"] = bool(score > experience["before"])
-            #
-            # with open(os.path.join(directory, "experience.json"), "w", encoding="utf-8") as file:
-            #     json.dump(experience, file, ensure_ascii=False, indent=4)
+            experience["after"] = score
+            experience["succeed"] = bool(score > experience["before"])
+
+            with open(os.path.join(directory, "experience.json"), "w", encoding="utf-8") as file:
+                json.dump(experience, file, ensure_ascii=False, indent=4)
 
             return score
 
@@ -505,7 +522,7 @@ class Optimizer:
             prompt_file_path = os.path.join(operator_path, "template", "op_prompt.py")  # template path
             prompt_content = find_operator_prompt(operator, prompt_file_path)
             operator_file_path = os.path.join(operator_path, "template", "operator.py")
-            with open(operator_file_path, "r") as file:
+            with open(operator_file_path, "r", encoding='utf-8') as file:
                 content = file.read()
             pattern = rf"class\s+{re.escape(operator)}\(.*?\):\s*.*?(?=\nclass|\Z)"
             match = re.search(pattern, content, re.DOTALL | re.MULTILINE)
@@ -654,7 +671,7 @@ class Optimizer:
         # 优化阶段
         for operator in self.operators:
             # Fixed Prompt
-            if operator == "Format" or operator == "Custom":
+            if operator == "Format" or operator == "Custom" or operator == "Generate":
                 continue
             optimize_operator_path = f"{operators_path}/{operator}"
             cur_operator_score_dict = {}
@@ -716,7 +733,7 @@ class Optimizer:
                     context=operator_node_prompt, mode="context_fill", llm=self.optimize_llm
                 )
 
-                max_retries = 5
+                max_retries = 1
                 retries = 0
 
                 while retries < max_retries:
