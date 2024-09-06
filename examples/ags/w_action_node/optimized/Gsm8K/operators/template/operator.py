@@ -11,7 +11,7 @@ from metagpt.llm import LLM
 
 class Custom(Operator):
     def __init__(self, llm: LLM, name: str = "Custom"):
-        super.__init__(name, llm)
+        super().__init__(name, llm)
 
     async def __call__(self, input, instruction):
         prompt = input + instruction
@@ -25,7 +25,7 @@ class Generate(Operator):
         super().__init__(name, llm)
 
     async def __call__(self, problem):
-        prompt = Generate_PROMPT.format(problem=problem)
+        prompt = GENERATE_PROMPT.format(problem=problem)
         node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm, mode="single_fill")
         response = node.instruct_content.model_dump()
         return response
@@ -37,7 +37,7 @@ class ContextualGenerate(Operator):
 
     @retry(stop=stop_after_attempt(3))
     async def __call__(self, problem, context):
-        prompt = ContextualGenerate_PROMPT.format(problem=problem, context=context)
+        prompt = CONTEXTUAL_GENERATE_PROMPT.format(problem=problem, context=context)
         node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm, mode="single_fill")
         response = node.instruct_content.model_dump()
         return response
@@ -50,7 +50,7 @@ class Format(Operator):
     # 使用JSON MODE 输出 Formatted 的结果
     async def __call__(self, problem, solution):
         prompt = FORMAT_PROMPT.format(problem=problem, solution=solution)
-        node = await ActionNode.from_pydantic(FormatOp).fill(context=prompt, llm=self.llm)
+        node = await ActionNode.from_pydantic(FormatOp).fill(context=prompt, llm=self.llm, mode="single_fill")
         response = node.instruct_content.model_dump()
         return response  # {"solution":"xxx"}
 
@@ -62,7 +62,7 @@ class Review(Operator):
 
     async def __call__(self, problem, solution):
         prompt = REVIEW_PROMPT.format(problem=problem, solution=solution, criteria=self.criteria)
-        node = await ActionNode.from_pydantic(ReviewOp).fill(context=prompt, llm=self.llm)
+        node = await ActionNode.from_pydantic(ReviewOp).fill(context=prompt, llm=self.llm, mode="context_fill")
         response = node.instruct_content.model_dump()
         return response  # {"review_result": True, "feedback": "xxx"}
 
@@ -91,7 +91,7 @@ class FuEnsemble(Operator):
         for solution in solutions:
             solution_text += str(solution) + "\n"
         prompt = FU_ENSEMBLE_PROMPT.format(solutions=solution_text, problem=problem)
-        node = await ActionNode.from_pydantic(FuEnsembleOp).fill(context=prompt, llm=self.llm)
+        node = await ActionNode.from_pydantic(FuEnsembleOp).fill(context=prompt, llm=self.llm, mode="context_fill")
         response = node.instruct_content.model_dump()
         return {"solution": response["final_solution"]}  # {"final_solution": "xxx"}
 
@@ -125,7 +125,7 @@ class MdEnsemble(Operator):
                 solution_text += f"{chr(65 + index)}: \n{str(solution)}\n\n\n"
 
             prompt = MD_ENSEMBLE_PROMPT.format(solutions=solution_text, problem=problem)
-            node = await ActionNode.from_pydantic(MdEnsembleOp).fill(context=prompt, llm=self.llm)
+            node = await ActionNode.from_pydantic(MdEnsembleOp).fill(context=prompt, llm=self.llm, mode="context_fill")
             response = node.instruct_content.model_dump()
 
             answer = response.get("solution_letter", "")
@@ -179,39 +179,8 @@ class Rephrase(Operator):
         super().__init__(name, llm)
 
     async def __call__(self, problem: str) -> str:
-        prompt = REPHRASE_ON_PROBLEM_PROMPT.format(problem=problem)
+        prompt = REPHRASE_PROMPT.format(problem=problem)
         node = await ActionNode.from_pydantic(RephraseOp).fill(context=prompt, llm=self.llm, mode="single_fill")
         response = node.instruct_content.model_dump()
         return response  # {"rephrased_problem": "xxx"}
 
-class MathStepBreakdown(Operator):
-    def __init__(self, llm: LLM, name: str = "MathStepBreakdown"):
-        super().__init__(name, llm)
-
-    async def __call__(self, problem: str):
-        prompt = MATH_STEP_BREAKDOWN_PROMPT.format(problem=problem)
-        node = await ActionNode.from_pydantic(MathStepBreakdownOp).fill(context=prompt, llm=self.llm)
-        response = node.instruct_content.model_dump()
-        return {"steps": response["steps"], "explanation": response["explanation"]}
-
-
-class MathStepBreakdown(Operator):
-    def __init__(self, llm: LLM, name: str = "MathStepBreakdown"):
-        super().__init__(name, llm)
-
-    async def __call__(self, problem: str):
-        prompt = MATH_STEP_BREAKDOWN_PROMPT.format(problem=problem)
-        node = await ActionNode.from_pydantic(MathStepBreakdownOp).fill(context=prompt, llm=self.llm)
-        response = node.instruct_content.model_dump()
-        return {"steps": response["steps"], "explanations": response["explanations"]}
-
-
-class MathStepByStep(Operator):
-    def __init__(self, llm: LLM, name: str = "MathStepByStep"):
-        super().__init__(name, llm)
-
-    async def __call__(self, problem: str):
-        prompt = MATH_STEP_BY_STEP_PROMPT.format(problem=problem)
-        node = await ActionNode.from_pydantic(MathStepByStepOp).fill(context=prompt, llm=self.llm)
-        response = node.instruct_content.model_dump()
-        return {"steps": response["steps"], "final_answer": response["final_answer"]}

@@ -1,17 +1,16 @@
-OPERATOR_EXTEND_PROMPT = """
-You are tasked with developing an additional operator and the corresponding prompts to collaboratively solve {type} problems.
-
-While we typically address these issues using the provided list of operators, I'd like you to apply critical thinking principles (questioning, validating, and self-inquiry) to generate more operators capable of solving this problem.
-
-Please present your newly created operator description, prompt, and its associated code within XML tags in your response. These will be utilized as new operator for problem-solving. Ensure that the operator is comprehensive and accurate to avoid potential runtime errors.
-Keep the prompt variable name consistent with the operator's name, and append _PROMPT to it.
-"""
+OPERATOR_EXTEND_PROMPT = """Your task is to develop a prompt to guide/collaborate with a {type} artificial 
+intelligence (text-based large language model, unable to utilize multimodal data/visualizations) in solving {type} 
+problems. While we typically employ a provided list of prompts to address these issues, I encourage you to apply 
+principles of critical thinking (questioning, validating, and self-inquiry) to generate additional prompts that can 
+effectively tackle this problem. Please present your newly created prompt name, description, and the prompt itself 
+within XML tags in your response. These will be utilized as new prompts for problem-solving. Ensure that the prompts 
+are comprehensive and accurate. The prompt should be as general as possible, not limited to a specific method, 
+and meticulously detailed, producing only what is practically useful for solving the actual problem.The name and description of the prompt needs to be more concise."""
 
 OPERATOR_EXTEND_INPUT_PROMPT = """
-Below is a list of operators and two examples of operator's code:
+Below is a list of the existing prompts in the Prompt Library.
 <sample>
     <operators>{operators}</operators>
-    <code_examples>{code}</code_examples>
 </sample>
 """
 
@@ -80,15 +79,17 @@ class ScEnsemble(Operator):
 """
 
 OPERATOR_OPTIMIZE_PROMPT = """
-Your task is to optimize an Operator that executes within a SolveGraph to collaboratively address {type} problems.
+Your task is to optimize an Operator that operates within a SolveGraph to collaboratively solve {type} problems.
 
-When optimizing, you should preserve the original function of the Operator, focusing on enhancement rather than complete reconstruct.
+During the optimization process, the original function of the Operator should be preserved, with a focus on enhancement rather than a complete reconstruction.
 
-Given an example SolveGraph or the current SolveGraph, along with the Operator description and its corresponding prompt, please execute the Operator within the SolveGraph, refining the prompt to improve performance. Remember, in the solvengraph you can only use the current operator.
+Please provide a suitable description of the Operator and the corresponding Prompt, refining the prompt to improve performance.
 
-In your response, make only one modification (e.g., a single sentence) and provide the updated Operator_description, Prompt, and SolveGraph enclosed within XML tags. These will be used as the new Prompt for the Operator in subsequent computations and iterations. Ensure that your modifications are complete and accurate to prevent any potential runtime errors.
+In your response, provide the updated Operator_description and Prompt and modification, enclosed within XML tags. These will be used as the new Prompt for the Operator in subsequent computations and iterations.
 
-Ensure the SolveGraph output is formatted correctly so that it can be directly used in code execution. Ensure that each prompt 's placeholder is consistent with SolveGraph.
+Ensure that each prompt's placeholder is consistent with the SolveGraph.Prompt no more than 300 words.
+
+Do not provide any guidance on output format; it has already been set. Including it in the prompt may cause errors.
 """
 
 
@@ -104,11 +105,10 @@ Below is an operator and its corresponding solevgraph, prompt that demonstrated 
     <prompt>{prompt}</prompt>
 </sample>
 """
-
+# TODO 换为统一的模板
 OPERATOR_OPTIMIZE_GRAPH_EXAMPLE = """from typing import Literal
-from examples.ags.w_action_node.optimized.Gsm8K.operators.{operator_name}.round_{round}.operator import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.{operator_name}.round_{round}.prompt import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator import Format, Generate
+from examples.ags.w_action_node.optimized.{dataset}.operators.{operator_name}.round_{round}.operator import *
+from examples.ags.w_action_node.optimized.{dataset}.operators.template.operator import Format,Custom
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 
@@ -128,7 +128,11 @@ Python's loops (for, while, list comprehensions), conditional statements (if-eli
 or machine learning techniques (e.g., linear regression, decision trees, neural networks, clustering). The graph 
 complexity should not exceed 10. Use logical and control flow (IF-ELSE, loops) for a more enhanced graphical 
 representation.Ensure that all the prompts required by the current graph from prompt_custom are included.Exclude any other prompts.
-Output the modified graph and all the necessary Prompts in prompt_custom (if needed)."""
+Output the modified graph and all the necessary Prompts in prompt_custom (if needed).
+The prompt you need to generate is only the one used in `prompt_custom.XXX` within Custom. Other methods, such as Review, already have built-in prompts and are prohibited from being generated. Only generate those needed for use in `prompt_custom`; please remove any unused prompts in prompt_custom.
+the generated prompt must not contain any placeholders.
+Considering information loss, complex graphs may yield better results, but insufficient information transmission can omit the solution. It's crucial to include necessary context during the process."""
+
 
 GRAPH_INPUT = """
 Here is a Graph and corresponding Prompt(only relate to the Custom method) that performed excellently in a previous iteration (maximum score is 1):\n
@@ -144,21 +148,23 @@ Here is a Graph and corresponding Prompt(only relate to the Custom method) that 
 First provide optimization ideas. Only add/modify/delete one detail point, extensive modifications are prohibited.\n\n
 """
 
-GRAPH_CUSTOM_USE = """Here's an example of using the `custom` method in graph:
+GRAPH_CUSTOM_USE = """\nHere's an example of using the `custom` method in graph:
 ```
 # You can write your own prompt in <prompt>prompt_custom</prompt> and then use it in the Custom method in the graph
 response = await self.custom(input=problem, instruction=prompt_custom.XXX_PROMPT)
 # You can also use an existing prompt from prompt_lib without writing your own
 # response = await self.custom(input=problem, instruction=prompt_lib.XXX_PROMPT)
+# You can also concatenate previously generated string results in the input to provide more comprehensive contextual information.
+# response = await self.custom(input=problem+f"xxx:{xxx}, xxx:{xxx}", instruction=prompt_custom.XXX_PROMPT)
 # The output from the Custom method can be placed anywhere you need it, as shown in the example below
-solution = await self.generate(problem=problem + response['response'])
-```
+solution = await self.generate(problem=f"question:{problem}, xxx:{response['response']}")
+```\n
 """
 
 GRAPH_TEMPLATE = """from typing import Literal
 import examples.ags.w_action_node.optimized.{dataset}.graphs.template.operator as operator
 import examples.ags.w_action_node.optimized.{dataset}.graphs.round_{round}.prompt as prompt_custom
-import examples.ags.w_action_node.optimized.{dataset}.graphs.template.prompt_library as prompt_lib
+import examples.ags.w_action_node.optimized.{dataset}.graphs.template.prompt_lib as prompt_lib
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 
@@ -170,10 +176,11 @@ DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
 
 
 
-OPERATOR_TEMPLATE = """from typing import Literal, List, Dict
+OPERATOR_TEMPLATE = """from typing import Literal, List, Dict, Tuple
 from pydantic import BaseModel, Field
 from tenacity import retry, stop_after_attempt
-
+import random
+from collections import Counter
 from metagpt.llm import LLM
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from examples.ags.w_action_node.operator import Operator

@@ -1,7 +1,6 @@
 from typing import Literal
 from examples.ags.w_action_node.optimized.Gsm8K.operators.Generate.round_1.operator import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.Generate.round_1.prompt import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator import Format
+from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator import Format,Format
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 
@@ -26,8 +25,10 @@ class SolveGraph:
         Implementation of the graph based on the generate operator, you can modify it to fit operators you want to use.
         For Example, for Custom Operator, you can add self.custom = Custom(self.llm) and call it in the __call__ method
         """
+        # The following is the most basic invocation, attempting to introduce your newly modified 'Operator' to test its effect.The `format` method must be placed at the final layer.
         solution = await self.generate(problem)
         format_solution = await self.format(problem=problem, solution=solution['response'])
         return format_solution, self.llm.cost_manager.total_cost
+
 
                     

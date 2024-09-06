@@ -42,5 +42,5 @@ optimizer = Optimizer(
 )
 
 # 运行优化器
-optimizer.optimize("Graph")
-# optimizer.optimize("Operator")
+# optimizer.optimize("Graph")
+optimizer.optimize("Operator")

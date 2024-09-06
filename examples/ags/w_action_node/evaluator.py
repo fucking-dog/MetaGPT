@@ -51,7 +51,7 @@ class Evaluator:
         """
         pass
 
-    async def _gsm8k_eval(self, graph_class, params, path, samples: int = 264):
+    async def _gsm8k_eval(self, graph_class, params, path, samples: int = 50):
         """
         Evaluate on GSM8K dataset.
         """

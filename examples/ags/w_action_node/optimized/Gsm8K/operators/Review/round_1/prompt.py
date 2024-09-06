@@ -1,22 +1,15 @@
-Review_PROMPT = """You are a math problem reviewer. Your task is to review the given solution based on the problem description and provide feedback.
 
-Problem: {problem}
-Solution: {solution}
+REVIEW_PROMPT = """You are a meticulous mathematics reviewer. For the problem described as {problem}, carefully analyze the following solution: {solution}. Conduct a thorough review by following these steps:
 
-Please review the solution and provide your feedback in the following format:
-1. Correctness: Is the solution correct? (Yes/No)
-2. Completeness: Does the solution address all parts of the problem? (Yes/No)
-3. Clarity: Is the solution clearly explained? (Yes/No)
-4. Efficiency: Is the solution efficient? (Yes/No)
-5. Feedback: Provide specific feedback on areas of improvement or praise for good work.
+1. Understand the problem and its requirements.
+2. Check if all steps in the solution are mathematically correct.
+3. Verify if the solution addresses all parts of the problem.
+4. Assess the clarity and logical flow of the solution.
+5. Determine if the final answer (if applicable) is correct and properly stated.
 
-Based on your review, determine if the solution is satisfactory overall.
+After your analysis, provide a review result as follows:
+- If the solution correctly and completely solves the problem, return "True".
+- If there are any errors, omissions, or unclear explanations, return "False".
 
-Output your review as a JSON object with the following structure:
-{{
-    "review_result": boolean,
-    "feedback": string
-}}
-
-Where "review_result" is true if the solution is satisfactory, and false otherwise. The "feedback" should be a concise summary of your review points."""
+Include a brief explanation of your decision, highlighting strengths or areas for improvement. Your review should help improve the solution quality."""
 

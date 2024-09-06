@@ -38,25 +38,5 @@
     "Rephrase": {
         "description": "Rephrases a problem description.",
         "interface": "rephrase(problem: str) -> dict with key 'rephrased_problem' of type str"
-    },
-    "MathStepByStep": {
-        "description": "Breaks down complex math problems into step-by-step solutions, providing detailed explanations for each step.",
-        "interface": "math_step_by_step(problem: str) -> dict with key 'steps' of type List[str] and key 'final_answer' of type str"
-    },
-    "MathStepBreakdown": {
-        "description": "Breaks down a complex math problem into a series of simpler steps, making it easier to solve and understand.",
-        "interface": "math_step_breakdown(problem: str) -> dict with key 'steps' of type List[str]"
-    },
-    "MathProblemDecomposition": {
-        "description": "Decomposes a complex math problem into a series of simpler sub-problems, making it easier to solve and understand. This operator analyzes the given problem, identifies key components, and creates a structured breakdown of steps to solve the problem.",
-        "interface": "math_problem_decomposition(problem: str) -> dict with key 'sub_problems' of type List[str] and key 'solution_strategy' of type str"
-    },
-    "MathConceptExplanation": {
-        "description": "Explains mathematical concepts and principles related to a given problem, enhancing understanding and problem-solving capabilities.",
-        "interface": "math_concept_explanation(problem: str) -> dict with key 'concept_explanation' of type str and key 'related_formulas' of type List[str]"
-    },
-    "MathVisualizer": {
-        "description": "Creates a textual description of visual aids, diagrams, or graphs to help solve and understand mathematical problems. This operator analyzes the problem, determines appropriate visual representations, and provides a detailed description of how to create and interpret these visuals.",
-        "interface": "math_visualizer(problem: str) -> dict with key 'visual_description' of type str and key 'interpretation_guide' of type str"
     }
 }
