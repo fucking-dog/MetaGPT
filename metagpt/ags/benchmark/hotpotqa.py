@@ -6,6 +6,9 @@ import string
 from typing import Literal, Optional
 
 import aiofiles
+import sys
+import os
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../..')))
 
 from examples.ags.w_action_node.graph import HotpotQAGraph
 from examples.ags.w_action_node.operator import Format, GenerateOnContext

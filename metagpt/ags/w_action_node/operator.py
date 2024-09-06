@@ -11,7 +11,7 @@ from typing import Dict, List, Tuple
 
 from tenacity import retry, stop_after_attempt
 
-from examples.ags.w_action_node.operator_an import (
+from metagpt.ags.w_action_node.operator_an import (
     CodeGenerateOp,
     FormatOp,
     FuEnsembleOp,
@@ -23,7 +23,7 @@ from examples.ags.w_action_node.operator_an import (
     ReviseOp,
     ScEnsembleOp,
 )
-from examples.ags.w_action_node.prompt import (
+from metagpt.ags.w_action_node.prompt import (
     CODE_CONTEXTUAL_GENERATE_PROMPT,
     CONTEXTUAL_GENERATE_PROMPT,
     FORMAT_PROMPT,
@@ -37,7 +37,7 @@ from examples.ags.w_action_node.prompt import (
     REVISE_PROMPT,
     SC_ENSEMBLE_PROMPT,
 )
-from examples.ags.w_action_node.utils import test_case_2_test_function
+from metagpt.ags.w_action_node.utils import test_case_2_test_function
 from metagpt.actions.action_node import ActionNode
 from metagpt.llm import LLM
 from metagpt.logs import logger

@@ -10,7 +10,7 @@ from typing import Literal
 import pandas as pd
 from deepeval.benchmarks import GSM8K
 
-from examples.ags.benchmark.gsm8k import GraphModel
+from metagpt.ags.benchmark.gsm8k import GraphModel
 
 # TODO 完成实验数据集的手动划分
 
