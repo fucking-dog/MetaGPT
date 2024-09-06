@@ -1,0 +1,35 @@
+{
+    "Generate": {
+        "description": "This operator generates a response using a language model based on the provided input and prompt.",
+        "input": {
+            "input": {
+                "type": "str",
+                "description": "The input data provided by the user."
+            },
+            "prompt": {
+                "type": "str",
+                "description": "The prompt template used to guide the generation."
+            }
+        },
+        "output": {
+            "type": "dict",
+            "keys": ["content"],
+            "description": "The generated content, represented as a dictionary with a single key 'content' containing the generated text."
+        }
+    },
+    "Format": {
+        "description": "This operator formats the input data according to a predefined prompt.",
+        "input": {
+            "input": {
+                "type": "str",
+                "description": "original question and final solution that needs to be formatted."
+            }
+        },
+        "output": {
+            "type": "dict",
+            "keys": ["content"],
+            "description": "The formatted solution, represented as a dictionary with a single key 'content' containing the formatted text."
+        }
+    }
+}
+

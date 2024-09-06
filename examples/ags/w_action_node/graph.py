@@ -5,12 +5,13 @@
 
 from typing import Literal
 
-# from examples.ags.w_action_node.operator import * 改
+from examples.ags.w_action_node.operator import *
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 
 DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
 
+cost_manager = CostManager()
 
 class SolveGraph:
     def __init__(
@@ -23,7 +24,7 @@ class SolveGraph:
         self.dataset = dataset
         self.llm = create_llm_instance(llm_config)
         self.llm.cost_manager = CostManager()
-        # self.generate = Generate() 改
+        self.generate = Generate()
 
     async def __call__(self, problem: str):
         """
