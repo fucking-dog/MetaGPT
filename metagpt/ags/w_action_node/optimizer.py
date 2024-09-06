@@ -10,6 +10,7 @@ import re
 import time
 from collections import defaultdict
 from typing import List, Literal
+import traceback
 
 
 
@@ -160,6 +161,7 @@ class Optimizer:
             graph_class = getattr(graph_module, "SolveGraph")
             self.graph = graph_class
         except ImportError as e:
+            stack_trace = traceback.format_exc()
             print(f"Error loading graph for round {round_number}: {e}")
             raise
 

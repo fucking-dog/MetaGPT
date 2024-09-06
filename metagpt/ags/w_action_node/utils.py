@@ -8,8 +8,8 @@ import json
 import re
 from typing import Any, List, Tuple
 
-from examples.ags.w_action_node.operator_an import TestCaseExtractOp
-from examples.ags.w_action_node.prompt import EXTRACT_CASE_PROMPT
+from metagpt.ags.w_action_node.operator_an import TestCaseExtractOp
+from metagpt.ags.w_action_node.prompt import EXTRACT_CASE_PROMPT
 from metagpt.actions.action_node import ActionNode
 from metagpt.llm import LLM
 
