@@ -7,6 +7,12 @@ GENERATE_PROMPT = """
 Generate Solution for the following problem: {problem_description}
 """
 
+GENERATE_COT_PROMPT = """
+Please think step by step and then solve the task: {problem_description},
+output your thought step first, then wrap your final answer within <solution>your solution</solution>
+"""
+
+
 CONTEXTUAL_GENERATE_PROMPT = """
 Generate Solution for the following problem: 
 

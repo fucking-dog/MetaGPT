@@ -35,7 +35,7 @@ from metagpt.ags.w_action_node.prompt import (
     REPHRASE_ON_PROBLEM_PROMPT,
     REVIEW_PROMPT,
     REVISE_PROMPT,
-    SC_ENSEMBLE_PROMPT,
+    SC_ENSEMBLE_PROMPT, GENERATE_COT_PROMPT,
 )
 from metagpt.ags.w_action_node.utils import test_case_2_test_function
 from metagpt.actions.action_node import ActionNode
@@ -63,6 +63,20 @@ class Generate(Operator):
     async def __call__(self, problem_description):
         prompt = GENERATE_PROMPT.format(problem_description=problem_description)
         node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm)
+        response = node.instruct_content.model_dump()
+        return response
+
+class CotGenerate(Operator):
+    """
+    基于Action Node Fill Function的 Generate 算子
+    """
+
+    def __init__(self, llm: LLM, name: str = "CotGenerate"):
+        super().__init__(name, llm)
+
+    async def __call__(self, problem_description,mode="context_fill"):
+        prompt = GENERATE_COT_PROMPT.format(problem_description=problem_description)
+        node = await ActionNode.from_pydantic(GenerateOp).fill(context=prompt, llm=self.llm, mode=mode)
         response = node.instruct_content.model_dump()
         return response
 

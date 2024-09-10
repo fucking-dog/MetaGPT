@@ -533,6 +533,12 @@ class ActionNode:
                 extracted_data[field_name] = match.group(1).strip()
         return extracted_data
 
+    async def single_fill(self, context):
+        field_name = self.get_field_name()
+        prompt = context
+        content = await self.llm.aask(prompt)
+        result = {field_name: content}
+        return result
     async def fill(
         self,
         context,
@@ -581,6 +587,10 @@ class ActionNode:
             """
             context = self.xml_compile(context=self.context)
             result = await self.context_fill(context)
+            self.instruct_content = self.create_class()(**result)
+            return self
+        elif mode == "single_fill":
+            result = await self.single_fill(context)
             self.instruct_content = self.create_class()(**result)
             return self
 
