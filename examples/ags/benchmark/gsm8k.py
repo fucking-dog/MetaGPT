@@ -12,18 +12,35 @@ from typing import Optional, List, Tuple, Callable
 from tqdm.asyncio import tqdm_asyncio
 
 from examples.ags.benchmark.utils import generate_random_indices
+from metagpt.logs import logger
 
-def extract_number(text: str) -> Optional[float]:
-    """Clean text and extract a single number"""
-    matches = re.findall(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?|\d+\.\d+", text)
-    if matches:
-        last_number = matches[-1].replace(",", "")
-        try:
-            return float(last_number)
-        except ValueError:
+
+def extract_number(price_str: str) -> Optional[float]:
+    if isinstance(price_str, int) or isinstance(price_str, float):
+        return price_str
+
+    price_str = price_str or ""
+    # Remove commas from the string
+    price_str = price_str.replace(",", "")
+
+    try:
+        # Regular expression to match all numeric values
+        matches = re.findall(r"\d+(?:\.\d+)?", price_str)
+
+        if len(matches) == 1:
+            # Only one number found, return it as int or float
+            number_str = matches[0]
+            return float(number_str) if "." in number_str else int(number_str)
+        elif len(matches) > 1:
+            # More than one number found, handle accordingly
+            logger.warning(f"Multiple numbers found in string: {matches}, str: {price_str}")
             return None
-    else:
-        return None
+            # return None
+        else:
+            return None  # Return None if no number is found
+    except Exception as e:
+        logger.error("extract_number_from_string failed: " + str(e) + f", str: {price_str}")
+        return None  # Return None if there is an error
 
 def loose_match_score(expected_output: str, prediction: str, tolerance: float = 1e-6) -> int:
     """Loose match score calculation function"""
@@ -64,33 +81,33 @@ async def evaluate_problem(input: str, graph: Callable, expected_output: str) ->
     prompt = input
     max_retries = 5
     retries = 0
-    prediction = await graph(prompt)
-    cost = prediction[1]
-    output = prediction[0]["solution"]
-
-    print(output)
-
-    score = loose_match_score(expected_output, output)
+    # prediction = await graph(prompt)
+    # cost = prediction[1]
+    # output = prediction[0]["solution"]
+    #
+    # print(output)
+    #
+    # score = loose_match_score(expected_output, output)
     # break
-    # while retries < max_retries:
-    #     try:
-    #         prediction = await graph(prompt)
-    #         cost = prediction[1]
-    #         output = prediction[0]["solution"]
+    while retries < max_retries:
+        try:
+            prediction = await graph(prompt)
+            cost = prediction[1]
+            output = prediction[0]["solution"]
 
-    #         score = loose_match_score(expected_output, output)
-    #         break
+            score = loose_match_score(expected_output, output)
+            break
 
-    #     except Exception as e:
-    #         retries += 1
-    #         print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+        except Exception as e:
+            retries += 1
+            print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
 
-    #         if retries == max_retries:
-    #             print("Maximum retries reached. Skipping this sample.")
-    #             output = None
-    #             cost = None
-    #             score = 0
-    #             break
+            if retries == max_retries:
+                print("Maximum retries reached. Skipping this sample.")
+                output = None
+                cost = None
+                score = 0
+                break
 
     return input, output, expected_output, score, cost
 
@@ -111,7 +128,7 @@ async def evaluate_all_problems(data: List[dict], graph: Callable, max_concurren
 async def gsm8k_evaluation(graph: Callable, file_path: str, samples: int, path: str, test=False) -> Tuple[float, float]:
     """GSM8K evaluation main function"""
     data = await load_data(file_path, samples, test=test)
-    results = await evaluate_all_problems(data, graph, max_concurrent_tasks=5)
+    results = await evaluate_all_problems(data, graph, max_concurrent_tasks=30)
     average_score, total_cost = save_results_to_csv(results, path=path)
     print(f"Average score: {average_score:.5f}")
     print(f"Total Cost: {total_cost:.5f}")

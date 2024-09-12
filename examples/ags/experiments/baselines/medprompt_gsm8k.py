@@ -11,8 +11,9 @@ from collections import Counter
 
 import random
 
-GSM8K_PROMPT_GPT = """
-{question}\nPlease reason step by step, and to ensure accuracy, provide the correct answer in the final, without any additional text.
+GENERATE_COT_PROMPT = """
+Please think step by step and then solve the task: {question},
+and put your final answer in the end in the solution tag, without anything additional. Wrap content using xml tags.
 """
 
 GSM8K_PROMPT_DS = """
@@ -20,6 +21,7 @@ GSM8K_PROMPT_DS = """
 """
 
 class GenerateOp(BaseModel):
+    thought: str = Field(default="", description="your step by step thought")
     solution: str = Field(default="", description="solution for the problem")
 
 class CoTGenerate(Operator):
@@ -27,7 +29,7 @@ class CoTGenerate(Operator):
         super().__init__(name, llm)
 
     async def __call__(self, problem, mode: str = None):
-        prompt = GSM8K_PROMPT_GPT.format(question=problem)
+        prompt = GENERATE_COT_PROMPT.format(question=problem)
         fill_kwargs = {"context": prompt, "llm": self.llm}
         if mode:
             fill_kwargs["mode"] = mode
@@ -111,7 +113,7 @@ class MedPromptGraph(SolveGraph):
 
     async def __call__(self, problem):
         solutions = []
-        for i in range(2):
+        for i in range(5):
             solution = await self.cot_generate(problem, mode="context_fill")
             solutions.append(solution["solution"])
         solution = await self.md_ensemble(solutions, problem, mode="context_fill")
@@ -120,7 +122,7 @@ class MedPromptGraph(SolveGraph):
 if __name__ == "__main__":
     async def main():
         llm_config = ModelsConfig.default().get("deepseek-coder")
-        # llm_config = ModelsConfig.default().get("gpt-4o-mini")
+        #llm_config = ModelsConfig.default().get("gpt-4o-mini")
         # llm_config = ModelsConfig.default().get("gpt-35-turbo-1106")
         graph = MedPromptGraph(name="MedPrompt", llm_config=llm_config, dataset="Gsm8K", vote_count=2)
         file_path = "examples/ags/data/gsm8k.jsonl"
