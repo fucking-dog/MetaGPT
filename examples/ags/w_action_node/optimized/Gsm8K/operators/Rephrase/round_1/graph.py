@@ -28,9 +28,9 @@ class SolveGraph:
         """
         # The following is the most basic invocation, attempting to introduce your newly modified 'Operator' to test its effect.The `format` method must be placed at the final layer
         information = await self.rephrase(problem=problem)
-        solution = await self.custom(input=f"problem:{problem}+information:{information['rephrased_problem']}", instruction="")
+        solution = await self.custom(input=f"problem:{problem}+information:{information['response']}", instruction="")
         format_solution = await self.format(problem=problem, solution=solution['response'])
-        return format_solution, self.llm.cost_manager.total_cost
+        return format_solution['response'], self.llm.cost_manager.total_cost
 
 
                     

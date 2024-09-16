@@ -32,10 +32,10 @@ class SolveGraph:
         solutions = []
         for i in range(self.vote_count):
             solution = await self.custom(problem, instruction="")
-            solutions.append(solution)
+            solutions.append(solution['response'])
         solution = await self.sc_ensemble(problem=problem, solutions=solutions)
-        format_solution = await self.format(problem=problem, solution=solution['solution'])
-        return format_solution, self.llm.cost_manager.total_cost
+        format_solution = await self.format(problem=problem, solution=solution['response'])
+        return format_solution['response'], self.llm.cost_manager.total_cost
 
 
                     

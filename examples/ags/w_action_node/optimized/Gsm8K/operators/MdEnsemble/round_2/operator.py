@@ -8,7 +8,7 @@ from metagpt.provider.llm_provider_registry import create_llm_instance
 from examples.ags.w_action_node.operator import Operator
 from metagpt.actions.action_node import ActionNode
 from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator_an import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.MdEnsemble.round_1.prompt import *
+from examples.ags.w_action_node.optimized.Gsm8K.operators.MdEnsemble.round_2.prompt import *
 
 class MdEnsemble(Operator):
     """
@@ -51,5 +51,5 @@ class MdEnsemble(Operator):
 
         most_frequent_index = Counter(all_responses).most_common(1)[0][0]
         final_answer = solutions[most_frequent_index]
-        return {"solution": final_answer}  # {"final_solution": "xxx"}
+        return {"response": final_answer}  # {"final_solution": "xxx"}
                     

@@ -32,12 +32,11 @@ class SolveGraph:
         for i in range(5):
             solution = await self.custom(input=problem, instruction="")
             review_result = await self.review(problem, solution["response"])
-            if review_result['review_result'] == "True":
+
+            if review_result.get('review_result') is True:  # 确保为 True 才中断
                 break
-            elif review_result['review_result'] == "False":
+            elif review_result.get('review_result') is False:  # 确保为 False 时继续循环
                 continue
-            else:
-                break
 
         format_solution = await self.format(problem=problem, solution=solution['response'])
-        return format_solution, self.llm.cost_manager.total_cost
+        return format_solution['response'], self.llm.cost_manager.total_cost

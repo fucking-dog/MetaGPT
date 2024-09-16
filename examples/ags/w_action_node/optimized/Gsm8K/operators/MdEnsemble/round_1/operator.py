@@ -51,5 +51,5 @@ class MdEnsemble(Operator):
 
         most_frequent_index = Counter(all_responses).most_common(1)[0][0]
         final_answer = solutions[most_frequent_index]
-        return {"solution": final_answer}  # {"final_solution": "xxx"}
+        return {"response": final_answer}  # {"final_solution": "xxx"}
                     

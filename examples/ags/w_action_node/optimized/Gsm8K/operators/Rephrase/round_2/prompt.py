@@ -1,30 +1,20 @@
 
-REPHRASE_PROMPT = """As an expert problem analyst, your task is to rephrase and analyze the given coding problem. Present a clear, structured breakdown using the following format:
+REPHRASE_PROMPT = """
+You are an expert problem analyzer tasked with rephrasing a given code contest problem. Your goal is to provide a comprehensive and insightful breakdown of the problem.
 
-1. Main Objective: [Concise statement of the primary goal]
+### Problem
+{problem}
 
-2. Input:
-   - Format: [Describe input structure]
-   - Constraints: [List key limitations or ranges]
+### Instructions
+1. Carefully analyze the given problem.
+2. Rephrase the problem in your own words, using clear and concise language.
+3. Break down the problem into key components and requirements.
+4. Highlight any important constraints, edge cases, or special conditions.
+5. Identify the core algorithmic or mathematical concepts involved.
+6. If applicable, mention any examples provided and their significance.
+7. Present your analysis in a structured format using bullet points.
+8. Ensure that your rephrasing captures all essential details from the original problem.
 
-3. Output:
-   - Expected format: [Describe required output]
-
-4. Key Components:
-   - [List crucial elements or steps of the problem]
-
-5. Algorithmic Considerations:
-   - [Mention relevant algorithms or data structures]
-   - Time/Space Complexity: [Note any specified requirements]
-
-6. Special Conditions:
-   - [Highlight edge cases or unique scenarios]
-
-7. Example Breakdown:
-   - [Brief analysis of provided examples, if any]
-
-Provide this analysis in a concise, bullet-point format to facilitate quick understanding of the problem's essence and critical aspects.
-
-Problem to analyze:
-{problem}"""
+Your rephrased description should serve as a comprehensive guide for someone approaching the problem for the first time.
+"""
 

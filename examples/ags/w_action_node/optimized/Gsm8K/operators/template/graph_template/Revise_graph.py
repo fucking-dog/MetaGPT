@@ -32,5 +32,5 @@ class SolveGraph:
         solution = await self.custom(input=problem, instruction="")
         review_result = await self.custom(input=f"question:\n{problem}\nanswer:\n{solution['response']}\n",instruction="Check the solution for errors")
         revise_result = await self.revise(problem, solution['response'], review_result['response'])
-        format_solution = await self.format(problem=problem, solution=solution['response']+f"solution:{solution['response']}, review:{review_result['response']}, revise:{revise_result['solution']}\n")
-        return format_solution, self.llm.cost_manager.total_cost
+        format_solution = await self.format(problem=problem, solution=solution['response']+f"solution:{solution['response']}, review:{review_result['response']}, revise:{revise_result['response']}\n")
+        return format_solution['response'], self.llm.cost_manager.total_cost

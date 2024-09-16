@@ -1,0 +1,102 @@
+{
+    "1": {
+        "score": 0.71212,
+        "success": {
+            "13": {
+                "modification": "Add a review step after generating the initial solution to improve accuracy.",
+                "score": 0.7272727272727273
+            },
+            "2": {
+                "modification": "Add a review step after generating the initial solution to improve accuracy.",
+                "score": 0.7159090909090909
+            }
+        },
+        "failure": {
+            "10": {
+                "modification": "Add a rephrasing step using the Rephrase operator to simplify the problem before generating the solution, potentially improving understanding and accuracy.",
+                "score": 0.678030303030303
+            },
+            "11": {
+                "modification": "Add a rephrasing step using the Rephrase operator to simplify the problem before generating the solution, potentially improving understanding and accuracy.",
+                "score": 0.5871212121212122
+            },
+            "12": {
+                "modification": "Add a rephrasing step using the Rephrase operator to simplify the problem before generating the solution, potentially improving understanding and accuracy. This approach wasn't tried in the exact same way before and might lead to better results.",
+                "score": 0.6628787878787878
+            },
+            "17": {
+                "modification": "Add a rephrasing step using the Rephrase operator to simplify the problem before generating the solution, potentially improving understanding and accuracy. This approach wasn't tried in the exact same way before and might lead to better results.",
+                "score": 0.678030303030303
+            },
+            "4": {
+                "modification": "Add a rephrasing step to simplify the problem before generating the solution, potentially improving understanding and accuracy.",
+                "score": 0.6893939393939394
+            },
+            "5": {
+                "modification": "Add a rephrasing step before generating the solution to simplify the problem and potentially improve understanding and accuracy.",
+                "score": 0.6212121212121212
+            },
+            "6": {
+                "modification": "Add a rephrasing step before generating the solution to simplify the problem and potentially improve understanding and accuracy, while avoiding the exact approach that failed previously.",
+                "score": 0.6666666666666666
+            },
+            "7": {
+                "modification": "Add a rephrasing step before generating the solution to simplify the problem and potentially improve understanding and accuracy, while avoiding the exact approach that failed previously. Instead, we'll use a custom method to rephrase the problem in simpler terms.",
+                "score": 0.6893939393939394
+            },
+            "8": {
+                "modification": "Add a rephrasing step using the Rephrase operator to simplify the problem before generating the solution, potentially improving understanding and accuracy.",
+                "score": 0.696969696969697
+            },
+            "9": {
+                "modification": "Add a rephrasing step using the Rephrase operator to simplify the problem before generating the solution, potentially improving understanding and accuracy. This approach wasn't tried in the exact same way before and might lead to better results.",
+                "score": 0.6704545454545454
+            }
+        }
+    },
+    "2": {
+        "score": 0.71591,
+        "success": {
+            "20": {
+                "modification": "Add a step to rephrase the problem before generating the solution, using the rephrased version as additional context for the solution generation process. This can provide more comprehensive information and potentially improve the quality of the generated solution.",
+                "score": 0.7196969696969697
+            }
+        },
+        "failure": {
+            "14": {
+                "modification": "Add a rephrase step before generating the solution to provide more context and potentially improve the quality of the generated solution. This approach was previously tried and failed, but we can modify it slightly by using the rephrased problem as additional context rather than replacing the original problem entirely.",
+                "score": 0.6742424242424242
+            },
+            "15": {
+                "modification": "Add a step to rephrase the problem before generating the solution, using the rephrased version as additional context rather than replacing the original problem. This can provide more comprehensive information for the solution generation process.",
+                "score": 0.7121212121212122
+            },
+            "16": {
+                "modification": "Add a step to rephrase the problem before generating the solution, using the rephrased version as additional context for the solution generation process. This can provide more comprehensive information and potentially improve the quality of the generated solution.",
+                "score": 0.6136363636363636
+            },
+            "18": {
+                "modification": "Add a step to rephrase the problem before generating the solution, using the rephrased version as additional context for the solution generation process. This can provide more comprehensive information and potentially improve the quality of the generated solution.",
+                "score": 0.6742424242424242
+            },
+            "19": {
+                "modification": "Add a step to rephrase the problem before generating the solution, using the rephrased version as additional context for the solution generation process. This can provide more comprehensive information and potentially improve the quality of the generated solution.",
+                "score": 0.6856060606060606
+            },
+            "3": {
+                "modification": "Add a rephrase step before generating the solution to provide more context and potentially improve the quality of the generated solution.",
+                "score": 0.6628787878787878
+            }
+        }
+    },
+    "20": {
+        "score": 0.7197,
+        "success": {},
+        "failure": {
+            "21": {
+                "modification": "Add a step to generate multiple solutions using different approaches, then use the FuEnsemble operator to critically evaluate and synthesize an enhanced integrated solution.",
+                "score": 0.0
+            }
+        }
+    }
+}

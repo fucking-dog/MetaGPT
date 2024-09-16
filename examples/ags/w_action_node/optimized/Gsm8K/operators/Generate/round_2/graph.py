@@ -1,6 +1,6 @@
 from typing import Literal
 from examples.ags.w_action_node.optimized.Gsm8K.operators.Generate.round_2.operator import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator import Format,Format
+from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator import Format,Custom
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 
@@ -28,7 +28,7 @@ class SolveGraph:
         # The following is the most basic invocation, attempting to introduce your newly modified 'Operator' to test its effect.The `format` method must be placed at the final layer.
         solution = await self.generate(problem)
         format_solution = await self.format(problem=problem, solution=solution['response'])
-        return format_solution, self.llm.cost_manager.total_cost
+        return format_solution['response'], self.llm.cost_manager.total_cost
 
 
                     

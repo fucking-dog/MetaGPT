@@ -2,27 +2,25 @@
 # @Date    : 8/23/2024 10:00 AM
 # @Author  : all
 # @Desc    : evaluate for different dataset
-import datetime
-import inspect
-import multiprocessing
-import os
-import regex
-from typing import Literal, List, Tuple, Optional, Union
-import re
-import pandas as pd
-import json
-import aiofiles
+
 import asyncio
-from tqdm.asyncio import tqdm_asyncio
+import json
+import multiprocessing
+import re
 from math import isclose
-from sympy import simplify, N
-from sympy.parsing.sympy_parser import parse_expr
+from typing import Any, Dict, List, Literal, Optional, Set, Tuple, Union
+
+import aiofiles
+import numpy as np
+import pandas as pd
+import regex
+from scipy.optimize import linear_sum_assignment
+from sympy import N, simplify
 from sympy.parsing.latex import parse_latex
+from sympy.parsing.sympy_parser import parse_expr
+from tqdm.asyncio import tqdm_asyncio
 
-
-# TODO 完成实验数据集的手动划分
-
-DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
+DatasetType = Literal["HumanEval", "MBPP", "Gsm8K", "MATH", "HotpotQA", "DROP"]
 
 
 class Evaluator:
@@ -33,25 +31,58 @@ class Evaluator:
     def __init__(self, eval_path: str):
         self.eval_path = eval_path
 
-    def validation_evaluate(self, dataset: DatasetType, graph, params: dict, path):
+    def _generate_random_indices(self, n, n_samples, is_test=False):
+        """
+        生成随机索引
+        """
+
+        def _set_seed(seed=42):
+            np.random.seed(seed)
+
+        _set_seed()
+        indices = np.arange(n)
+        np.random.shuffle(indices)
+        if is_test:
+            return indices[n_samples:]
+        else:
+            return indices[:n_samples]
+
+    def graph_evaluate(self, dataset: DatasetType, graph, params: dict, path, is_test=False):
         """
         Evaluates on validation dataset.
         """
         if dataset == "Gsm8K":
-            score = self._gsm8k_eval(graph, params, path)
-            return score
+            return self._gsm8k_eval(graph, params, path, is_test, samples=264)
         elif dataset == "MATH":
-            score = self._math_eval(graph, params, path)
-            return score
-        pass
+            self._math_eval(graph, params, path, is_test, samples=1)
+        elif dataset == "HumanEval":
+            return self._humaneval_eval(graph, params, is_test, samples=1)
+        elif dataset == "HotpotQA":
+            return self._hotpotqa_eval(graph, params, is_test, samples=1)
+        elif dataset == "MBPP":
+            return self._mbpp_eval(graph, params, is_test, samples=1)
+        elif dataset == "DROP":
+            return self._drop_eval(graph, params, is_test, samples=1)
 
-    def test_evaluate(self, dataset: DatasetType):
+    def check(self, dataset: DatasetType, graph, params: dict, path, samples=20, is_test=False):
         """
         Evaluates on test dataset.
         """
+        if dataset == "Gsm8K":
+            return self._gsm8k_eval(graph, params, path, is_test, samples=samples)
+        elif dataset == "MATH":
+            self._math_eval(graph, params, path, is_test, samples=samples)
+        elif dataset == "HumanEval":
+            return self._humaneval_eval(graph, params, is_test, samples=samples)
+        elif dataset == "HotpotQA":
+            return self._hotpotqa_eval(graph, params, is_test, samples=samples)
+        elif dataset == "MBPP":
+            return self._mbpp_eval(graph, params, is_test, samples=samples)
+        elif dataset == "DROP":
+            return self._drop_eval(graph, params, is_test, samples=samples)
         pass
 
-    async def _gsm8k_eval(self, graph_class, params, path, samples: int = 50):
+    async def _gsm8k_eval(self, graph_class, params, path, is_test, samples: int = 264):
         """
         Evaluate on GSM8K dataset.
         """
@@ -74,7 +105,7 @@ class Evaluator:
                 last_number = matches[-1]
 
                 # 移除逗号以统一格式
-                last_number = last_number.replace(',', '')
+                last_number = last_number.replace(",", "")
 
                 try:
                     return float(last_number)
@@ -101,10 +132,9 @@ class Evaluator:
                 return 0  # 数字不匹配
 
         # 异步评估单个问题
-        async def _evaluate_problem(input: str, graph, expected_output: str) -> Tuple[
-            str, str, str, int, str]:
+        async def _evaluate_problem(input: str, graph, expected_output: str) -> Tuple[str, str, str, int, str]:
             prompt = input
-            max_retries = 5
+            max_retries = 50
             retries = 0
 
             while retries < max_retries:
@@ -112,9 +142,9 @@ class Evaluator:
                     # 假设模型有一个异步生成函数
                     prediction = await graph(prompt) if graph else "None"  # 这是一个占位符，替换成实际的模型生成逻辑
                     cost = prediction[1]
-                    output = prediction[0]['solution']
+                    output = prediction[0]
 
-                    score = loose_match_score(expected_output, prediction[0]['solution'])
+                    score = loose_match_score(expected_output, prediction[0])
                     break
 
                 except Exception as e:
@@ -131,21 +161,32 @@ class Evaluator:
             return input, output, expected_output, score, cost
 
         # 异步读取JSONL文件
-        async def load_data(file_path: str) -> List[dict]:
+        async def load_data(file_path: str, samples=samples, specific_indices: List[int] = None) -> List[dict]:
             data = []
-            async with aiofiles.open(file_path, mode='r') as file:
+            # 异步读取文件内容
+            async with aiofiles.open(file_path, mode="r") as file:
                 async for line in file:
                     data.append(json.loads(line))
-            return data[:samples]
+
+            # 首先随机选择样本
+            random_indices = self._generate_random_indices(len(data), samples, is_test)
+            random_data = [data[i] for i in random_indices]
+
+            # 然后在随机选择的样本中基于特定索引列表进行进一步筛选
+            if specific_indices is not None:
+                filtered_data = [random_data[i] for i in specific_indices if i < len(random_data)]
+                return filtered_data
+
+            return random_data
 
         # 并行评估所有问题
-        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 300):
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 500):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
             async def sem_evaluate(problem):
                 async with semaphore:
-                    input_text = problem['question']
-                    expected_output = problem['answer']
+                    input_text = problem["question"]
+                    expected_output = problem["answer"]
                     return await _evaluate_problem(input_text, graph, expected_output)
 
             tasks = [sem_evaluate(problem) for problem in data]
@@ -156,35 +197,41 @@ class Evaluator:
         # 保存结果到CSV文件
         def save_results_to_csv(results: List[Tuple[str, str, str, int]], path):
             df = pd.DataFrame(results, columns=["question", "prediction", "expected_output", "score", "cost"])
-            average_score = df["score"].mean()
+            avg_score = df["score"].mean()
+            t_cost = df["cost"].max()
+            a_cost = t_cost/len(df)
 
             # 生成文件名，保留五位小数
-            output_file = f"{path}/{average_score:.5f}.csv"
+            output_file = f"{path}/{avg_score:.5f}.csv"
             df.to_csv(output_file, index=False)
             print(f"Results saved to {output_file}")
 
-            return average_score
+            return avg_score, a_cost, t_cost
 
         async def gsm8k():
 
-            file_path = 'examples/ags/w_action_node/data/gsm8k.jsonl'  # 替换为您的JSONL文件路径
-            data = await load_data(file_path)
+            # va_list = [155, 230, 137, 225, 96, 50, 130, 26, 79, 259, 131, 1, 242, 247, 191, 94, 185, 38, 104, 64, 68, 92, 118, 31, 107, 42, 141, 125, 18, 100, 135, 236, 145, 11, 217, 65, 170, 210, 82, 162, 235, 234, 186, 182, 190, 180, 189, 152, 181, 151, 187, 150, 183, 149, 147, 179, 188, 148, 184, 175, 178, 177, 160, 161, 158, 163, 164, 157, 156, 165, 166, 192, 167, 168, 154, 169, 171, 172, 153, 173, 174, 159, 176, 0, 202, 193, 194, 229, 231, 232, 233, 237, 238, 239, 240, 241, 243, 244, 245, 246]
+
+            va_list = None
+
+            file_path = "examples/ags/w_action_node/data/gsm8k.jsonl"  # 替换为您的JSONL文件路径
+            data = await load_data(file_path, specific_indices=va_list)
 
             graph = await load_graph()
 
-            results = await evaluate_all_problems(data, graph, max_concurrent_tasks=20)
+            results = await evaluate_all_problems(data, graph)
 
             # 保存结果到CSV文件并获取平均分
-            average_score = save_results_to_csv(results, path=path)
+            avg_score, a_cost, t_cost = save_results_to_csv(results, path=path)
 
-            print(f"Average score: {average_score:.5f}")
-            return average_score
+            print(f"Average score: {avg_score:.5f}")
+            return avg_score, a_cost, t_cost
 
-        score = await gsm8k()
+        score, avg_cost, total_cost = await gsm8k()
 
-        return score
+        return score, avg_cost, total_cost
 
-    async def _math_eval(self, graph_class, params, path, samples: int = 200):
+    async def _math_eval(self, graph_class, params, path, is_test, samples: int = 200):
         """
         Evaluate on MATH dataset.
         """
@@ -198,23 +245,23 @@ class Evaluator:
 
         def extract_answer(text: str) -> str:
             # Look for the answer within \boxed{...}
-            boxed_match = re.search(r'\\boxed{(.*?)}', text)
+            boxed_match = re.search(r"\\boxed{(.*?)}", text)
             if boxed_match:
                 return boxed_match.group(1)
 
             # If no \boxed{...}, return the last sentence
-            sentences = text.split('.')
+            sentences = text.split(".")
             return sentences[-1].strip() if sentences else ""
 
         def parse_digits(num):
             # format: 234.23 || 23%
-            num = regex.sub(',', '', str(num))
+            num = regex.sub(",", "", str(num))
             try:
                 return float(num)
             except:
-                if num.endswith('%'):
+                if num.endswith("%"):
                     num = num[:-1]
-                    if num.endswith('\\'):
+                    if num.endswith("\\"):
                         num = num[:-1]
                     try:
                         return float(num) / 100
@@ -265,12 +312,13 @@ class Evaluator:
 
             return output_queue.get()
 
-        def math_equal(prediction: Union[bool, float, str],
-                       reference: Union[float, str],
-                       include_percentage: bool = True,
-                       is_close: bool = True,
-                       timeout: bool = False,
-                       ) -> bool:
+        def math_equal(
+            prediction: Union[bool, float, str],
+            reference: Union[float, str],
+            include_percentage: bool = True,
+            is_close: bool = True,
+            timeout: bool = False,
+        ) -> bool:
             """
             Exact match of math if and only if:
             1. numerical equal: both can convert to float and are equal
@@ -309,31 +357,49 @@ class Evaluator:
             reference = str(reference).strip()
             prediction = str(prediction).strip()
 
-            if regex.match(r'(\(|\[).+(\)|\])', prediction) is not None and regex.match(r'(\(|\[).+(\)|\])',
-                                                                                        reference) is not None:
+            if (
+                regex.match(r"(\(|\[).+(\)|\])", prediction) is not None
+                and regex.match(r"(\(|\[).+(\)|\])", reference) is not None
+            ):
                 pred_parts = prediction[1:-1].split(",")
                 ref_parts = reference[1:-1].split(",")
                 if len(pred_parts) == len(ref_parts):
-                    if all([math_equal(pred_parts[i], ref_parts[i], include_percentage, is_close) for i in
-                            range(len(pred_parts))]):
+                    if all(
+                        [
+                            math_equal(pred_parts[i], ref_parts[i], include_percentage, is_close)
+                            for i in range(len(pred_parts))
+                        ]
+                    ):
                         return True
 
-            if (prediction.startswith("\\begin{pmatrix}") or prediction.startswith("\\begin{bmatrix}")) and (
-                    prediction.endswith("\\end{pmatrix}") or prediction.endswith("\\end{bmatrix}")) and \
-                    (reference.startswith("\\begin{pmatrix}") or reference.startswith("\\begin{bmatrix}")) and (
-                    reference.endswith("\\end{pmatrix}") or reference.endswith("\\end{bmatrix}")):
-                pred_lines = [line.strip() for line in
-                              prediction[len("\\begin{pmatrix}"): -len("\\end{pmatrix}")].split("\\\\") if line.strip()]
-                ref_lines = [line.strip() for line in
-                             reference[len("\\begin{pmatrix}"): -len("\\end{pmatrix}")].split("\\\\") if line.strip()]
+            if (
+                (prediction.startswith("\\begin{pmatrix}") or prediction.startswith("\\begin{bmatrix}"))
+                and (prediction.endswith("\\end{pmatrix}") or prediction.endswith("\\end{bmatrix}"))
+                and (reference.startswith("\\begin{pmatrix}") or reference.startswith("\\begin{bmatrix}"))
+                and (reference.endswith("\\end{pmatrix}") or reference.endswith("\\end{bmatrix}"))
+            ):
+                pred_lines = [
+                    line.strip()
+                    for line in prediction[len("\\begin{pmatrix}") : -len("\\end{pmatrix}")].split("\\\\")
+                    if line.strip()
+                ]
+                ref_lines = [
+                    line.strip()
+                    for line in reference[len("\\begin{pmatrix}") : -len("\\end{pmatrix}")].split("\\\\")
+                    if line.strip()
+                ]
                 matched = True
                 if len(pred_lines) == len(ref_lines):
                     for pred_line, ref_line in zip(pred_lines, ref_lines):
                         pred_parts = pred_line.split("&")
                         ref_parts = ref_line.split("&")
                         if len(pred_parts) == len(ref_parts):
-                            if not all([math_equal(pred_parts[i], ref_parts[i], include_percentage, is_close) for i in
-                                        range(len(pred_parts))]):
+                            if not all(
+                                [
+                                    math_equal(pred_parts[i], ref_parts[i], include_percentage, is_close)
+                                    for i in range(len(pred_parts))
+                                ]
+                            ):
                                 matched = False
                                 break
                         else:
@@ -345,18 +411,18 @@ class Evaluator:
                 if matched:
                     return True
 
-            if prediction.count('=') == 1 and reference.count('=') == 1:
-                pred = prediction.split('=')
+            if prediction.count("=") == 1 and reference.count("=") == 1:
+                pred = prediction.split("=")
                 pred = f"{pred[0].strip()} - ({pred[1].strip()})"
-                ref = reference.split('=')
+                ref = reference.split("=")
                 ref = f"{ref[0].strip()} - ({ref[1].strip()})"
                 if symbolic_equal(pred, ref) or symbolic_equal(f"-({pred})", ref):
                     return True
-            elif prediction.count('=') == 1 and len(prediction.split('=')[0].strip()) <= 2 and '=' not in reference:
-                if math_equal(prediction.split('=')[1], reference, include_percentage, is_close):
+            elif prediction.count("=") == 1 and len(prediction.split("=")[0].strip()) <= 2 and "=" not in reference:
+                if math_equal(prediction.split("=")[1], reference, include_percentage, is_close):
                     return True
-            elif reference.count('=') == 1 and len(reference.split('=')[0].strip()) <= 2 and '=' not in prediction:
-                if math_equal(prediction, reference.split('=')[1], include_percentage, is_close):
+            elif reference.count("=") == 1 and len(reference.split("=")[0].strip()) <= 2 and "=" not in prediction:
+                if math_equal(prediction, reference.split("=")[1], include_percentage, is_close):
                     return True
 
             # symbolic equal with sympy
@@ -376,8 +442,8 @@ class Evaluator:
             return 1 if math_equal(predicted_answer, expected_answer) else 0
 
         async def _evaluate_problem(problem: dict, graph) -> Tuple[str, str, str, int, str]:
-            input_text = problem['problem']
-            expected_output = problem['solution']
+            input_text = problem["problem"]
+            expected_output = problem["response"]
             max_retries = 5
             retries = 0
 
@@ -385,7 +451,7 @@ class Evaluator:
                 try:
                     prediction = await graph(input_text) if graph else "None"
                     cost = prediction[1]
-                    output = prediction[0]['solution']
+                    output = prediction[0]
 
                     score = calculate_score(expected_output, output)
                     break
@@ -403,12 +469,14 @@ class Evaluator:
 
             return input_text, output, expected_output, score, cost
 
-        async def load_data(file_path: str) -> List[dict]:
+        async def load_data(file_path: str, samples=samples) -> List[dict]:
             data = []
-            async with aiofiles.open(file_path, mode='r') as file:
+            async with aiofiles.open(file_path, mode="r") as file:
                 async for line in file:
                     data.append(json.loads(line))
-            return data[:samples]
+            random_indices = self._generate_random_indices(len(data), samples, is_test)
+            data = [data[i] for i in random_indices]
+            return data
 
         async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 300):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
@@ -432,7 +500,7 @@ class Evaluator:
             return average_score
 
         async def math_evaluation():
-            file_path = 'examples/ags/w_action_node/data/math.jsonl'  # Replace with the actual path to MATH.jsonl
+            file_path = "examples/ags/w_action_node/data/math.jsonl"  # Replace with the actual path to MATH.jsonl
             data = await load_data(file_path)
 
             graph = await load_graph()
@@ -445,5 +513,699 @@ class Evaluator:
             return average_score
 
         score = await math_evaluation()
+
+        return score
+
+    async def _humaneval_eval(self, graph_class, params, is_test, samples=1):
+        """
+        Evaluate on HumanEval dataset.
+        """
+        PASS = "pass"
+        FAIL = "fail"
+
+        async def load_graph():
+            dataset = params["dataset"]
+            llm_config = params["llm_config"]
+
+            graph = graph_class(name="HumanEval", llm_config=llm_config, dataset=dataset)
+            return graph
+
+        async def load_data(file_path: str, samples=samples) -> List[dict]:
+            data = []
+            async with aiofiles.open(file_path, mode="r") as file:
+                async for line in file:
+                    data.append(json.loads(line))
+            random_indices = self._generate_random_indices(len(data), samples, is_test)
+            data = [data[i] for i in random_indices]
+            return data
+
+        async def check_solution(solution, test_cases, entry_point):
+            # Define a local dictionary to execute the solution
+            local_dict = {}
+            exec("from typing import List\n\n" + solution, {}, local_dict)
+
+            # Ensure the entry point function is defined
+            if entry_point not in local_dict:
+                raise ValueError(f"Function {entry_point} is not defined in the solution.")
+
+            details = [False for _ in range(len(test_cases))]
+
+            # Check each test case
+            for i, test in enumerate(test_cases):
+                # Replace 'candidate' with the actual function call
+                test_expr = test.replace("candidate", entry_point)
+                try:
+                    # Evaluate the test case
+                    if eval(test_expr, {}, local_dict):
+                        details[i] = True
+                except Exception as e:
+                    print(f"Error evaluating test case '{test}': {e}")
+
+            if all(details):
+                return PASS, details
+
+            return FAIL, details
+
+        async def _evaluate_problem(data, graph) -> Tuple[str, str, str, int]:
+            max_retries = 5
+            retries = 0
+
+            while retries < max_retries:
+                try:
+                    solution = await graph(data["prompt"]) if graph else "None"
+                    ret = await check_solution(solution, data["test_cases"], data["entry_point"])
+
+                    score = 1 if ret[0] == PASS else 0
+                    break
+
+                except Exception as e:
+                    retries += 1
+                    print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+
+                    if retries == max_retries:
+                        print("Maximum retries reached. Skipping this sample.")
+                        solution = None
+                        ret = (FAIL, [])
+                        score = 0
+                        break
+
+            return data["prompt"], solution, ret[1], score
+
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 50):
+            semaphore = asyncio.Semaphore(max_concurrent_tasks)
+
+            async def sem_evaluate(problem):
+                async with semaphore:
+                    return await _evaluate_problem(problem, graph)
+
+            tasks = [sem_evaluate(problem) for problem in data]
+
+            return await tqdm_asyncio.gather(*tasks, desc="Evaluating problems", total=len(data))
+
+        def save_results_to_jsonl(results: List[Tuple[str, str, str, int]], path):
+            avg_score = 0
+
+            with open(path, "w") as f:
+                for result in results:
+                    f.write(
+                        json.dumps(
+                            {
+                                "question": result[0],
+                                "prediction": result[1],
+                                "test_case_details": result[2],
+                                "score": result[3],
+                            }
+                        )
+                        + "\n"
+                    )
+                    avg_score += result[3]
+            print(f"Results saved to {path}")
+            avg_score /= len(results)
+
+            return avg_score
+
+        async def humaneval():
+            file_path = "examples/ags/scripts/data/human-eval-new.jsonl"
+            data = await load_data(file_path)
+
+            graph = await load_graph()
+
+            results = await evaluate_all_problems(data, graph, max_concurrent_tasks=20)
+
+            # 保存结果到JSONL文件并获取平均分
+            average_score = save_results_to_jsonl(results, path=self.eval_path)
+
+            print(f"Average score: {average_score:.5f}")
+            return average_score
+
+        score = await humaneval()
+
+        return score
+
+    async def _hotpotqa_eval(self, graph_class, params, is_test, samples=1):
+        """
+        Evaluate on HotpotQA dataset.
+        """
+
+        def is_number(text: str) -> bool:
+            try:
+                float(text)
+                return True
+            except ValueError:
+                return False
+
+        def normalize_answer(text):
+            import re
+            import string
+
+            def remove_articles(text):
+                return re.sub(r"\b(a|an|the)\b", " ", text)
+
+            def white_space_fix(text):
+                return " ".join(text.split())
+
+            def remove_punc(text):
+                exclude = set(string.punctuation)
+                return "".join(ch for ch in text if ch not in exclude)
+
+            def lower(text):
+                return text.lower()
+
+            def tokenize(text):
+                return re.split(" |-", text)
+
+            def normalize_number(text: str) -> str:
+                if is_number(text):
+                    return str(float(text))
+                else:
+                    return text
+
+            parts = [
+                white_space_fix(remove_articles(normalize_number(remove_punc(lower(token)))))
+                for token in tokenize(text)
+            ]
+            parts = [part for part in parts if part.strip()]
+            normalized = " ".join(parts).strip()
+            return normalized
+
+        # def exact_match_score(prediction, ground_truth):
+        #     return int(normalize_answer(prediction) == normalize_answer(ground_truth))
+
+        def answer_to_bags(answer: str) -> Set[str]:
+            raw_spans = [answer]
+
+            normalized_spans = []
+            token_bags = []
+            for raw_span in raw_spans:
+                normalized_span = normalize_answer(raw_span)
+                normalized_spans.append(normalized_span)
+                token_bags.append(set(normalized_span.split()))
+            return normalized_spans, token_bags
+
+        def _align_bags(predicted: List[Set[str]], gold: List[Set[str]]) -> List[float]:
+            """
+            Takes gold and predicted answer sets and first finds the optimal 1-1 alignment
+            between them and gets maximum metric values over all the answers.
+            """
+            scores = np.zeros([len(gold), len(predicted)])
+            for gold_index, gold_item in enumerate(gold):
+                for pred_index, pred_item in enumerate(predicted):
+                    if match_numbers_if_present(gold_item, pred_item):
+                        scores[gold_index, pred_index] = f1_score(pred_item, gold_item)
+            row_ind, col_ind = linear_sum_assignment(-scores)
+
+            max_scores = np.zeros([max(len(gold), len(predicted))])
+            for row, column in zip(row_ind, col_ind):
+                max_scores[row] = max(max_scores[row], scores[row, column])
+            return max_scores
+
+        def match_numbers_if_present(gold_bag: Set[str], predicted_bag: Set[str]) -> bool:
+            gold_numbers = set()
+            predicted_numbers = set()
+            for word in gold_bag:
+                if is_number(word):
+                    gold_numbers.add(word)
+            for word in predicted_bag:
+                if is_number(word):
+                    predicted_numbers.add(word)
+            if (not gold_numbers) or gold_numbers.intersection(predicted_numbers):
+                return True
+            return False
+
+        def f1_score(predicted_bag: Set[str], gold_bag: Set[str]) -> float:
+            intersection = len(gold_bag.intersection(predicted_bag))
+            if not predicted_bag:
+                precision = 1.0
+            else:
+                precision = intersection / float(len(predicted_bag))
+            if not gold_bag:
+                recall = 1.0
+            else:
+                recall = intersection / float(len(gold_bag))
+            f1 = (2 * precision * recall) / (precision + recall) if not (precision == 0.0 and recall == 0.0) else 0.0
+            return f1
+
+        async def load_graph():
+            dataset = params["dataset"]
+            llm_config = params["llm_config"]
+
+            graph = graph_class(name="HotpotQA", llm_config=llm_config, dataset=dataset)
+            return graph
+
+        async def load_data(file_path: str, samples=samples) -> List[dict]:
+            data = []
+            async with aiofiles.open(file_path, mode="r") as file:
+                async for line in file:
+                    data.append(json.loads(line))
+            random_indices = self._generate_random_indices(len(data), samples, is_test)
+            data = [data[i] for i in random_indices]
+            return data
+
+        async def _evaluate_problem(input: str, context_str: str, graph, expected_output: str):
+            max_retries = 5
+            retries = 0
+
+            while retries < max_retries:
+                try:
+                    # TODO Hotpotqa Graph 需要修改输入和输出
+                    prediction, supporting_sentences = await graph(input, context_str) if graph else "None"
+                    predicted_bags = answer_to_bags(prediction)
+                    gold_bags = answer_to_bags(expected_output)
+
+                    if set(predicted_bags[0]) == set(gold_bags[0]):
+                        pass
+                    else:
+                        pass
+
+                    f1_per_bag = _align_bags(predicted_bags[1], gold_bags[1])
+                    score = np.mean(f1_per_bag)
+                    # f1 = round(f1, 2)
+
+                    break
+                except Exception as e:
+                    retries += 1
+                    print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+
+                    if retries == max_retries:
+                        print("Maximum retries reached. Skipping this sample.")
+                        prediction = None
+                        supporting_sentences = None
+                        score = 0
+                        break
+
+            return input, prediction, expected_output, supporting_sentences, score
+
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 50):
+            semaphore = asyncio.Semaphore(max_concurrent_tasks)
+
+            async def sem_evaluate(problem):
+                async with semaphore:
+                    input_text = problem["question"]
+                    expected_output = problem["answer"]
+                    paragraphs = [item[1] for item in problem["context"] if isinstance(item[1], list)]
+                    context_str = "\n".join(" ".join(paragraph) for paragraph in paragraphs)
+                    return await _evaluate_problem(input_text, context_str, graph, expected_output)
+
+            tasks = [sem_evaluate(problem) for problem in data]
+
+            return await tqdm_asyncio.gather(*tasks, desc="Evaluating problems", total=len(data))
+
+        # def save_results_to_jsonl(results: List[Tuple[str, str, str, str, int]], path):
+        #     avg_score = 0
+
+        #     with open(path, "w") as f:
+        #         for result in results:
+        #             f.write(json.dumps({"question": result[0], "prediction": result[1], "expected_output": result[2], "supporting_sentences": result[3], "score": result[4]}) + "\n")
+        #             avg_score += result[4]
+        #     print(f"Results saved to {path}")
+        #     avg_score /= len(results)
+
+        #     return avg_score
+
+        def save_results_to_csv(results: List[Tuple[str, str, str, str, int]], path):
+            df = pd.DataFrame(
+                results, columns=["question", "prediction", "expected_output", "supporting_sentences", "score"]
+            )
+            average_score = df["score"].mean()
+
+            # 生成文件名，保留五位小数
+            output_file = f"{path}/{average_score:.5f}.csv"
+            df.to_csv(output_file, index=False)
+            print(f"Results saved to {output_file}")
+
+            return average_score
+
+        async def hotpotqa():
+            file_path = "examples/ags/scripts/data/hotpotqa.jsonl"  # 替换为您的JSONL文件路径
+            data = await load_data(file_path)
+
+            graph = await load_graph()
+
+            results = await evaluate_all_problems(data, graph, max_concurrent_tasks=20)
+
+            # 保存结果到JSONL文件并获取平均分
+            average_score = save_results_to_csv(results, path=self.eval_path)
+
+            print(f"Average score: {average_score:.5f}")
+            return average_score
+
+        score = await hotpotqa()
+
+        return score
+
+    async def _mbpp_eval(self, graph_class, params, is_test, samples=1):
+        """
+        Evaluate on MBPP dataset.
+        """
+
+        PASS = "pass"
+        FAIL = "fail"
+
+        async def load_data(file_path: str, samples=samples) -> List[dict]:
+            data = []
+            async with aiofiles.open(file_path, mode="r") as file:
+                async for line in file:
+                    data.append(json.loads(line))
+            random_indices = self._generate_random_indices(len(data), samples, is_test)
+            data = [data[i] for i in random_indices]
+            return data
+
+        async def load_graph():
+            dataset = params["dataset"]
+            llm_config = params["llm_config"]
+
+            graph = graph_class(name="MBPP", llm_config=llm_config, dataset=dataset)
+            return graph
+
+        async def check_solution(solution, test_cases, timeout=1):
+            # Define a local dictionary to execute the solution
+            local_dict = {}
+            exec(solution, {}, local_dict)
+
+            details = [False for _ in range(len(test_cases))]
+
+            async def evaluate_test(test):
+                # Delete 'assert' from test
+                test_expr = test.replace("assert ", "")
+                try:
+                    # Evaluate the test case with timeout
+                    await asyncio.wait_for(asyncio.to_thread(eval, test_expr, {}, local_dict), timeout)
+                    return True
+                except asyncio.TimeoutError:
+                    print(f"Test case '{test}' timed out.")
+                except Exception as e:
+                    print(f"Error evaluating test case '{test}': {e}")
+                return False
+
+            # Check each test case
+            for i, test in enumerate(test_cases):
+                result = await evaluate_test(test)
+                details[i] = result
+                if not result:
+                    return FAIL, details
+
+            if all(details):
+                return PASS, details
+
+            return FAIL, details
+
+        async def _evaluate_problem(data, graph) -> Tuple[str, str, str, int]:
+            max_retries = 5
+            retries = 0
+
+            while retries < max_retries:
+                try:
+                    solution = await graph(data["prompt"]) if graph else "None"
+                    ret = await check_solution(solution, data["test_list"])
+
+                    score = 1 if ret[0] == PASS else 0
+                    break
+
+                except Exception as e:
+                    retries += 1
+                    print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+
+                    if retries == max_retries:
+                        print("Maximum retries reached. Skipping this sample.")
+                        solution = None
+                        ret = (FAIL, [])
+                        score = 0
+                        break
+
+            return data["prompt"], solution, ret[1], score
+
+        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 50):
+            semaphore = asyncio.Semaphore(max_concurrent_tasks)
+
+            async def sem_evaluate(problem):
+                async with semaphore:
+                    return await _evaluate_problem(problem, graph)
+
+            tasks = [sem_evaluate(problem) for problem in data]
+
+            return await tqdm_asyncio.gather(*tasks, desc="Evaluating problems", total=len(data))
+
+        def save_results_to_csv(results: List[Tuple[str, str, str, str, int]], path):
+            df = pd.DataFrame(results, columns=["question", "prediction", "test_case_details", "score"])
+            average_score = df["score"].mean()
+
+            # 生成文件名，保留五位小数
+            output_file = f"{path}/{average_score:.5f}.csv"
+            df.to_csv(output_file, index=False)
+            print(f"Results saved to {output_file}")
+
+            return average_score
+
+        async def mbpp():
+            file_path = "examples/ags/scripts/data/mbpp-new.jsonl"
+            data = await load_data(file_path)
+
+            graph = await load_graph()
+
+            results = await evaluate_all_problems(data, graph, max_concurrent_tasks=20)
+
+            # 保存结果到JSONL文件并获取平均分
+            average_score = save_results_to_csv(results, path=self.eval_path)
+
+            print(f"Average score: {average_score:.5f}")
+            return average_score
+
+        score = await mbpp()
+
+        return score
+
+    async def _drop_eval(self, graph_class, params, is_test, samples=1):
+        """
+        Evaluate on DROP dataset.
+        """
+
+        def is_number(text: str) -> bool:
+            try:
+                float(text)
+                return True
+            except ValueError:
+                return False
+
+        def normalize_answer(text):
+            import re
+            import string
+
+            def remove_articles(text):
+                return re.sub(r"\b(a|an|the)\b", " ", text)
+
+            def white_space_fix(text):
+                return " ".join(text.split())
+
+            def remove_punc(text):
+                exclude = set(string.punctuation)
+                return "".join(ch for ch in text if ch not in exclude)
+
+            def lower(text):
+                return text.lower()
+
+            def tokenize(text):
+                return re.split(" |-", text)
+
+            def normalize_number(text: str) -> str:
+                if is_number(text):
+                    return str(float(text))
+                else:
+                    return text
+
+            parts = [
+                white_space_fix(remove_articles(normalize_number(remove_punc(lower(token)))))
+                for token in tokenize(text)
+            ]
+            parts = [part for part in parts if part.strip()]
+            normalized = " ".join(parts).strip()
+            return normalized
+
+        # def exact_match_score(prediction, ground_truth):
+        #     return int(normalize_answer(prediction) == normalize_answer(ground_truth))
+
+        def answer_to_bags(answer: str) -> Set[str]:
+            raw_spans = [answer]
+
+            normalized_spans = []
+            token_bags = []
+            for raw_span in raw_spans:
+                normalized_span = normalize_answer(raw_span)
+                normalized_spans.append(normalized_span)
+                token_bags.append(set(normalized_span.split()))
+            return normalized_spans, token_bags
+
+        def _align_bags(predicted: List[Set[str]], gold: List[Set[str]]) -> List[float]:
+            """
+            Takes gold and predicted answer sets and first finds the optimal 1-1 alignment
+            between them and gets maximum metric values over all the answers.
+            """
+            scores = np.zeros([len(gold), len(predicted)])
+            for gold_index, gold_item in enumerate(gold):
+                for pred_index, pred_item in enumerate(predicted):
+                    if match_numbers_if_present(gold_item, pred_item):
+                        scores[gold_index, pred_index] = f1_score(pred_item, gold_item)
+            row_ind, col_ind = linear_sum_assignment(-scores)
+
+            max_scores = np.zeros([max(len(gold), len(predicted))])
+            for row, column in zip(row_ind, col_ind):
+                max_scores[row] = max(max_scores[row], scores[row, column])
+            return max_scores
+
+        def match_numbers_if_present(gold_bag: Set[str], predicted_bag: Set[str]) -> bool:
+            gold_numbers = set()
+            predicted_numbers = set()
+            for word in gold_bag:
+                if is_number(word):
+                    gold_numbers.add(word)
+            for word in predicted_bag:
+                if is_number(word):
+                    predicted_numbers.add(word)
+            if (not gold_numbers) or gold_numbers.intersection(predicted_numbers):
+                return True
+            return False
+
+        def f1_score(predicted_bag: Set[str], gold_bag: Set[str]) -> float:
+            intersection = len(gold_bag.intersection(predicted_bag))
+            if not predicted_bag:
+                precision = 1.0
+            else:
+                precision = intersection / float(len(predicted_bag))
+            if not gold_bag:
+                recall = 1.0
+            else:
+                recall = intersection / float(len(gold_bag))
+            f1 = (2 * precision * recall) / (precision + recall) if not (precision == 0.0 and recall == 0.0) else 0.0
+            return f1
+
+        async def load_graph():
+            dataset = params["dataset"]
+            llm_config = params["llm_config"]
+
+            graph = graph_class(name="HotpotQA", llm_config=llm_config, dataset=dataset)
+            return graph
+
+        def load_data(file_path: str, samples=samples) -> List[dict]:
+            with open(file_path, mode="r") as file:
+                data = json.load(file)
+                data = list(data.items())
+            random_indices = self._generate_random_indices(len(data), samples, is_test)
+            data = [data[i] for i in random_indices]
+            return data
+
+        async def _evaluate_problem(question, passage, answers, graph):
+            max_retries = 5
+            retries = 0
+
+            def answer_json_to_strings(answer: Dict[str, Any]) -> Tuple[Tuple[str, ...], str]:
+                """
+                Takes an answer JSON blob from the DROP data release and converts it into strings used for
+                evaluation.
+                """
+                if "number" in answer and answer["number"]:
+                    return tuple([str(answer["number"])]), "number"
+                elif "spans" in answer and answer["spans"]:
+                    return tuple(answer["spans"]), "span" if len(answer["spans"]) == 1 else "spans"
+                elif "date" in answer:
+                    return (
+                        tuple(
+                            [
+                                "{0} {1} {2}".format(
+                                    answer["date"]["day"], answer["date"]["month"], answer["date"]["year"]
+                                )
+                            ]
+                        ),
+                        "date",
+                    )
+                else:
+                    raise ValueError(
+                        f"Answer type not found, should be one of number, spans or date at: {json.dumps(answer)}"
+                    )
+
+            prediction = await graph(question, passage) if graph else "None"
+            while retries < max_retries:
+                try:
+
+                    def get_f1_score(prediction: str, golden_answer: str) -> float:
+                        predicted_bags = answer_to_bags(prediction)
+                        gold_bags = answer_to_bags(golden_answer)
+
+                        if set(predicted_bags[0]) == set(gold_bags[0]):
+                            pass
+                        else:
+                            pass
+
+                        f1_per_bag = _align_bags(predicted_bags[1], gold_bags[1])
+                        score = np.mean(f1_per_bag)
+                        return score
+
+                    max_score = 0.0
+                    best_answer = None
+                    for answer in answers:
+                        golden_answer, _ = answer_json_to_strings(answer)
+                        golden_answer = golden_answer[0]
+                        score = get_f1_score(prediction, golden_answer)
+                        if score > max_score:
+                            max_score = score
+                            best_answer = golden_answer
+
+                    break
+                except Exception as e:
+                    retries += 1
+                    print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+
+                    if retries == max_retries:
+                        print("Maximum retries reached. Skipping this sample.")
+
+                        max_score = 0
+                        break
+
+            return best_answer, prediction, max_score
+
+        async def evaluate_all_passages(annotations, graph, max_concurrent_tasks: int = 50):
+            semaphore = asyncio.Semaphore(max_concurrent_tasks)
+            results = []
+
+            async def sem_evaluate(id, annotation):
+                async with semaphore:
+                    passage = annotation["passage"]
+                    for qa_pair in annotation["qa_pairs"]:
+                        question = qa_pair["question"]
+                        answers = [qa_pair["answer"]]
+                        if "validated_answers" in qa_pair and qa_pair["validated_answers"]:
+                            answers.extend(qa_pair["validated_answers"])
+                        best_answer, prediction, score = await _evaluate_problem(question, passage, answers, graph)
+                        results.append([id, question, prediction, best_answer, score])
+
+            tasks = [sem_evaluate(id, annotation) for id, annotation in annotations]
+            await tqdm_asyncio.gather(*tasks, desc="Evaluating passages", total=len(annotations))
+
+            return results
+
+        def save_results_to_csv(results: List[Tuple[str, str, str, str, int]], path):
+            df = pd.DataFrame(results, columns=["id", "question", "prediction", "best_answer", "score"])
+            average_score = df["score"].mean()
+
+            # 生成文件名，保留五位小数
+            output_file = f"{path}/{average_score:.5f}.csv"
+            df.to_csv(output_file, index=False)
+            print(f"Results saved to {output_file}")
+
+            return average_score
+
+        async def drop():
+            file_path = "examples/ags/scripts/data/drop_dataset_dev.json"  # 替换为您的JSONL文件路径
+            data = load_data(file_path)
+
+            graph = await load_graph()
+
+            results = await evaluate_all_passages(data, graph, max_concurrent_tasks=20)
+
+            # 保存结果到JSONL文件并获取平均分
+            average_score = save_results_to_csv(results, path=self.eval_path)
+
+            print(f"Average score: {average_score:.5f}")
+            return average_score
+
+        score = await drop()
 
         return score

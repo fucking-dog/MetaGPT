@@ -46,7 +46,6 @@ SINGLE_FILL = "single_fill"
 LANGUAGE_CONSTRAINT = "Language: Please use the same language as Human INPUT."
 FORMAT_CONSTRAINT = f"Format: output wrapped inside [{TAG}][/{TAG}] like format example, nothing else."
 
-
 SIMPLE_TEMPLATE = """
 ## context
 {context}
@@ -154,14 +153,14 @@ class ActionNode:
     nexts: List["ActionNode"]  # next nodes
 
     def __init__(
-        self,
-        key: str,
-        expected_type: Type,
-        instruction: str,
-        example: Any,
-        content: str = "",
-        children: dict[str, "ActionNode"] = None,
-        schema: str = "",
+            self,
+            key: str,
+            expected_type: Type,
+            instruction: str,
+            example: Any,
+            content: str = "",
+            children: dict[str, "ActionNode"] = None,
+            schema: str = "",
     ):
         self.key = key
         self.expected_type = expected_type
@@ -413,14 +412,14 @@ class ActionNode:
         after=general_after_log(logger),
     )
     async def _aask_v1(
-        self,
-        prompt: str,
-        output_class_name: str,
-        output_data_mapping: dict,
-        images: Optional[Union[str, list[str]]] = None,
-        system_msgs: Optional[list[str]] = None,
-        schema="markdown",  # compatible to original format
-        timeout=USE_CONFIG_TIMEOUT,
+            self,
+            prompt: str,
+            output_class_name: str,
+            output_data_mapping: dict,
+            images: Optional[Union[str, list[str]]] = None,
+            system_msgs: Optional[list[str]] = None,
+            schema="markdown",  # compatible to original format
+            timeout=USE_CONFIG_TIMEOUT,
     ) -> (str, BaseModel):
         """Use ActionOutput to wrap the output of aask"""
         content = await self.llm.aask(prompt, system_msgs, images=images, timeout=timeout)
@@ -453,7 +452,7 @@ class ActionNode:
         self.set_recursive("context", context)
 
     async def simple_fill(
-        self, schema, mode, images: Optional[Union[str, list[str]]] = None, timeout=USE_CONFIG_TIMEOUT, exclude=None
+            self, schema, mode, images: Optional[Union[str, list[str]]] = None, timeout=USE_CONFIG_TIMEOUT, exclude=None
     ):
         prompt = self.compile(context=self.context, schema=schema, mode=mode, exclude=exclude)
         if schema != "raw":
@@ -486,10 +485,17 @@ class ActionNode:
 
     def get_field_names(self):
         """
-        Get the field names from the Pydantic model associated with this ActionNode.
+        获取与此ActionNode关联的Pydantic模型的字段名称。
         """
         model_class = self.create_class()
         return model_class.model_fields.keys()
+
+    def get_field_types(self):
+        """
+        获取与此ActionNode关联的Pydantic模型的字段类型。
+        """
+        model_class = self.create_class()
+        return {field_name: field.annotation for field_name, field in model_class.model_fields.items()}
 
     def xml_compile(self, context):
         # TODO 再来一版
@@ -504,9 +510,9 @@ class ActionNode:
         example_str = "\n".join(examples)
         # Add the example to the context
         context += f"""
-### response format (must be strictly followed) (do not include any other formats except for the given XML format):\n
+### Response format (must be strictly followed): All content must be enclosed in the given XML tags, ensuring each opening <tag> has a corresponding closing </tag>, with no incomplete or self-closing tags allowed.\n
 {example_str}
-"""
+        """
         return context
 
     async def code_fill(self, context, function_name=None, timeout=USE_CONFIG_TIMEOUT):
@@ -529,34 +535,58 @@ class ActionNode:
 
     async def context_fill(self, context):
         """
-        Fill Context with XML TAG
+        使用XML标签填充上下文并根据字段类型进行转换，包括字符串、整数、布尔值、列表和字典类型
         """
         field_names = self.get_field_names()
+        field_types = self.get_field_types()
+
         extracted_data = {}
         content = await self.llm.aask(context)
 
-        # TODO 自动解析类型标注的功能
-
         for field_name in field_names:
-            # Use regex to find content within XML tags matching the field name
             pattern = rf"<{field_name}>(.*?)</{field_name}>"
             match = re.search(pattern, content, re.DOTALL)
             if match:
-                extracted_data[field_name] = match.group(1).strip()
+                raw_value = match.group(1).strip()
+                field_type = field_types.get(field_name)
+
+                if field_type == str:
+                    extracted_data[field_name] = raw_value
+                elif field_type == int:
+                    try:
+                        extracted_data[field_name] = int(raw_value)
+                    except ValueError:
+                        extracted_data[field_name] = 0  # 或者其他默认值
+                elif field_type == bool:
+                    extracted_data[field_name] = raw_value.lower() in ('true', 'yes', '1', 'on', 'True')
+                elif field_type == list:
+                    try:
+                        extracted_data[field_name] = eval(raw_value)
+                        if not isinstance(extracted_data[field_name], list):
+                            raise ValueError
+                    except:
+                        extracted_data[field_name] = []  # 默认空列表
+                elif field_type == dict:
+                    try:
+                        extracted_data[field_name] = eval(raw_value)
+                        if not isinstance(extracted_data[field_name], dict):
+                            raise ValueError
+                    except:
+                        extracted_data[field_name] = {}  # 默认空字典
 
         return extracted_data
 
     async def fill(
-        self,
-        context,
-        llm,
-        schema="json",
-        mode="auto",
-        strgy="simple",
-        images: Optional[Union[str, list[str]]] = None,
-        timeout=USE_CONFIG_TIMEOUT,
-        exclude=[],
-        function_name: str = None,
+            self,
+            context,
+            llm,
+            schema="json",
+            mode="auto",
+            strgy="simple",
+            images: Optional[Union[str, list[str]]] = None,
+            timeout=USE_CONFIG_TIMEOUT,
+            exclude=[],
+            function_name: str = None,
     ):
         """Fill the node(s) with mode.
 
@@ -720,7 +750,7 @@ class ActionNode:
         return nodes_output
 
     async def auto_revise(
-        self, revise_mode: ReviseMode = ReviseMode.AUTO, template: str = REVISE_TEMPLATE
+            self, revise_mode: ReviseMode = ReviseMode.AUTO, template: str = REVISE_TEMPLATE
     ) -> dict[str, str]:
         """revise the value of incorrect keys"""
         # generate review comments

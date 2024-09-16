@@ -1,40 +1,25 @@
 
-REVISE_PROMPT = """Given the problem: {problem}
+REVISE_PROMPT = """
+Given the mathematical problem: {problem}
 
-Initial solution: {solution}
+Original solution: {solution}
 
 Review feedback: {feedback}
 
-Please revise the solution following these steps:
+Please provide a revised solution by following these steps:
+1. Carefully analyze the original solution and the review feedback.
+2. Identify specific errors, misconceptions, or areas for improvement.
+3. Revise the solution systematically, addressing each point in the feedback.
+4. Ensure mathematical accuracy, completeness, and clarity in the revised solution.
+5. If the original solution is correct and the feedback suggests no changes, confirm that the original solution remains valid.
 
-1. Analyze Feedback:
-   - List key issues identified in the feedback
-   - Prioritize issues based on their impact on solution accuracy
+In your revision:
+- Correct any mathematical errors
+- Clarify ambiguous explanations
+- Add missing steps or reasoning
+- Improve the logical flow of the solution
+- Use precise mathematical language and notation
 
-2. Systematic Revision:
-   For each issue, in order of priority:
-   a. Explain the specific problem in the original solution
-   b. Propose a detailed correction or improvement
-   c. Implement the change, showing your work clearly
-
-3. Retain Correct Elements:
-   - Identify and preserve accurate parts of the original solution
-
-4. Comprehensive Review:
-   - Ensure all aspects of the original problem are addressed
-   - Check for consistency and logical flow in the revised solution
-
-5. Enhancement:
-   - Suggest any additional improvements for clarity or efficiency
-   - Explain the reasoning behind these enhancements
-
-6. Final Solution:
-   - Present the fully revised solution
-   - Highlight all changes and improvements made
-
-7. Revision Summary:
-   - Provide a concise overview of major changes
-   - Explain how the revisions address the original feedback
-
-Output the revised solution, emphasizing clarity, accuracy, and completeness."""
+Present your revised solution in a clear, concise, and well-structured manner.
+"""
 

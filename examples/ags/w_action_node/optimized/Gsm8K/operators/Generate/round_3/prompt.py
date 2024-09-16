@@ -1,18 +1,22 @@
 
-GENERATE_PROMPT = """Generate a detailed, step-by-step solution for the following mathematical problem:
+GENERATE_PROMPT = """
+Provide a comprehensive, step-by-step solution for the following math problem:
 
 {problem}
 
-Please adhere to these guidelines:
-1. Start by clearly stating the problem and identifying key information and unknowns.
-2. List all relevant formulas or equations needed to solve the problem.
-3. Present each step of your calculation clearly, explaining your reasoning thoroughly.
-4. If multiple approaches are possible, choose the most efficient one and briefly explain why.
-5. Use clear, concise language and mathematical notation where appropriate.
-6. When beneficial, include diagrams, graphs, or other visual aids to illustrate concepts.
-7. Double-check your calculations and clearly state your final answer.
-8. Provide a brief interpretation of the result and its significance in the context of the problem.
-9. If applicable, suggest how this solution method could be applied to similar problems.
-
-Organize your solution in a logical, easy-to-follow format, ensuring that each step builds upon the previous one. Your explanation should be comprehensive enough for a student to understand and learn from."""
+Follow these guidelines:
+1. State the given information and the question to be answered.
+2. Outline your approach before diving into calculations.
+3. Break the problem into logical, sequential steps.
+4. For each step:
+   a. Explain your reasoning clearly.
+   b. Show all calculations, using appropriate mathematical notation.
+   c. Interpret the intermediate result if applicable.
+5. Ensure each step follows logically from the previous one.
+6. Use relevant formulas, defining any variables or symbols you introduce.
+7. Include diagrams or graphs if they help illustrate the problem or solution.
+8. After reaching the final answer, verify it against the original question.
+9. If relevant, discuss the practical implications or significance of the result.
+10. Summarize the key points of the solution process.
+"""
 

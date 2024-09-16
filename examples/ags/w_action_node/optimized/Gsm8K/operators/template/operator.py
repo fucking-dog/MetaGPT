@@ -93,7 +93,7 @@ class FuEnsemble(Operator):
         prompt = FU_ENSEMBLE_PROMPT.format(solutions=solution_text, problem=problem)
         node = await ActionNode.from_pydantic(FuEnsembleOp).fill(context=prompt, llm=self.llm, mode="context_fill")
         response = node.instruct_content.model_dump()
-        return {"solution": response["final_solution"]}  # {"final_solution": "xxx"}
+        return {"response": response['final_solution']}  # {"final_solution": "xxx"}
 
 
 class MdEnsemble(Operator):
@@ -137,7 +137,7 @@ class MdEnsemble(Operator):
 
         most_frequent_index = Counter(all_responses).most_common(1)[0][0]
         final_answer = solutions[most_frequent_index]
-        return {"solution": final_answer}  # {"final_solution": "xxx"}
+        return {"response": final_answer}  # {"final_solution": "xxx"}
 
 class ScEnsemble(Operator):
     """
@@ -158,13 +158,13 @@ class ScEnsemble(Operator):
             solution_text += f"{chr(65 + index)}: \n{str(solution)}\n\n\n"
 
         prompt = SC_ENSEMBLE_PROMPT.format(solutions=solution_text, problem=problem)
-        node = await ActionNode.from_pydantic(ScEnsembleOp).fill(context=prompt, llm=self.llm, mode="single_fill")
+        node = await ActionNode.from_pydantic(ScEnsembleOp).fill(context=prompt, llm=self.llm, mode="context_fill")
         response = node.instruct_content.model_dump()
 
         answer = response.get("solution_letter", "")
         answer = answer.strip().upper()
 
-        return {"solution": solutions[answer_mapping[answer]]}  # {"final_solution": "xxx"}
+        return {"response": solutions[answer_mapping[answer]]}  # {"final_solution": "xxx"}
 
 
 class Rephrase(Operator):

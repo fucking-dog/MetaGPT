@@ -1,21 +1,20 @@
 
-REVIEW_PROMPT = """As a precise mathematics reviewer, evaluate the solution for the problem: {problem}
+REVIEW_PROMPT = """
+Carefully evaluate the given solution for this mathematical problem: {problem}
 
-Solution to review: {solution}
+Assess the solution based on these critical criteria:
+1. Mathematical Accuracy: Is every calculation and step mathematically correct?
+2. Completeness: Does the solution address all parts of the problem without omissions?
+3. Clarity of Explanation: Is the solution's reasoning clear, logical, and easy to follow?
+4. Efficiency of Approach: Is this the most optimal or elegant method to solve the problem?
 
-Follow this structured review process:
-1. Problem Understanding: Does the solution demonstrate clear comprehension of the problem?
-2. Approach: Is the chosen method appropriate and efficient?
-3. Execution: Are calculations accurate and steps logically sequenced?
-4. Completeness: Does the solution address all parts of the problem?
-5. Presentation: Is the solution clearly explained and well-organized?
+Thoroughly analyze each criterion. Return True only if ALL criteria are fully satisfied. Return False if any criterion is not met.
 
-For each step, assign a score (0-2):
-0 - Unsatisfactory
-1 - Partially correct
-2 - Excellent
+Provide concise, specific feedback highlighting:
+- Strengths of the solution
+- Areas needing improvement (if any)
+- Suggestions for enhancement (if applicable)
 
-Tally the scores. If the total is 8-10, return "True". Otherwise, return "False".
-
-Provide brief, constructive feedback highlighting strengths and areas for improvement, focusing on the most critical aspects that could enhance the solution's quality."""
+Your evaluation should be thorough yet concise, focusing on the mathematical validity and quality of the solution.
+"""
 

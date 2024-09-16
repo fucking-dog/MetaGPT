@@ -1,16 +1,14 @@
 
-SC_ENSEMBLE_PROMPT = """You are an expert evaluator tasked with selecting the best solution to this problem: {problem}
+SC_ENSEMBLE_PROMPT = """
+Analyze the following solutions for the given problem: {problem}
 
-Analyze the following solutions:
 {solutions}
 
-Your evaluation process:
-1. Assess each solution for correctness, completeness, and logical consistency.
-2. Identify common approaches and unique insights across solutions.
-3. Consider edge cases and potential limitations of each solution.
-4. Evaluate the clarity and efficiency of each solution's reasoning.
-5. Determine which solution(s) most accurately and comprehensively address the problem.
-6. If multiple solutions are similar, use a majority consensus approach, but also consider the merits of unique, correct approaches.
+Your task:
+1. Carefully examine each solution.
+2. Identify the most consistent and accurate solution based on majority consensus.
+3. Select the solution that best addresses the problem.
 
-Provide your answer as a single integer ID corresponding to the best solution. Do not include any additional text or explanation."""
+Provide your answer as a single letter corresponding to the chosen solution (e.g., A, B, C, etc.). Do not include any explanations or additional text.
+"""
 

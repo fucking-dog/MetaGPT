@@ -19,15 +19,15 @@ claude_llm_config = ModelsConfig.default().get("claude-3-5-sonnet-20240620")
 # 初始化操作符列表
 gsm8k_operators = [
     "Custom",
-    "Generate",
-    "ContextualGenerate",
+    # "Generate",
+    # "ContextualGenerate",
     "Format",
-    "Review",
-    "Revise",
-    "FuEnsemble",
-    "MdEnsemble",
-    "ScEnsemble",
-    "Rephrase",
+    # "Review",
+    # "Revise",
+    # "FuEnsemble",
+    # "MdEnsemble",
+    # "ScEnsemble",
+    # "Rephrase",
 ]
 
 # 创建优化器实例
@@ -42,5 +42,8 @@ optimizer = Optimizer(
 )
 
 # 运行优化器
+
+optimizer.optimize("Test")
 # optimizer.optimize("Graph")
-optimizer.optimize("Operator")
+# optimizer.optimize("Operator")
+

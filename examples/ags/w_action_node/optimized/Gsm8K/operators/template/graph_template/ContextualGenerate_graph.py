@@ -29,6 +29,6 @@ class SolveGraph:
         """
         # The following is the most basic invocation, attempting to introduce your newly modified 'Operator' to test its effect.The `format` method must be placed at the final layer
         information = await self.custom(input=problem, instruction="Give the key information of the topic in one sentence")
-        solution = await self.contextual_generate(problem, information)
+        solution = await self.contextual_generate(problem, information['response'])
         format_solution = await self.format(problem=problem, solution=solution['response'])
-        return format_solution, self.llm.cost_manager.total_cost
+        return format_solution['response'], self.llm.cost_manager.total_cost

@@ -1,0 +1,134 @@
+{
+    "5": {
+        "score": 0.95076,
+        "success": {
+            "14": {
+                "modification": "Add a step to analyze the problem type before generating solutions, using the Custom operator. This could potentially enhance problem understanding and lead to more targeted solution approaches.",
+                "score": 0.9545454545454546
+            }
+        },
+        "failure": {
+            "10": {
+                "modification": "Add a step to rephrase the problem before generating solutions, using the Rephrase operator. This could potentially enhance problem understanding and lead to more diverse solution approaches.",
+                "score": 0.9356060606060606
+            },
+            "11": {
+                "modification": "Add a step to rephrase the problem before generating solutions, using the Rephrase operator. This could potentially enhance problem understanding and lead to more diverse solution approaches.",
+                "score": 0.928030303030303
+            },
+            "12": {
+                "modification": "Add a step to analyze the problem type before generating solutions, using the Custom operator. This could potentially enhance problem understanding and lead to more targeted solution approaches.",
+                "score": 0.9318181818181818
+            },
+            "6": {
+                "modification": "Add a rephrasing step before generating solutions to potentially improve the problem understanding and solution quality.",
+                "score": 0.9242424242424242
+            },
+            "7": {
+                "modification": "Add a self-consistency check step after generating multiple solutions to improve the quality of the final output.",
+                "score": 0.9431818181818182
+            },
+            "9": {
+                "modification": "Add a rephrase step at the beginning to potentially improve problem understanding and solution quality, while ensuring the rephrased problem is used throughout the solution process.",
+                "score": 0.9204545454545454
+            }
+        }
+    },
+    "8": {
+        "score": 0.94697,
+        "success": {},
+        "failure": {
+            "13": {
+                "modification": "Add a step to check the solution's complexity and simplify it further if needed, using a new COMPLEXITY_CHECK_PROMPT.",
+                "score": 0.946969696969697
+            }
+        }
+    },
+    "3": {
+        "score": 0.95076,
+        "success": {},
+        "failure": {
+            "15": {
+                "modification": "Add a step to check if the enhanced solution is significantly different from the original solution. If not, we'll attempt to generate a more creative solution.",
+                "score": 0.9393939393939394
+            },
+            "16": {
+                "modification": "Add a step to compare the enhanced solution with the original solution, and if they are too similar, generate a more creative alternative using a different approach.",
+                "score": 0.9393939393939394
+            },
+            "17": {
+                "modification": "Add a step to generate multiple solutions using different approaches, then use the FuEnsemble method to critically evaluate and synthesize an enhanced integrated solution.",
+                "score": 0.9507575757575758
+            }
+        }
+    },
+    "17": {
+        "score": 0.95076,
+        "success": {},
+        "failure": {
+            "18": {
+                "modification": "Add a step to analyze the problem's difficulty and select an appropriate solution strategy before generating solutions. This can help tailor the approach to the specific problem, potentially improving the quality of the generated solutions.",
+                "score": 0.9128787878787878
+            },
+            "19": {
+                "modification": "Add a step to analyze the problem's structure and identify key components before generating solutions. This can help in breaking down complex problems and ensuring all aspects are addressed in the subsequent solution generation steps.",
+                "score": 0.9242424242424242
+            },
+            "20": {
+                "modification": "Add a step to incorporate external knowledge or examples related to the problem type before generating solutions. This can help provide additional context and potentially improve the quality and diversity of the generated solutions.",
+                "score": 0.9242424242424242
+            },
+            "21": {
+                "modification": "Add a step to incorporate problem-specific heuristics or common solution patterns before generating solutions. This can help guide the solution generation process and potentially improve the quality of the generated solutions.",
+                "score": 0.8901515151515151
+            },
+            "22": {
+                "modification": "Add a step to incorporate problem-specific keywords and concepts extraction before generating solutions. This can help focus the solution generation process on the most relevant aspects of the problem, potentially improving the quality and relevance of the generated solutions.",
+                "score": 0.9166666666666666
+            },
+            "23": {
+                "modification": "Add a step to incorporate problem-specific constraints or conditions before generating solutions. This can help ensure that the generated solutions are more tailored to the specific requirements of the problem, potentially improving their relevance and accuracy.",
+                "score": 0.9393939393939394
+            }
+        }
+    },
+    "1": {
+        "score": 0.93939,
+        "success": {
+            "4": {
+                "modification": "Add a rephrasing step to simplify the problem before generating a solution, and then use a review and revise process to improve the initial solution.",
+                "score": 0.9393939393939394
+            },
+            "5": {
+                "modification": "Add a self-consistency step using ScEnsemble to improve the reliability of the solution.",
+                "score": 0.9507575757575758
+            }
+        },
+        "failure": {
+            "2": {
+                "modification": "Add a rephrasing step to potentially simplify or clarify the problem before generating a solution.",
+                "score": 0.9242424242424242
+            }
+        }
+    },
+    "2": {
+        "score": 0.92424,
+        "success": {
+            "3": {
+                "modification": "Add a Review and Revise step after the initial solution generation to improve the quality of the solution.",
+                "score": 0.9507575757575758
+            }
+        },
+        "failure": {}
+    },
+    "7": {
+        "score": 0.94318,
+        "success": {
+            "8": {
+                "modification": "Add a step to check the solution's complexity and simplify it if necessary, using the Custom operator with a new SIMPLIFY_SOLUTION_PROMPT.",
+                "score": 0.946969696969697
+            }
+        },
+        "failure": {}
+    }
+}

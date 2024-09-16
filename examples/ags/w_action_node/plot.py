@@ -1,6 +1,8 @@
 import json
 import os
 from collections import defaultdict
+import pandas as pd
+import re
 import networkx as nx
 import matplotlib.pyplot as plt
 import numpy as np
@@ -57,6 +59,7 @@ def _load_experience(path):
     print(f"Processed experience data saved to {output_path}")
     return experience_data
 
+
 def draw_experience_tree(json_data):
     G = nx.DiGraph()
 
@@ -109,533 +112,286 @@ import numpy as np
 
 
 def get_highest_score_per_round(json_data):
+    # Create a dictionary to store the highest score for each round
     highest_scores = {}
-
-    def traverse(node_data):
-        for round_number, success_data in node_data.get("success", {}).items():
-            score = success_data["score"]
-            highest_scores[round_number] = max(highest_scores.get(round_number, score), score)
-            if round_number in json_data:
-                traverse(json_data[round_number])
-
-        for round_number, failure_data in node_data.get("failure", {}).items():
-            score = failure_data["score"]
-            highest_scores[round_number] = max(highest_scores.get(round_number, score), score)
-            if round_number in json_data:
-                traverse(json_data[round_number])
-
-    for root_node, details in json_data.items():
-        traverse(details)
-
+    for data in json_data:
+        round_number = data['round']
+        score = data['score']
+        # Store the highest score for each round
+        if round_number not in highest_scores:
+            highest_scores[round_number] = score
+        else:
+            highest_scores[round_number] = max(highest_scores[round_number], score)
     return highest_scores
 
 
 def get_top_five_average_per_round(json_data):
+    # Create a dictionary to store all scores for each round
+    round_scores = {}
+    for data in json_data:
+        round_number = data['round']
+        score = data['score']
+        if round_number not in round_scores:
+            round_scores[round_number] = [score]
+        else:
+            round_scores[round_number].append(score)
+
+    # Calculate the average of the top 5 scores for each round
     top_five_averages = {}
-
-    def traverse(node_data):
-        scores_per_round = {}
-
-        def add_score(round_number, score):
-            if round_number not in scores_per_round:
-                scores_per_round[round_number] = []
-            scores_per_round[round_number].append(score)
-
-        for round_number, success_data in node_data.get("success", {}).items():
-            add_score(round_number, success_data["score"])
-            if round_number in json_data:
-                traverse(json_data[round_number])
-
-        for round_number, failure_data in node_data.get("failure", {}).items():
-            add_score(round_number, failure_data["score"])
-            if round_number in json_data:
-                traverse(json_data[round_number])
-
-        for round_number, scores in scores_per_round.items():
-            sorted_scores = sorted(scores, reverse=True)
-            top_five_avg = np.mean(sorted_scores[:5])
-            top_five_averages[round_number] = top_five_avg
-
-    for root_node, details in json_data.items():
-        traverse(details)
+    for round_number, scores in round_scores.items():
+        sorted_scores = sorted(scores, reverse=True)
+        top_five_averages[round_number] = np.mean(sorted_scores[:5]) if len(sorted_scores) >= 5 else np.mean(
+            sorted_scores)
 
     return top_five_averages
 
 
-def plot_score_evolution(json_data, round_1_score):
+def plot_score_evolution(json_data, round_0_score, validation, test):
+    import numpy as np
+    import matplotlib.pyplot as plt
 
+    # 获取原始数据中各轮次的最高分和前五均值
     highest_scores = get_highest_score_per_round(json_data)
-    highest_scores["1"] = round_1_score
+    # highest_scores["0"] = round_0_score
     top_five_averages = get_top_five_average_per_round(json_data)
 
     rounds = sorted([int(r) for r in highest_scores.keys()])
+
+    # 计算每个轮次的历史最高分
     highest_scores_list = [max([highest_scores[str(round_number)] for round_number in rounds[:i + 1]]) for i in
                            range(len(rounds))]
+
+    # 计算前五均值
     top_five_avg_list = [
         np.mean(sorted([highest_scores[str(round_number)] for round_number in rounds[:i + 1]], reverse=True)[:5]) for i
         in range(len(rounds))]
 
-    plt.figure(figsize=(14, 7))
+    # validation布林带计算
+    bollinger_rounds = sorted(validation.keys(), key=int)
+    bollinger_means = {k: np.mean(v) for k, v in validation.items()}
+    bollinger_stds = {k: np.std(v) for k, v in validation.items()}
+    bollinger_upper = {k: bollinger_means[k] + 2 * bollinger_stds[k] for k in bollinger_rounds}
+    bollinger_lower = {k: bollinger_means[k] - 2 * bollinger_stds[k] for k in bollinger_rounds}
 
-    plt.subplot(1, 2, 1)
-    plt.plot(rounds, highest_scores_list, label='Highest Score', marker='o')
-    plt.xlabel('Round', fontsize=12)
-    plt.ylabel('Score', fontsize=12)
-    plt.title('Highest Score Evolution', fontsize=14)
-    plt.legend()
-    plt.grid(True)
-    plt.xticks(np.arange(min(rounds), max(rounds) + 1, 5))  # 设置横轴每隔5个轮次显示一个刻度
+    # test布林带计算
+    t_bollinger_rounds = sorted(test.keys(), key=int)
+    t_bollinger_means = {k: np.mean(v) for k, v in test.items()}
+    t_bollinger_stds = {k: np.std(v) for k, v in test.items()}
+    t_bollinger_upper = {k: t_bollinger_means[k] + 2 * t_bollinger_stds[k] for k in t_bollinger_rounds}
+    t_bollinger_lower = {k: t_bollinger_means[k] - 2 * t_bollinger_stds[k] for k in t_bollinger_rounds}
 
-    plt.subplot(1, 2, 2)
-    plt.plot(rounds, top_five_avg_list, label='Top 5 Average Score', marker='o')
-    plt.xlabel('Round', fontsize=12)
-    plt.ylabel('Score', fontsize=12)
-    plt.title('Top 5 Average Score Evolution', fontsize=14)
-    plt.legend()
-    plt.grid(True)
-    plt.xticks(np.arange(min(rounds), max(rounds) + 1, 5))  # 设置横轴每隔5个轮次显示一个刻度
+    # 计算综合评分（例如信噪比）
+    snr_scores = {}
+    for k in bollinger_rounds:
+        if bollinger_stds[k] != 0:
+            mean_values = np.array(list(bollinger_means.values()))
+            std_values = np.array(list(bollinger_stds.values()))
+
+            mean_zscores = (mean_values - mean_values.mean()) / mean_values.std()
+            std_zscores = (std_values - std_values.mean()) / std_values.std()
+
+            # 结合标准化后的均值和标准差
+            alpha = 0.7  # 控制均值的权重
+            snr_scores = {k: alpha * mean_zscores[i] - (1 - alpha) * std_zscores[i] for i, k in
+                          enumerate(bollinger_rounds)}
+
+        else:
+            snr_scores[k] = np.inf  # 如果标准差为0，信噪比设为正无穷
+
+    # 选出评分最高的几个轮次（例如前5名）
+    top_rounds = sorted(snr_scores, key=snr_scores.get, reverse=True)
+    print("均值高且方差小的轮次：", top_rounds)
+
+    # 创建图形和子图
+    fig, axs = plt.subplots(1, 2, figsize=(14, 7))
+    ax1 = axs[0]
+    ax2 = axs[1]
+
+    # 在第一个子图中绘制
+    ax1.plot(rounds, highest_scores_list, label='Highest Score', marker='o')
+    ax1.plot([int(k) for k in bollinger_rounds], [bollinger_means[k] for k in bollinger_rounds], '-',
+             label='Bollinger Mean',
+             color='orange')
+    ax1.fill_between([int(k) for k in bollinger_rounds], [bollinger_lower[k] for k in bollinger_rounds],
+                     [bollinger_upper[k] for k in bollinger_rounds], color='orange', alpha=0.5,
+                     label='Bollinger Band')
+
+    ax1.plot([int(k) for k in t_bollinger_rounds], [t_bollinger_means[k] for k in t_bollinger_rounds], '-',
+             label='Test Bollinger Mean',
+             color='red')
+    ax1.fill_between([int(k) for k in t_bollinger_rounds], [t_bollinger_lower[k] for k in t_bollinger_rounds],
+                     [t_bollinger_upper[k] for k in t_bollinger_rounds], color='red', alpha=0.5,
+                     label='Test Bollinger Band')
+
+    ax1.set_xlabel('Round', fontsize=12)
+    ax1.set_ylabel('Score', fontsize=12)
+    ax1.set_title('Highest Score Evolution', fontsize=14)
+    # ax1.set_ylim(0.83, 1)
+    ax1.legend()
+    ax1.grid(True)
+    ax1.set_xticks(np.arange(min(rounds), max(rounds) + 1, 5))
+
+    # 标注选出的轮次
+    for k in top_rounds:
+        ax1.annotate(f'Round {k}',
+                     xy=(int(k), bollinger_means[k]),
+                     xytext=(int(k), bollinger_means[k] + 0.05 * (
+                                 max(bollinger_means.values()) - min(bollinger_means.values()))),
+                     arrowprops=dict(facecolor='black', arrowstyle='->'),
+                     fontsize=10, color='red', horizontalalignment='center')
+
+    # 在第二个子图中绘制
+    ax2.plot(rounds, top_five_avg_list, label='Top 5 Average Score', marker='o')
+    ax2.set_xlabel('Round', fontsize=12)
+    ax2.set_ylabel('Score', fontsize=12)
+    ax2.set_title('Top 5 Average Score Evolution', fontsize=14)
+    ax2.legend()
+    ax2.grid(True)
+    ax2.set_xticks(np.arange(min(rounds), max(rounds) + 1, 5))
 
     plt.tight_layout()
     plt.show()
 
+
 # 示例 JSON 数据
-json_data = {
-    "8": {
-        "score": 0.95833,
-        "success": {
-            "10": {
-                "modification": "Add a loop to generate multiple solutions and use the ScEnsemble method to select the best one, improving the reliability of the final solution.",
-                "score": 0.9659090909090909
-            }
-        },
-        "failure": {
-            "13": {
-                "modification": "Add a final review step after the formatting to ensure the solution is correct and complete before returning it.",
-                "score": 0.0
-            },
-            "9": {
-                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking. This can help identify any missed aspects or potential alternative approaches.",
-                "score": 0.9507575757575758
-            }
-        }
-    },
-    "43": {
-        "score": 0.96591,
-        "success": {},
-        "failure": {
-            "100": {
-                "modification": "Add a step to incorporate error analysis into the self-reflection process. This can help identify specific areas where the solution might be weak or incorrect, leading to more targeted improvements.",
-                "score": 0.0
-            },
-            "44": {
-                "modification": "Add a loop to generate multiple rephrased versions of the problem and use them in the solution generation process. This can help in capturing different perspectives of the problem and potentially lead to more diverse and comprehensive solutions.",
-                "score": 0.0
-            },
-            "57": {
-                "modification": "Add a step to generate multiple rephrased versions of the problem using a loop, and use them in the solution generation process. This can help capture different perspectives of the problem and potentially lead to more diverse and comprehensive solutions.",
-                "score": 0.0
-            },
-            "88": {
-                "modification": "Add a step to incorporate external knowledge or context into the problem-solving process. This can be done by using the ContextualGenerate method instead of the regular Generate method, which allows for additional context to be provided alongside the problem description.",
-                "score": 0.0
-            }
-        }
-    },
-    "2": {
-        "score": 0.95076,
-        "success": {},
-        "failure": {
-            "11": {
-                "modification": "Add a self-consistency check after the initial solution generation to improve reliability. This can be implemented by generating multiple solutions and comparing them before proceeding to the review step.",
-                "score": 0.9507575757575758
-            },
-            "3": {
-                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking.",
-                "score": 0.9507575757575758
-            },
-            "4": {
-                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking.",
-                "score": 0.7083333333333334
-            },
-            "5": {
-                "modification": "Add a self-consistency check after the initial solution generation to improve reliability.",
-                "score": 0.0
-            },
-            "6": {
-                "modification": "Add a self-consistency check after the initial solution generation to improve reliability. This can be implemented by generating multiple solutions and comparing them before proceeding to the review step.",
-                "score": 0.946969696969697
-            }
-        }
-    },
-    "10": {
-        "score": 0.96591,
-        "success": {
-            "40": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.9734848484848485
-            }
-        },
-        "failure": {
-            "12": {
-                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or solution approaches.",
-                "score": 0.9356060606060606
-            },
-            "14": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage.",
-                "score": 0.9583333333333334
-            },
-            "16": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage.",
-                "score": 0.9583333333333334
-            },
-            "17": {
-                "modification": "Add a loop in the graph to implement iterative improvement. If the review result is negative, we'll revise and review the solution up to 3 times before formatting.",
-                "score": 0.9545454545454546
-            },
-            "26": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.9659090909090909
-            },
-            "41": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.9583333333333334
-            },
-            "45": {
-                "modification": "Add a loop in the graph to implement iterative improvement. If the review result is negative, we'll revise and review the solution up to 3 times before formatting. This can help improve the solution quality by allowing multiple rounds of refinement.",
-                "score": 0.6401515151515151
-            },
-            "53": {
-                "modification": "Add a loop in the graph to implement iterative improvement. If the review result is negative, we'll revise and review the solution up to 3 times before formatting. This can help improve the solution quality by allowing multiple rounds of refinement.",
-                "score": 0.0
-            },
-            "54": {
-                "modification": "Add a self-reflection step after the initial thinking step to encourage deeper problem analysis and potentially uncover additional insights or solution approaches.",
-                "score": 0.0
-            },
-            "60": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "61": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "62": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "66": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "68": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "70": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "72": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "76": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            },
-            "90": {
-                "modification": "Add a self-reflection step after generating the initial solution to encourage the model to critically evaluate its own work before moving to the review stage. This can help catch potential errors or inconsistencies early in the process.",
-                "score": 0.0
-            }
-        }
-    },
-    "7": {
-        "score": 0.95833,
-        "success": {
-            "18": {
-                "modification": "Add a step to check if the problem requires unit conversion. If it does, use a unit conversion function before generating the solution.",
-                "score": 0.9621212121212122
-            }
-        },
-        "failure": {
-            "15": {
-                "modification": "Add a step to check if the problem requires numerical calculations. If it does, use a numerical solver to verify the solution before formatting.",
-                "score": 0.0
-            },
-            "23": {
-                "modification": "Add a step to check if the problem requires dimensional analysis. If it does, use a dimensional analysis function before generating the solution.",
-                "score": 0.9545454545454546
-            }
-        }
-    },
-    "18": {
-        "score": 0.96212,
-        "success": {},
-        "failure": {
-            "19": {
-                "modification": "Add a step to check for numerical errors in the final solution using a Custom method with a new NUMERICAL_CHECK_PROMPT.",
-                "score": 0.0
-            },
-            "21": {
-                "modification": "Add a step to check for edge cases or special conditions in the problem using a Custom method with a new EDGE_CASE_PROMPT. This can help identify and handle potential corner cases that might require special attention in the solution process.",
-                "score": 0.0
-            },
-            "22": {
-                "modification": "Add a step to check for dimensional consistency in the solution using a Custom method with a new DIMENSIONAL_CONSISTENCY_PROMPT. This can help ensure that the units and dimensions in the problem and solution are consistent throughout the solving process.",
-                "score": 0.0
-            },
-            "42": {
-                "modification": "Add a step to validate the final solution using a Custom method with a new SOLUTION_VALIDATION_PROMPT. This can help ensure the correctness and completeness of the solution before formatting it.",
-                "score": 0.0
-            },
-            "46": {
-                "modification": "Add a step to check for mathematical consistency in the solution using a Custom method with a new MATHEMATICAL_CONSISTENCY_PROMPT. This can help ensure that the mathematical operations and steps in the solution are logically consistent and correct.",
-                "score": 0.0
-            },
-            "63": {
-                "modification": "Add a step to perform dimensional analysis using a Custom method with a new DIMENSIONAL_ANALYSIS_PROMPT. This can help ensure that the units and dimensions in the problem and solution are consistent throughout the solving process, which is particularly important for problems involving unit conversions.",
-                "score": 0.0
-            },
-            "73": {
-                "modification": "Add a step to perform error analysis using a Custom method with a new ERROR_ANALYSIS_PROMPT. This can help identify potential sources of errors in the solution and suggest improvements.",
-                "score": 0.0
-            },
-            "99": {
-                "modification": "Add a step to perform dimensional analysis using a Custom method with a new DIMENSIONAL_ANALYSIS_PROMPT. This can help ensure that the units and dimensions in the problem and solution are consistent throughout the solving process, which is particularly important for problems involving unit conversions.",
-                "score": 0.0
-            }
-        }
-    },
-    "1": {
-        "score": 0.93939,
-        "success": {
-            "2": {
-                "modification": "Add a Review step after generating the solution to ensure its correctness before formatting.",
-                "score": 0.9507575757575758
-            }
-        },
-        "failure": {
-            "55": {
-                "modification": "Add a Review step after generating the solution to ensure its correctness before formatting.",
-                "score": 0.03409090909090909
-            },
-            "74": {
-                "modification": "Add a Rephrase step before the Custom step to provide a different perspective on the problem, potentially leading to more comprehensive thinking.",
-                "score": 0.045454545454545456
-            },
-            "81": {
-                "modification": "Add a self-consistency check after generating the solution to improve reliability.",
-                "score": 0.007575757575757576
-            }
-        }
-    },
-    "16": {
-        "score": 0.95833,
-        "success": {},
-        "failure": {
-            "20": {
-                "modification": "Add a loop to iteratively improve the solution based on self-reflection feedback. This will allow the system to refine its answer multiple times before moving to the review stage.",
-                "score": 0.946969696969697
-            },
-            "24": {
-                "modification": "Add a self-consistency check for the rephrased problem to ensure it maintains the original problem's essence and requirements.",
-                "score": 0.0
-            },
-            "25": {
-                "modification": "Add a loop to iteratively improve the solution based on the review feedback. This will allow the system to refine its answer multiple times before finalizing the solution.",
-                "score": 0.0
-            }
-        }
-    },
-    "14": {
-        "score": 0.95833,
-        "success": {},
-        "failure": {
-            "27": {
-                "modification": "Add a loop to iteratively improve the solution based on the review feedback, up to a maximum of 3 iterations or until the review result is positive.",
-                "score": 0.9507575757575758
-            }
-        }
-    },
-    "26": {
-        "score": 0.96591,
-        "success": {},
-        "failure": {
-            "28": {
-                "modification": "Add a loop to iteratively improve the solution based on self-reflection feedback. This will allow the model to refine its solution multiple times before moving to the review stage.",
-                "score": 0.8522727272727273
-            },
-            "39": {
-                "modification": "Add a conditional statement to check if the review result is positive. If it is, skip the revision step and directly format the solution. This can save time and resources for solutions that are already correct.",
-                "score": 0.9621212121212122
-            },
-            "49": {
-                "modification": "Add a parameter to the Custom method to control the number of solutions generated for self-consistency check, allowing for dynamic adjustment based on problem complexity or time constraints.",
-                "score": 0.0
-            },
-            "50": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "52": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "58": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "64": {
-                "modification": "Add a parameter to the Custom method to control the number of solutions generated for self-consistency check, allowing for dynamic adjustment based on problem complexity or time constraints.",
-                "score": 0.0
-            },
-            "65": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "78": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "79": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "84": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "93": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "94": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            },
-            "95": {
-                "modification": "Add a parameter to the Custom method to control the depth of reasoning in the THINK_PROMPT. This will allow for adjusting the level of detail in the reasoning process based on the problem complexity.",
-                "score": 0.0
-            }
-        }
-    },
-    "40": {
-        "score": 0.97348,
-        "success": {},
-        "failure": {
-            "43": {
-                "modification": "Add a loop to generate multiple solutions and use self-consistency to select the best one. This can improve the robustness of the solution by considering multiple approaches.",
-                "score": 0.9659090909090909
-            },
-            "47": {
-                "modification": "Add a self-ask step after the initial thinking step to encourage deeper problem-solving and critical thinking.",
-                "score": 0.0
-            },
-            "48": {
-                "modification": "Add a step to validate the final solution using a numerical check or example, if applicable. This can help catch any remaining errors that might have slipped through the review process.",
-                "score": 0.0
-            },
-            "51": {
-                "modification": "Add a validation step after the formatting step to check if the solution meets specific criteria or constraints of the problem.",
-                "score": 0.0
-            },
-            "56": {
-                "modification": "Add a step to check if the problem requires numerical calculations, and if so, perform a numerical validation of the final solution.",
-                "score": 0.0
-            },
-            "59": {
-                "modification": "Add a step to check if the problem requires numerical calculations, and if so, perform a numerical validation of the final solution.",
-                "score": 0.0
-            },
-            "67": {
-                "modification": "Add a step to check if the problem requires unit conversion, and if so, perform the conversion before generating the solution. This can help prevent errors related to mismatched units.",
-                "score": 0.0
-            },
-            "69": {
-                "modification": "Add a step to check if the problem involves geometry, and if so, suggest creating a diagram or visual representation to aid in problem-solving.",
-                "score": 0.0
-            },
-            "71": {
-                "modification": "Add a step to check if the problem involves a specific mathematical concept (e.g., algebra, geometry, calculus) and adjust the thinking approach accordingly.",
-                "score": 0.0
-            },
-            "75": {
-                "modification": "Add a step to check if the problem involves a system of equations, and if so, use a matrix-based approach for solving it. This can improve efficiency and accuracy for certain types of mathematical problems.",
-                "score": 0.0
-            },
-            "77": {
-                "modification": "Add a step to check if the problem involves probability or statistics, and if so, incorporate a Monte Carlo simulation approach for numerical validation of the solution.",
-                "score": 0.0
-            },
-            "80": {
-                "modification": "Add a step to check if the problem involves algebraic equations, and if so, use symbolic manipulation techniques to solve and verify the solution. This can improve the accuracy and efficiency of solving algebraic problems.",
-                "score": 0.0
-            },
-            "82": {
-                "modification": "Add a step to check if the problem involves a specific mathematical domain (e.g., algebra, geometry, calculus) and adjust the thinking approach accordingly. This can help tailor the problem-solving strategy to the specific type of math problem.",
-                "score": 0.0
-            },
-            "83": {
-                "modification": "Add a step to check if the problem involves a specific mathematical domain (e.g., algebra, geometry, calculus) and adjust the thinking approach accordingly. This can help tailor the problem-solving strategy to the specific type of math problem.",
-                "score": 0.0
-            },
-            "85": {
-                "modification": "Add a step to check if the problem involves a specific mathematical domain (e.g., algebra, geometry, calculus) and adjust the thinking approach accordingly. This can help tailor the problem-solving strategy to the specific type of math problem.",
-                "score": 0.0
-            },
-            "86": {
-                "modification": "Add a step to check if the problem involves multiple parts or sub-questions, and if so, break it down into smaller components for solving each part separately before combining them for the final solution.",
-                "score": 0.0
-            },
-            "87": {
-                "modification": "Add a step to check if the problem involves multiple variables or unknowns, and if so, use a system of equations approach for solving it. This can improve the accuracy and efficiency of solving complex problems with multiple variables.",
-                "score": 0.0
-            },
-            "89": {
-                "modification": "Add a step to check if the problem involves numerical calculations, and if so, perform a numerical validation of the final solution. This can help catch any remaining errors that might have slipped through the review process.",
-                "score": 0.0
-            },
-            "91": {
-                "modification": "Add a step to check if the problem involves a time-dependent process or rate of change, and if so, suggest using calculus techniques like differentiation or integration for solving it. This can improve the accuracy and efficiency of solving problems involving rates, velocities, or accumulation over time.",
-                "score": 0.0
-            },
-            "92": {
-                "modification": "Add a step to check if the problem involves multiple parts or sub-questions, and if so, break it down into smaller components for solving each part separately before combining them for the final solution. This can help in tackling complex problems more systematically.",
-                "score": 0.0
-            },
-            "96": {
-                "modification": "Add a step to check if the problem involves a specific mathematical domain (e.g., algebra, geometry, calculus) and adjust the thinking approach accordingly. This can help tailor the problem-solving strategy to the specific type of math problem.",
-                "score": 0.0
-            },
-            "97": {
-                "modification": "Add a step to check if the problem involves multiple parts or sub-questions, and if so, break it down into smaller components for solving each part separately before combining them for the final solution. This can help in tackling complex problems more systematically.",
-                "score": 0.0
-            },
-            "98": {
-                "modification": "Add a step to check if the problem involves numerical calculations, and if so, perform a numerical validation of the final solution. This can help catch any remaining errors that might have slipped through the review process.",
-                "score": 0.0
-            }
-        }
-    },
-    "6": {
-        "score": 0.94697,
-        "success": {
-            "7": {
-                "modification": "Add a step to rephrase the problem before generating solutions. This can help in understanding the problem from different perspectives and potentially lead to more diverse and accurate solutions.",
-                "score": 0.9583333333333334
-            },
-            "8": {
-                "modification": "Add a step to rephrase the problem before generating solutions. This can help in understanding the problem from different perspectives and potentially lead to more diverse and accurate solutions.",
-                "score": 0.9583333333333334
-            }
-        },
-        "failure": {}
-    }
-}
+# 假设 JSON 文件的路径是 path_to_json
+
+
+def read_scores_and_costs(a_folder_path):
+    results = []
+
+    for round_folder in os.listdir(a_folder_path):
+        round_folder_path = os.path.join(a_folder_path, round_folder)
+
+        # 确保它是一个文件夹
+        if os.path.isdir(round_folder_path):
+            # 使用正则表达式提取轮次文件夹名称中的纯数字部分
+            round_number_match = re.search(r'\d+', round_folder)
+            if round_number_match:
+                round_number = round_number_match.group()  # 提取到的纯数字轮次
+
+                # 遍历该轮次文件夹下的所有文件
+                for file in os.listdir(round_folder_path):
+                    file_path = os.path.join(round_folder_path, file)
+
+                    # 确保文件是csv文件，且文件名是以数字开头（表示分数）
+                    if file.endswith('.csv') and file[:-4].replace('.', '').isdigit():
+                        # 提取文件名中的分数
+                        score = float(file[:-4])
+
+                        # 读取csv文件
+                        df = pd.read_csv(file_path)
+
+                        # 获取 'cost' 列的最大值
+                        if 'cost' in df.columns:
+                            cost = df['cost'].max()
+                        else:
+                            cost = None
+
+                        # 将该轮次的分数和对应的cost记录下来
+                        results.append({'round': round_number, 'score': score, 'cost': cost})
+
+    return results
+
+
+def plot_pareto(results, save_path=None):
+    # 提取分数、成本和轮次，并筛选符合条件的结果
+    filtered_results = [r for r in results]
+    scores = [r['score'] for r in filtered_results]
+    costs = [r['cost'] for r in filtered_results]
+    rounds = [r['round'] for r in filtered_results]
+
+    # 绘制成本和分数的散点图（轴反转）
+    plt.figure(figsize=(8, 6))
+    plt.scatter(costs, scores, color='blue', label='Graph')
+
+    # 标题和标签
+    plt.title('Pareto Front of Cost vs Score(Gsm8K)')
+    plt.xlabel('Cost($)')
+    plt.ylabel('Score(Pass@1)')
+
+    # 计算帕累托前沿
+    pareto_front = []
+    sorted_results = sorted(filtered_results, key=lambda x: x['cost'])
+    current_pareto_score = float('-inf')
+
+    for result in sorted_results:
+        if result['score'] > current_pareto_score:
+            pareto_front.append(result)
+            current_pareto_score = result['score']
+
+    pareto_costs = [p['cost'] for p in pareto_front]
+    pareto_scores = [p['score'] for p in pareto_front]
+    pareto_rounds = [p['round'] for p in pareto_front]
+
+    plt.plot(pareto_costs, pareto_scores, color='red', label='Pareto Front', linestyle='--')
+
+    # 在帕累托前沿点上标注轮次信息
+    for cost, score, round_num in zip(pareto_costs, pareto_scores, pareto_rounds):
+        plt.annotate(f'{round_num}', xy=(cost, score), textcoords="offset points", xytext=(5, 5), ha='center')
+
+    # 图例
+    plt.legend()
+
+    # 如果提供了保存路径，保存高分辨率图像
+    if save_path:
+        plt.savefig(save_path, dpi=300, bbox_inches='tight')
+
+    # 显示图形
+    plt.show()
+
+
+experience = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\processed_experience.json"
+validation_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\results.json"
+test_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs_test\results.json"
+
+# 打开文件并加载 JSON 数据
+with open(experience, 'r', encoding='utf-8') as file:
+    json_data = json.load(file)
+with open(validation_result, 'r', encoding='utf-8') as file:
+    validation_data = json.load(file)
+with open(test_result, 'r', encoding='utf-8') as file:
+    test_data = json.load(file)
 
 # 生成树图
-# draw_experience_tree(json_data)
-plot_score_evolution(json_data, 0.93939)
+draw_experience_tree(json_data)
+
+test = {1: [0.92607, 0.92891, 0.93081, 0.93175, 0.93270]}
+# , 3:[0.91848, 0.92038, 0.92133, 0.92607, 0.93175], 14:[0.92701, 0.92796, 0.93081,0.93081, 0.93460]
+
+
+df = pd.DataFrame(validation_data)
+scores_per_round = df.groupby('round')['score'].apply(list).to_dict()
+df_t = pd.DataFrame(test_data)
+t_scores_per_round = df_t.groupby('round')['score'].apply(list).to_dict()
+print(df)
+print(df)
+
+# 检查和转换数据类型
+df['score'] = pd.to_numeric(df['score'], errors='coerce')
+df['avg_cost'] = pd.to_numeric(df['avg_cost'], errors='coerce')
+# 只保留需要计算的列
+df_filtered = df[['round', 'score', 'avg_cost']]
+
+# 计算每轮的均值
+result = df_filtered.groupby('round').mean().reset_index()
+
+# 将结果整理为所需的格式
+formatted_result = result.rename(columns={'round': 'round', 'score': 'score', 'avg_cost': 'cost'})
+formatted_result['round'] = formatted_result['round'].astype(str)  # 将 round 转换为字符串
+results = formatted_result.to_dict(orient='records')
+# 直接添加 test 中的内容到 scores_per_round
+for key, value in test.items():
+    t_scores_per_round.setdefault(key, []).extend(value)
+
+a_folder_path = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs"
+save_path = r"C:\Users\13761\Desktop\a"
+
+# results = read_scores_and_costs(a_folder_path)
+print(scores_per_round)
+print(results)
+t_scores_per_round = {}
+plot_score_evolution(results, 0.81, scores_per_round, t_scores_per_round)
+plot_pareto(results, save_path)
 
 # _load_experience(r'D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K')

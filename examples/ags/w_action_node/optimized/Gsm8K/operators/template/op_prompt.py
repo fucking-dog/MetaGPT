@@ -5,10 +5,12 @@ Generate Solution for the following problem:
 """
 
 FORMAT_PROMPT = """
-For the question described as {problem},
-please extract a short and concise answer contains only one word/few words from the following solution: {solution}.
-Make sure there are no additional comments or explanations in your response.
+For the described problem {problem},  
+please extract a concise numeric answer from the following solution {solution}, without any units, and ensure that there are no additional comments or explanations in the response.
 """
+# For the question described as {problem},
+# please extract a short and concise answer contains only one word/few words from the following solution: {solution}.
+# Make sure there are no additional comments or explanations in your response.
 
 
 CONTEXTUAL_GENERATE_PROMPT = """
@@ -24,7 +26,7 @@ Generate Solution for the following problem:
 REVIEW_PROMPT = """
 For the question described as {problem},
 please review the following solution: {solution}, and provide a review result in boolean format.
-If you believe the solution is capable of resolving the issue, return True; otherwise, return False, and include your comments.
+If you believe the solution is capable of resolving the issue, return True, and include your feedback; otherwise, return False, and include your feedback.
 """
 
 REVISE_PROMPT = """

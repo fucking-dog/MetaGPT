@@ -8,7 +8,7 @@ from metagpt.provider.llm_provider_registry import create_llm_instance
 from examples.ags.w_action_node.operator import Operator
 from metagpt.actions.action_node import ActionNode
 from examples.ags.w_action_node.optimized.Gsm8K.operators.template.operator_an import *
-from examples.ags.w_action_node.optimized.Gsm8K.operators.ScEnsemble.round_1.prompt import *
+from examples.ags.w_action_node.optimized.Gsm8K.operators.ScEnsemble.round_2.prompt import *
 
 class ScEnsemble(Operator):
     """
@@ -29,11 +29,11 @@ class ScEnsemble(Operator):
             solution_text += f"{chr(65 + index)}: \n{str(solution)}\n\n\n"
 
         prompt = SC_ENSEMBLE_PROMPT.format(solutions=solution_text, problem=problem)
-        node = await ActionNode.from_pydantic(ScEnsembleOp).fill(context=prompt, llm=self.llm, mode="single_fill")
+        node = await ActionNode.from_pydantic(ScEnsembleOp).fill(context=prompt, llm=self.llm, mode="context_fill")
         response = node.instruct_content.model_dump()
 
         answer = response.get("solution_letter", "")
         answer = answer.strip().upper()
 
-        return {"solution": solutions[answer_mapping[answer]]}  # {"final_solution": "xxx"}
+        return {"response": solutions[answer_mapping[answer]]}  # {"final_solution": "xxx"}
                     

@@ -1,31 +1,18 @@
 
-REVISE_PROMPT = """Given the problem: {problem}
+REVISE_PROMPT = """
+Given the mathematical problem: {problem}
 
-Initial solution: {solution}
+Original solution: {solution}
 
 Review feedback: {feedback}
 
-Revise the solution as follows:
+Please provide a revised solution following these steps:
+1. Analyze the original solution and the review feedback.
+2. Identify any errors or areas for improvement.
+3. Revise the solution, addressing each point in the feedback.
+4. Ensure the revised solution is mathematically correct and complete.
+5. If the original solution was correct and the feedback suggests no changes, state that the original solution stands.
 
-1. Analyze feedback:
-   - List key issues identified
-   - Prioritize corrections needed
-
-2. For each issue:
-   a. Explain the error in the original solution
-   b. Outline the necessary correction
-   c. Implement the change
-
-3. Retain correct parts of the original solution
-
-4. Verify revised solution:
-   - Addresses all aspects of the problem
-   - Incorporates all feedback
-   - Maintains mathematical accuracy
-
-5. Summarize revisions:
-   - List all changes made
-   - Explain how each improves the solution
-
-Provide the revised solution, clearly indicating all modifications and improvements based on the feedback."""
+Present your revised solution clearly and concisely.
+"""
 

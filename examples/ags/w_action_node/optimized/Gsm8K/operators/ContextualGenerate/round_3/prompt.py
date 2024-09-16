@@ -1,40 +1,22 @@
 
-CONTEXTUAL_GENERATE_PROMPT = """Generate a comprehensive, step-by-step solution for the given problem:
+CONTEXTUAL_GENERATE_PROMPT = """
+Solve the given mathematical problem step-by-step, utilizing the provided key information:
 
-## Problem
-{problem}
+Problem: {problem}
 
-## Context
-{context}
+Key Information: {context}
 
-Follow this structured approach:
-1. Problem Analysis:
-   - Restate the problem concisely
-   - Identify key information and variables
-   - Relate the context to the problem
+Solution Guidelines:
+1. Carefully analyze the problem and key information.
+2. Identify crucial mathematical concepts and formulas relevant to the problem.
+3. Outline a clear problem-solving strategy.
+4. Present a step-by-step solution, clearly explaining each step.
+5. Show all calculations and intermediate results.
+6. Use precise mathematical notation and terminology.
+7. Verify your solution by checking if it satisfies all given conditions and constraints.
+8. If applicable, discuss alternative approaches or methods.
+9. Summarize the key findings or results.
 
-2. Solution Strategy:
-   - Outline the main steps to solve the problem
-   - Explain the reasoning behind your approach
-
-3. Detailed Solution:
-   - Show all calculations and intermediate steps
-   - Explain each step clearly
-   - Use appropriate mathematical notation
-   - Apply relevant formulas or concepts, explaining them briefly
-
-4. Verification:
-   - Check your answer for accuracy
-   - Ensure all parts of the problem are addressed
-   - Verify that the solution aligns with the given context
-
-5. Conclusion:
-   - Summarize the final answer
-   - Highlight key insights or implications
-
-Ensure your solution is:
-- Mathematically accurate and thorough
-- Clearly explained, demonstrating deep understanding
-- Directly addressing all aspects of the problem
-- Properly integrating the provided context"""
+Ensure your solution is comprehensive, logically structured, and mathematically rigorous.
+"""
 

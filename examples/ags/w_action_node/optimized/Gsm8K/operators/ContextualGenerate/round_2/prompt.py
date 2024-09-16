@@ -1,26 +1,18 @@
 
-CONTEXTUAL_GENERATE_PROMPT = """Generate a detailed solution for the following problem:
+CONTEXTUAL_GENERATE_PROMPT = """
+Solve the following mathematical problem step-by-step:
 
-## Problem Description
-{problem}
+Problem: {problem}
 
-## Context
-{context}
+Key Information: {context}
 
-Provide a step-by-step solution following this structure:
-1. Problem Analysis: Restate the problem and identify key information.
-2. Context Integration: Explain how the given context relates to the problem.
-3. Solution Strategy: Outline the steps needed to solve the problem.
-4. Execution:
-   a. Show all calculations and reasoning.
-   b. Explain any mathematical concepts or formulas used.
-   c. Use clear, logical progression in your solution.
-5. Verification: Check if the answer is reasonable and meets all requirements.
-6. Conclusion: Summarize the final answer and key insights.
+Approach:
+1. Analyze the problem and the given key information.
+2. Identify the relevant mathematical concepts and formulas.
+3. Break down the problem into smaller, manageable steps.
+4. Solve each step logically, showing all work and calculations.
+5. Verify your solution by checking if it satisfies all given conditions.
 
-Ensure your solution:
-- Directly addresses the problem using the provided context
-- Is mathematically accurate and thorough
-- Explains concepts in a way that demonstrates understanding
-- Uses appropriate mathematical notation where necessary"""
+Provide a clear, concise solution with explanations for each step.
+"""
 
