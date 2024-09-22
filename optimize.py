@@ -5,15 +5,17 @@
 
 from examples.ags.w_action_node.optimizer import Optimizer
 from metagpt.configs.models_config import ModelsConfig
+import faulthandler
+
 
 # 配置实验参数
 dataset = "Gsm8K"  # 数据集选择为GSM8K
-sample = 6  # 采样数量
+sample = 4  # 采样数量
 q_type = "math"  # 问题类型为数学
 optimized_path = "examples/ags/w_action_node/optimized"  # 优化结果保存路径
 
 # 初始化LLM模型
-deepseek_llm_config = ModelsConfig.default().get("deepseek-coder")
+deepseek_llm_config = ModelsConfig.default().get("gpt-4o-mini")
 claude_llm_config = ModelsConfig.default().get("claude-3-5-sonnet-20240620")
 
 # 初始化操作符列表
@@ -21,13 +23,14 @@ gsm8k_operators = [
     "Custom",
     # "Generate",
     # "ContextualGenerate",
-    "Format",
+    # "Format",
     # "Review",
     # "Revise",
     # "FuEnsemble",
     # "MdEnsemble",
-    # "ScEnsemble",
+    "ScEnsemble",
     # "Rephrase",
+    "Programmer",
 ]
 
 # 创建优化器实例
