@@ -2,7 +2,7 @@ import pandas as pd
 import glob
 
 # 设置文件路径（假设所有 CSV 文件在同一个目录下）
-file_path = r'D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\answer\*.csv'  # 请替换为你的实际路径
+file_path = r'D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\MATH_answer\*.csv'  # 请替换为你的实际路径
 
 # 读取所有 CSV 文件
 all_files = glob.glob(file_path)
@@ -24,7 +24,7 @@ for df in df_list:
 index_counts = pd.DataFrame({'index': range(num_rows), 'zero_count': zero_counts})
 
 # 根据零计数降序排序并选择前100个
-top_100_indices = index_counts.sort_values(by='zero_count', ascending=False).head(100)
+top_100_indices = index_counts.sort_values(by='zero_count', ascending=False).head(68)
 
 
 # 输出前50个索引的列表

@@ -93,9 +93,9 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 3  # 起始轮次
+        self.round = 1  # 起始轮次
 
-    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 15):
+    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 20):
         """
         Optimize the graph and operator for the dataset.
         """
@@ -374,8 +374,7 @@ class Optimizer:
         print(f"Processed experience data saved to {output_path}")
         return experience_data
 
-
-    def _load_log(self,cur_round, path=None, mode: str = "Graph"):
+    def _load_log(self, cur_round, path=None, mode: str = "Graph"):
         if mode == "Graph":
             log_dir = os.path.join(self.root_path, "graphs", f"round_{cur_round}", "log.json")
         else:
@@ -385,8 +384,20 @@ class Optimizer:
         with open(log_dir, 'r', encoding='utf-8') as f:
             data = json.load(f)
 
-        # 随机选择三个元素
-        random_samples = random.sample(data, 3)
+        # 确保数据是一个列表
+        if isinstance(data, dict):
+            data = [data]
+        elif not isinstance(data, list):
+            # 如果数据既不是列表也不是字典，尝试将其转换为列表
+            data = list(data)
+
+        # 检查数据是否为空
+        if not data:
+            return ""  # 返回空字符串表示没有可用的日志
+
+        # 随机选择最多三个元素
+        sample_size = min(3, len(data))
+        random_samples = random.sample(data, sample_size)
 
         # 组装为一个文本
         log = ""

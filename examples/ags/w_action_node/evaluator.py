@@ -3,6 +3,7 @@
 # @Author  : all
 # @Desc    : evaluate for different dataset
 
+from datetime import datetime
 import asyncio
 import json
 import multiprocessing
@@ -61,7 +62,7 @@ class Evaluator:
         if dataset == "Gsm8K":
             return self._gsm8k_eval(graph, params, path, is_test, samples=264)
         elif dataset == "MATH":
-            self._math_eval(graph, params, path, is_test, samples=1)
+            return self._math_eval(graph, params, path, is_test, samples=1)
         elif dataset == "HumanEval":
             return self._humaneval_eval(graph, params, is_test, samples=1)
         elif dataset == "HotpotQA":
@@ -239,13 +240,22 @@ class Evaluator:
 
         # 保存结果到CSV文件
         def save_results_to_csv(results: List[Tuple[str, str, str, int]], path):
+            # 创建 DataFrame
             df = pd.DataFrame(results, columns=["question", "prediction", "expected_output", "score", "cost"])
+
+            # 计算统计数据
             avg_score = df["score"].mean()
             t_cost = df["cost"].max()
-            a_cost = t_cost/len(df)
+            a_cost = t_cost / len(df) if len(df) > 0 else 0
 
-            # 生成文件名，保留五位小数
-            output_file = f"{path}/{avg_score:.5f}.csv"
+            # 获取当前时间，格式为 YYYYMMDD_HHMMSS
+            current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            # 生成文件名，包含平均分和当前时间，保留五位小数
+            filename = f"{avg_score:.5f}_{current_time}.csv"
+            output_file = os.path.join(path, filename)
+
+            # 保存到 CSV
             df.to_csv(output_file, index=False)
             print(f"Results saved to {output_file}")
 
@@ -297,11 +307,17 @@ class Evaluator:
             # Look for the answer within \boxed{...}
             boxed_match = re.search(r"\\boxed{(.*?)}", text)
             if boxed_match:
-                return boxed_match.group(1)
+                return boxed_match.group(1).strip()
 
-            # If no \boxed{...}, return the last sentence
-            sentences = text.split(".")
-            return sentences[-1].strip() if sentences else ""
+            # 如果没有 \boxed{...}，则提取最后一句话
+            # 使用正则表达式避免小数点导致的错误分割
+            # 句子结束符为 . ! ?，且这些符号不是数字的一部分
+            sentence_end_pattern = r'(?<!\d)[.!?]\s+'
+            sentences = re.split(sentence_end_pattern, text)
+
+            # 过滤空字符串并返回最后一个非空句子
+            sentences = [s.strip() for s in sentences if s.strip()]
+            return sentences[-1] if sentences else ""
 
         def parse_digits(num):
             # format: 234.23 || 23%
@@ -485,15 +501,53 @@ class Evaluator:
 
             return False
 
-        def calculate_score(expected_output: str, prediction: str) -> int:
+        def calculate_score(expected_output: str, prediction: str) -> tuple[int, str]:
             expected_answer = extract_answer(expected_output)
             predicted_answer = extract_answer(prediction)
 
-            return 1 if math_equal(predicted_answer, expected_answer) else 0
+            if math_equal(predicted_answer, expected_answer):
+                return 1, predicted_answer
+            else:
+                return 0, predicted_answer
 
-        async def _evaluate_problem(problem: dict, graph) -> Tuple[str, str, str, int, str]:
+        def ensure_log_file_exists(path: str):
+            log_file = os.path.join(path, 'log.json')
+            if not os.path.exists(log_file):
+                with open(log_file, 'w', encoding='utf-8') as f:
+                    json.dump([], f, indent=4, ensure_ascii=False)
+
+        def log_mismatch(problem:str, expected_output: float, prediction: str, predicted_number: float|None|str, path):
+            log_data = {
+                "question": problem,
+                "right_answer": expected_output,
+                "model_output": prediction,
+                "extracted_output": predicted_number
+            }
+
+            log_file = os.path.join(path, 'log.json')
+
+            # 检查log文件是否已经存在
+            if os.path.exists(log_file):
+                # 如果存在，加载现有的日志数据
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                    except json.JSONDecodeError:
+                        data = []
+            else:
+                # 如果不存在，创建一个新的日志列表
+                data = []
+
+            # 添加新的日志记录
+            data.append(log_data)
+
+            # 将数据写回到log.json文件
+            with open(log_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+
+        async def _evaluate_problem(problem: dict, graph, log_path) -> Tuple[str, str, str, int, str]:
             input_text = problem["problem"]
-            expected_output = problem["response"]
+            expected_output = problem["solution"]
             max_retries = 5
             retries = 0
 
@@ -503,7 +557,13 @@ class Evaluator:
                     cost = prediction[1]
                     output = prediction[0]
 
-                    score = calculate_score(expected_output, output)
+                    uni_score, extracted_output = calculate_score(expected_output, output)
+
+                    if uni_score == 0:
+                        log_mismatch(input_text, expected_output, output, extracted_output, log_path)
+                    else:
+                        ensure_log_file_exists(log_path)
+
                     break
 
                 except Exception as e:
@@ -514,57 +574,82 @@ class Evaluator:
                         print("Maximum retries reached. Skipping this sample.")
                         output = None
                         cost = None
-                        score = 0
+                        uni_score = 0
                         break
 
-            return input_text, output, expected_output, score, cost
+            return input_text, output, expected_output, uni_score, cost
 
-        async def load_data(file_path: str, samples=samples) -> List[dict]:
+        async def load_data(file_path: str, specific_indices: List[int] = None) -> List[dict]:
             data = []
-            async with aiofiles.open(file_path, mode="r") as file:
+            # 异步读取文件内容
+            async with aiofiles.open(file_path, mode="r", encoding='utf-8') as file:
                 async for line in file:
                     data.append(json.loads(line))
-            random_indices = self._generate_random_indices(len(data), samples, is_test)
-            data = [data[i] for i in random_indices]
+
+            # 然后在随机选择的样本中基于特定索引列表进行进一步筛选
+            if specific_indices is not None:
+                filtered_data = [data[i] for i in specific_indices if i < len(data)]
+                return filtered_data
+
             return data
 
-        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 300):
+        async def evaluate_all_problems(data: List[dict], graph, path=path, max_concurrent_tasks: int = 300):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
             async def sem_evaluate(problem):
                 async with semaphore:
-                    return await _evaluate_problem(problem, graph)
+                    return await _evaluate_problem(problem, graph, path)
 
             tasks = [sem_evaluate(problem) for problem in data]
 
             return await tqdm_asyncio.gather(*tasks, desc="Evaluating MATH problems", total=len(data))
 
         def save_results_to_csv(results: List[Tuple[str, str, str, int]], path):
+            # 创建 DataFrame
             df = pd.DataFrame(results, columns=["question", "prediction", "expected_output", "score", "cost"])
-            average_score = df["score"].mean()
 
-            output_file = f"{path}/{average_score:.5f}.csv"
+            # 计算统计数据
+            avg_score = df["score"].mean()
+            t_cost = df["cost"].max()
+            a_cost = t_cost / len(df) if len(df) > 0 else 0
+
+            # 获取当前时间，格式为 YYYYMMDD_HHMMSS
+            current_time = datetime.now().strftime("%Y%m%d_%H%M%S")
+
+            # 生成文件名，包含平均分和当前时间，保留五位小数
+            filename = f"{avg_score:.5f}_{current_time}.csv"
+            output_file = os.path.join(path, filename)
+
+            # 保存到 CSV
             df.to_csv(output_file, index=False)
             print(f"Results saved to {output_file}")
 
-            return average_score
+            return avg_score, a_cost, t_cost
 
-        async def math_evaluation():
-            file_path = "examples/ags/w_action_node/data/math.jsonl"  # Replace with the actual path to MATH.jsonl
-            data = await load_data(file_path)
+        async def math_evaluation(test=is_test):
+
+            if test:
+                file_path = "examples/ags/w_action_node/data/math_test.jsonl"  # 替换为您的JSONL文件路径
+                va_list = None
+            else:
+                file_path = "examples/ags/w_action_node/data/math_validation.jsonl"  # 替换为您的JSONL文件路径
+                va_list = [78, 15, 98, 102, 28, 103, 97, 35, 107, 22, 95, 46, 93, 18, 91, 16, 58, 11, 114, 63, 83, 82, 5, 74, 3, 76, 100, 99, 89, 88, 79, 66, 39, 117, 112, 2, 6, 90, 7, 43, 44, 80, 81, 38, 72, 20, 87, 49, 19, 65, 41, 116, 36, 111, 92, 54, 62, 51, 64, 47, 61, 94, 70, 101, 109, 50, 37, 118]
+
+            data = await load_data(file_path, specific_indices=va_list)
 
             graph = await load_graph()
 
-            results = await evaluate_all_problems(data, graph, max_concurrent_tasks=20)
+            results = await evaluate_all_problems(data, graph, path, max_concurrent_tasks=120)
 
-            average_score = save_results_to_csv(results, path=path)
+            # 保存结果到CSV文件并获取平均分
+            avg_score, a_cost, t_cost = save_results_to_csv(results, path=path)
 
-            print(f"Average score on MATH dataset: {average_score:.5f}")
-            return average_score
+            print(f"Average score on MATH dataset: {avg_score:.5f}")
+            return avg_score, a_cost, t_cost
 
-        score = await math_evaluation()
+        avg_score, a_cost, t_cost = await math_evaluation()
 
-        return score
+        return avg_score, a_cost, t_cost
 
     async def _humaneval_eval(self, graph_class, params, is_test, samples=1):
         """
