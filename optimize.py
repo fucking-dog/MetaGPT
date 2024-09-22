@@ -9,7 +9,7 @@ import faulthandler
 
 
 # 配置实验参数
-dataset = "MATH"  # 数据集选择为GSM8K
+dataset = "Gsm8K"  # 数据集选择为GSM8K
 sample = 4  # 采样数量
 q_type = "math"  # 问题类型为数学
 optimized_path = "examples/ags/w_action_node/optimized"  # 优化结果保存路径
@@ -46,7 +46,7 @@ optimizer = Optimizer(
 
 # 运行优化器
 
-# optimizer.optimize("Test")
-optimizer.optimize("Graph")
+optimizer.optimize("Test")
+# optimizer.optimize("Graph")
 # optimizer.optimize("Operator")
 

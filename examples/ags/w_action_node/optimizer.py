@@ -19,7 +19,7 @@ import traceback
 import numpy as np
 from pydantic import BaseModel, Field
 
-from examples.ags.w_action_node.evaluator import Evaluator
+from examples.ags.w_action_node.eval.evaluator import Evaluator
 from examples.ags.w_action_node.prompts.optimize_prompt import (
     GRAPH_CUSTOM_USE,
     GRAPH_INPUT,
@@ -611,9 +611,9 @@ class Optimizer:
 
             for i in range(validation_n):
 
-                score, avg_cost, total_cost = await evaluator.graph_evaluate(
+                score, avg_cost, total_cost = await evaluator.validation_evaluate(
                     self.dataset, self.graph, {"dataset": self.dataset, "llm_config": self.execute_llm_config},
-                    directory, is_test=False
+                    directory
                 )
 
                 now = datetime.datetime.now()
@@ -1044,9 +1044,9 @@ class Optimizer:
             print(round)
             print(self.graph)
 
-            score, avg_cost, total_cost = await evaluator.graph_evaluate(
+            score, avg_cost, total_cost = await evaluator.test_evaluate(
                 self.dataset, self.graph, {"dataset": self.dataset, "llm_config": self.execute_llm_config},
-                directory, is_test=True
+                directory
             )
 
             now = datetime.datetime.now()
