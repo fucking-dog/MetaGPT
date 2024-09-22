@@ -168,6 +168,7 @@ def plot_score_evolution(json_data, round_0_score, validation, test):
 
     # validation布林带计算
     bollinger_rounds = sorted(validation.keys(), key=int)
+    bollinger_rounds = bollinger_rounds[:20]
     bollinger_means = {k: np.mean(v) for k, v in validation.items()}
     bollinger_stds = {k: np.std(v) for k, v in validation.items()}
     bollinger_upper = {k: bollinger_means[k] + 2 * bollinger_stds[k] for k in bollinger_rounds}
@@ -226,19 +227,29 @@ def plot_score_evolution(json_data, round_0_score, validation, test):
     ax1.set_xlabel('Round', fontsize=12)
     ax1.set_ylabel('Score', fontsize=12)
     ax1.set_title('Highest Score Evolution', fontsize=14)
-    # ax1.set_ylim(0.83, 1)
+    ax1.set_ylim(0.7, 1)
+    ax1.set_xlim(1, 20)
+    ax1.set_xticks(range(1, 20))  # 明确指定刻度为 1 到 19
     ax1.legend()
     ax1.grid(True)
     ax1.set_xticks(np.arange(min(rounds), max(rounds) + 1, 5))
 
     # 标注选出的轮次
-    for k in top_rounds:
-        ax1.annotate(f'Round {k}',
-                     xy=(int(k), bollinger_means[k]),
-                     xytext=(int(k), bollinger_means[k] + 0.05 * (
-                                 max(bollinger_means.values()) - min(bollinger_means.values()))),
-                     arrowprops=dict(facecolor='black', arrowstyle='->'),
-                     fontsize=10, color='red', horizontalalignment='center')
+    for k in top_rounds[:5]:
+        ax1.annotate(
+            f'{k}',
+            xy=(int(k), bollinger_means[k]),
+            xytext=(int(k), bollinger_means[k] + 0.03 * (
+                    max(bollinger_means.values()) - min(bollinger_means.values()))),
+            arrowprops=dict(
+                facecolor='black',
+                arrowstyle='->',
+                mutation_scale=15  # 调整箭头大小
+            ),
+            fontsize=10,
+            color='red',
+            horizontalalignment='center'
+        )
 
     # 在第二个子图中绘制
     ax2.plot(rounds, top_five_avg_list, label='Top 5 Average Score', marker='o')
@@ -343,7 +354,7 @@ def plot_pareto(results, save_path=None):
 
 experience = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\processed_experience.json"
 validation_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\results.json"
-test_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs_test\results.json"
+test_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\results.json"
 
 # 打开文件并加载 JSON 数据
 with open(experience, 'r', encoding='utf-8') as file:
@@ -356,7 +367,8 @@ with open(test_result, 'r', encoding='utf-8') as file:
 # 生成树图
 draw_experience_tree(json_data)
 
-test = {1: [0.92607, 0.92891, 0.93081, 0.93175, 0.93270]}
+# test = {1: [0.92607, 0.92891, 0.93081, 0.93175, 0.93270]}
+test = {}
 # , 3:[0.91848, 0.92038, 0.92133, 0.92607, 0.93175], 14:[0.92701, 0.92796, 0.93081,0.93081, 0.93460]
 
 
@@ -364,8 +376,7 @@ df = pd.DataFrame(validation_data)
 scores_per_round = df.groupby('round')['score'].apply(list).to_dict()
 df_t = pd.DataFrame(test_data)
 t_scores_per_round = df_t.groupby('round')['score'].apply(list).to_dict()
-print(df)
-print(df)
+print(t_scores_per_round)
 
 # 检查和转换数据类型
 df['score'] = pd.to_numeric(df['score'], errors='coerce')
@@ -390,7 +401,7 @@ save_path = r"C:\Users\13761\Desktop\a"
 # results = read_scores_and_costs(a_folder_path)
 print(scores_per_round)
 print(results)
-t_scores_per_round = {}
+# t_scores_per_round = {}
 plot_score_evolution(results, 0.81, scores_per_round, t_scores_per_round)
 plot_pareto(results, save_path)
 

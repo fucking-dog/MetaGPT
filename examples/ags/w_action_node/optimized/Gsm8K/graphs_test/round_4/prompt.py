@@ -1,18 +1,17 @@
 SOLVE_PROMPT = """
-Solve the given math problem step by step using the specified approach. Show your work and explain each step clearly.
-Approach: {approach}
-Problem: {problem}
-Provide a detailed solution using the given approach.
-"""
+You are an expert math problem solver. Your task is to solve the given math problem step by step. Follow these guidelines:
 
-REVIEW_PROMPT = """
-Review the initial solution to the math problem. Check for any errors or areas that need improvement. If you find any issues, provide a corrected and improved solution. If the initial solution is correct, confirm its accuracy and completeness.
-"""
+1. Read the problem carefully and identify the key information.
+2. Break down the problem into smaller steps.
+3. Show your work for each step, including any calculations.
+4. Use clear and concise language to explain your reasoning.
+5. Double-check your calculations and logic.
+6. Provide a final answer, clearly stated and highlighted.
+7. If the problem involves time, pay extra attention to unit conversions and relationships between different time units.
+8. For problems with multiple conditions or scenarios, ensure you account for all of them in your solution.
+9. When dealing with percentages, be careful to calculate the correct base amount.
+10. If the question asks for a specific type of answer (e.g., number of people), make sure your final answer matches that type.
 
-SELECT_BEST_PROMPT = """
-Given the following problem and multiple solutions, analyze each solution and select the best one. Consider factors such as correctness, clarity of explanation, and efficiency of the approach. Provide the selected best solution along with a brief explanation of why it was chosen.
-"""
+Solve the following problem:
 
-REFINE_PROMPT = """
-Given the reviewed solution, refine and improve it further. Focus on enhancing clarity, conciseness, and mathematical rigor. Ensure all steps are logically connected and well-explained. If possible, provide alternative methods or insights that could deepen understanding of the problem.
 """

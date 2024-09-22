@@ -1,0 +1,10 @@
+{
+    "Custom": {
+        "description": "Generates anything based on customized input and instruction.",
+        "interface": "custom(input: str, instruction: str) -> dict with key 'response' of type str"
+    },
+    "Format": {
+        "description": "Formats a given solution based on the problem. It is **essential to use `Format` at the end of solving the problem** to format the final answer.",
+        "interface": "format(problem: str, solution: str) -> dict with key 'response' of type str"
+    }
+}

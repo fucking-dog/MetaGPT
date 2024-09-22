@@ -119,7 +119,7 @@ class MdEnsemble(Operator):
             node = await ActionNode.from_pydantic(MdEnsembleOp).fill(context=prompt, llm=self.llm, mode="context_fill")
             response = node.instruct_content.model_dump()
 
-            answer = response.get("solution_letter", "")
+            answer = response.get("solution_letter", "A")
             answer = answer.strip().upper()
 
             if answer in answer_mapping:

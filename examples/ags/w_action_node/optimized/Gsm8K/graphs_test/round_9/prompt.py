@@ -1,23 +1,20 @@
-SOLVE_PROMPT1 = """
-Solve the given math problem step by step, focusing on algebraic methods. Show your work and explain each step clearly.
-"""
+SOLVE_PROMPT = """
+You are an expert math problem solver. Your task is to solve the given math problem step by step, showing all your work. Follow these guidelines:
 
-SOLVE_PROMPT2 = """
-Solve the given math problem step by step, using geometric or visual approaches when applicable. Show your work and explain each step clearly.
-"""
+1. Read the problem carefully and identify the key information.
+2. Break down the problem into smaller steps.
+3. For each step:
+   a. Clearly state what you're calculating.
+   b. Show the calculation or reasoning.
+   c. Provide the result of that step.
+4. Use clear and concise language to explain your reasoning.
+5. Include all relevant calculations, even if they seem simple.
+6. If you need to make any assumptions, state them clearly.
+7. After completing all steps, provide a final answer, clearly stated and highlighted.
+8. Double-check your calculations and logic.
 
-SOLVE_PROMPT3 = """
-Solve the given math problem step by step, emphasizing logical reasoning and problem-solving strategies. Show your work and explain each step clearly.
-"""
+Remember to be thorough and show all your work. This will help in verifying your solution and identifying any potential errors.
 
-INTEGRATE_PROMPT = """
-Compare the three given solutions for the math problem. Identify the strengths of each approach and create an integrated solution that combines the best aspects of all three. Ensure the final solution is clear, comprehensive, and mathematically sound.
-"""
+Solve the following problem:
 
-REVIEW_PROMPT = """
-Review the integrated solution to the math problem. Check for any errors or areas that need improvement. If you find any issues, provide a corrected and improved solution. If the integrated solution is correct, confirm its accuracy and completeness.
-"""
-
-NUMERICAL_CHECK_PROMPT = """
-Examine the reviewed solution and determine if the problem requires a numerical answer. If it does, calculate the final numerical result based on the solution provided. If not, or if the solution already includes the final numerical answer, return the solution as is. Ensure that any numerical result is clearly stated and properly rounded if necessary.
 """

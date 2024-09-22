@@ -1,119 +1,97 @@
 {
-    "6": {
-        "score": 0.9259999999999999,
+    "4": {
+        "score": 0.89,
         "success": {
             "10": {
-                "modification": "Add a step to check if the integrated solution contains a numerical answer, and if not, attempt to derive one from the solution.",
-                "score": 0.9339999999999999
+                "modification": "Enhance the problem-solving process by introducing a step to extract key information from the problem statement before solving. This will help ensure all relevant details are considered in the solution.",
+                "score": 0.9019999999999999
             }
         },
         "failure": {
-            "9": {
-                "modification": "Add a step to check if the problem requires a numerical answer, and if so, calculate the final numerical result.",
-                "score": 0.9259999999999999
+            "6": {
+                "modification": "Enhance the problem-solving process by introducing a review and correction step using the Programmer operator. This will help catch and fix errors in calculations, especially for time-based problems and complex scenarios.",
+                "score": 0.8080000000000002
+            },
+            "7": {
+                "modification": "Enhance the problem-solving process by introducing a step-by-step solution generation and verification using the Custom and Programmer operators. This will help break down complex problems into manageable steps and verify the calculations at each stage.",
+                "score": 0.852
             }
         }
     },
     "10": {
-        "score": 0.9339999999999999,
-        "success": {
+        "score": 0.9019999999999999,
+        "success": {},
+        "failure": {
             "11": {
-                "modification": "Add a self-reflection step after the numerical check to ensure the solution addresses all aspects of the problem and is logically consistent.",
-                "score": 0.9359999999999999
+                "modification": "Modify the graph to include a more robust solution generation process, incorporating a review and refinement step. This will help address the issues with incorrect answers in the given examples.",
+                "score": 0.884
+            },
+            "13": {
+                "modification": "Introduce a validation step using the Programmer operator to check and correct the final solution before returning it. This will help address the issue of incorrect answers in the given examples.",
+                "score": 0.8960000000000001
+            },
+            "16": {
+                "modification": "Introduce a validation step using the Programmer operator to check and potentially correct numerical calculations in the final solution. This will help address the issue of incorrect numerical answers in the given examples.",
+                "score": 0.844
+            },
+            "17": {
+                "modification": "Introduce a validation step using the Programmer operator to check and potentially correct numerical calculations in the final solution. This will help address the issue of incorrect numerical answers in the given examples.",
+                "score": 0.876
             }
-        },
-        "failure": {}
+        }
     },
-    "11": {
-        "score": 0.9359999999999999,
+    "3": {
+        "score": 0.8960000000000001,
         "success": {},
         "failure": {
             "12": {
-                "modification": "Add a step to check if the problem requires a numerical answer and adjust the solution accordingly.",
-                "score": 0.916
-            },
-            "13": {
-                "modification": "Add a step to check for potential alternative solution methods, such as using trigonometry or calculus, if applicable to the problem. This will enhance the problem-solving approach by considering a wider range of mathematical techniques.",
-                "score": 0.9339999999999999
+                "modification": "Enhance the problem-solving process by introducing a step-by-step solution generation and verification approach. We'll modify the Custom method to generate a detailed step-by-step solution, and then use the Programmer operator to verify and potentially correct the calculations.",
+                "score": 0.8960000000000001
             },
             "14": {
-                "modification": "Add a step to check for and correct common mathematical misconceptions or errors in the solution. This will help improve the accuracy and reliability of the final answer.",
-                "score": 0.9279999999999999
+                "modification": "Introduce a verification step using the Programmer operator to check and potentially correct the final solution before returning it. This will help catch calculation errors and improve accuracy.",
+                "score": 0.884
             },
             "15": {
-                "modification": "Add a step to check for and apply dimensional analysis or unit conversion if applicable to the problem. This will enhance the solution's accuracy and relevance, especially for problems involving physical quantities or measurements.",
-                "score": 0.9259999999999999
+                "modification": "Introduce a verification step using the Programmer operator to check and potentially correct the final solution before returning it. This will help catch calculation errors and improve accuracy, especially for problems involving percentages and multi-step calculations.",
+                "score": 0.8719999999999999
             },
-            "16": {
-                "modification": "Add a step to check for and apply mathematical properties or theorems that could simplify the problem-solving process. This will enhance the solution's efficiency and demonstrate a deeper understanding of mathematical concepts.",
-                "score": 0.9179999999999999
-            },
-            "17": {
-                "modification": "Add a step to check for and apply relevant mathematical formulas or equations that could simplify the problem-solving process. This will enhance the solution's efficiency and demonstrate a deeper understanding of mathematical concepts.",
-                "score": 0.9359999999999999
-            },
-            "18": {
-                "modification": "Add a step to check for and apply relevant mathematical formulas or equations that could simplify the problem-solving process. This will enhance the solution's efficiency and demonstrate a deeper understanding of mathematical concepts.",
-                "score": 0.9299999999999999
-            },
-            "19": {
-                "modification": "Add a step to check for and apply mathematical properties or theorems that could simplify the problem-solving process. This will enhance the solution's efficiency and demonstrate a deeper understanding of mathematical concepts.",
-                "score": 0.552
+            "8": {
+                "modification": "Enhance the problem-solving process by introducing a review and revision step using the Programmer operator. This will help catch and correct potential errors in the calculation, especially for complex multi-step problems like the flower bed example.",
+                "score": 0.7619999999999999
             }
         }
     },
     "1": {
-        "score": 0.898,
+        "score": 0.778,
         "success": {
             "2": {
-                "modification": "Add a step to review and revise the initial solution before formatting, using the Custom operator to implement a self-review process.",
-                "score": 0.9179999999999999
+                "modification": "Add a review step using the Programmer operator to verify and potentially correct the initial solution generated by the Custom operator. This will enhance the accuracy of the final output.",
+                "score": 0.8780000000000001
+            },
+            "5": {
+                "modification": "Add a review step using the ScEnsemble operator to verify and potentially improve the initial solution generated by the Custom operator. This will enhance the accuracy of the final output by generating multiple solutions and selecting the most consistent one.",
+                "score": 0.8539999999999999
             }
         },
         "failure": {}
     },
     "2": {
-        "score": 0.9179999999999999,
+        "score": 0.8779999999999999,
         "success": {
-            "6": {
-                "modification": "Add a step to generate multiple initial solutions using different approaches, then compare and integrate them to create a more robust initial solution before the review process.",
-                "score": 0.9259999999999999
-            }
-        },
-        "failure": {
             "3": {
-                "modification": "Add a step to generate multiple initial solutions and then select the best one before proceeding with the review process. This ensemble approach can help improve the overall quality of the solution.",
-                "score": 0.9099999999999999
+                "modification": "1. Add a review and revision step using the Programmer operator.\n2. Incorporate the ScEnsemble operator to generate multiple solutions and select the best one.\n3. Update the SOLVE_PROMPT to include more specific instructions for handling complex multi-step problems.",
+                "score": 0.8960000000000001
             },
-            "5": {
-                "modification": "Add a step to generate multiple initial solutions using different approaches, then compare and integrate them to create a more robust initial solution before the review process.",
-                "score": 0.914
-            }
-        }
-    },
-    "3": {
-        "score": 0.9099999999999999,
-        "success": {
             "4": {
-                "modification": "Add a step to generate multiple solutions using different approaches, then select and refine the best one.",
-                "score": 0.9200000000000002
+                "modification": "Add a self-consistency approach using the ScEnsemble operator to generate multiple solutions and select the best one. This can help improve the accuracy of the final answer.",
+                "score": 0.89
+            },
+            "9": {
+                "modification": "1. Modify the Custom operator to generate a step-by-step solution.\n2. Add a review step using the Programmer operator to verify and potentially correct the solution.\n3. Update the SOLVE_PROMPT to include more detailed instructions for step-by-step problem-solving.",
+                "score": 0.882
             }
         },
         "failure": {}
-    },
-    "4": {
-        "score": 0.9200000000000002,
-        "success": {
-            "8": {
-                "modification": "Add a step to generate multiple solutions for each approach using different prompts, then select the best solution from all generated solutions.",
-                "score": 0.9359999999999999
-            }
-        },
-        "failure": {
-            "7": {
-                "modification": "Add a step to check if the problem requires a specific approach, and if so, use only that approach instead of trying all three.",
-                "score": 0.9099999999999999
-            }
-        }
     }
 }

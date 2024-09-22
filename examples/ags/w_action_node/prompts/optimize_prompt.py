@@ -144,7 +144,13 @@ Here is a Graph and corresponding Prompt(only relate to the Custom method) that 
     <prompt>{prompt}</prompt>(only prompt_custom)
     <operator_description>{operator_description}</operator_description>
 </sample>
-First, provide optimization ideas. **Only one detail point** may be added, modified, or deleted—extensive modifications are strictly prohibited to keep the project focused!
+Below are the logs of some results with the aforementioned Graph that performed well but encountered errors, which can be used as references for optimization:
+{log}
+
+First, provide optimization ideas. **Only one detail point can be modified at a time**, and no more than 5 lines of code may be changed per modification—extensive modifications are strictly prohibited to maintain project focus!
+When introducing new functionalities in the graph, please make sure to import the necessary libraries or modules yourself, except for operator, prompt_custom, create_llm_instance, and CostManage, which have already been automatically imported.
+**Under no circumstances should Graph output None for any field.**
+Use custom methods to restrict your output format, rather than using code (outside of the code, the system will extract answers based on certain rules and score them).
 """
 
 GRAPH_CUSTOM_USE = """\nHere's an example of using the `custom` method in graph:
@@ -155,7 +161,10 @@ response = await self.custom(input=problem, instruction=prompt_custom.XXX_PROMPT
 # response = await self.custom(input=problem+f"xxx:{xxx}, xxx:{xxx}", instruction=prompt_custom.XXX_PROMPT)
 # The output from the Custom method can be placed anywhere you need it, as shown in the example below
 solution = await self.generate(problem=f"question:{problem}, xxx:{response['response']}")
-```\n
+```
+Note: In custom, the input and instruction are directly concatenated(instruction+input), and placeholders are not supported. Please ensure to add comments and handle the concatenation externally.\n
+
+**Introducing multiple operators at appropriate points can enhance performance. If you find that some provided operators are not yet used in the graph, try incorporating them.**
 """
 # You can also use an existing prompt from prompt_lib without writing your own
 # response = await self.custom(input=problem, instruction=prompt_lib.XXX_PROMPT)
@@ -164,7 +173,6 @@ solution = await self.generate(problem=f"question:{problem}, xxx:{response['resp
 GRAPH_TEMPLATE = """from typing import Literal
 import examples.ags.w_action_node.optimized.{dataset}.graphs.template.operator as operator
 import examples.ags.w_action_node.optimized.{dataset}.graphs.round_{round}.prompt as prompt_custom
-import examples.ags.w_action_node.optimized.{dataset}.graphs.template.prompt_lib as prompt_lib
 from metagpt.provider.llm_provider_registry import create_llm_instance
 from metagpt.utils.cost_manager import CostManager
 

@@ -6,10 +6,12 @@
 import asyncio
 import json
 import multiprocessing
+import time
+import traceback
 import re
 from math import isclose
 from typing import Any, Dict, List, Literal, Optional, Set, Tuple, Union
-
+import os
 import aiofiles
 import numpy as np
 import pandas as pd
@@ -30,22 +32,27 @@ class Evaluator:
 
     def __init__(self, eval_path: str):
         self.eval_path = eval_path
+        self.rng_generate_indices = np.random.default_rng(42)
 
     def _generate_random_indices(self, n, n_samples, is_test=False):
         """
-        生成随机索引
+        生成随机索引，不影响全局 RNG。
+
+        :param n: 索引范围的总数。
+        :param n_samples: 需要选择的样本数量。
+        :param is_test: 如果为 True，则返回后 n_samples 个索引，否则返回前 n_samples 个索引。
+        :return: 随机选择的索引数组。
         """
+        self.rng_generate_indices = np.random.default_rng(42)  # 重置生成器
+        indices1 = np.arange(n)
+        self.rng_generate_indices.shuffle(indices1)
 
-        def _set_seed(seed=42):
-            np.random.seed(seed)
+        print(indices1[n_samples:])
 
-        _set_seed()
-        indices = np.arange(n)
-        np.random.shuffle(indices)
         if is_test:
-            return indices[n_samples:]
+            return indices1[n_samples:]
         else:
-            return indices[:n_samples]
+            return indices1[:n_samples]
 
     def graph_evaluate(self, dataset: DatasetType, graph, params: dict, path, is_test=False):
         """
@@ -98,7 +105,7 @@ class Evaluator:
         # 清理文本并提取单个数字
         def extract_number(text: str) -> Optional[float]:
             # 使用正则表达式提取数字，包括整数和浮点数
-            matches = re.findall(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?|\d+\.\d+", text)
+            matches = re.findall(r"[-+]?\d+(?:,\d{3})*(?:\.\d+)?|\d+\.\d+", str(text))
             print(matches)
             if matches:
                 # 获取最后一个匹配的数字
@@ -114,80 +121,116 @@ class Evaluator:
             else:
                 return None
 
+        def log_mismatch(problem:str, expected_output: float, prediction: str, predicted_number: float|None, path):
+            log_data = {
+                "question": problem,
+                "right_answer": expected_output,
+                "model_output": prediction,
+                "extracted_output": predicted_number
+            }
+
+            log_file = os.path.join(path, 'log.json')
+
+            # 检查log文件是否已经存在
+            if os.path.exists(log_file):
+                # 如果存在，加载现有的日志数据
+                with open(log_file, 'r', encoding='utf-8') as f:
+                    try:
+                        data = json.load(f)
+                    except json.JSONDecodeError:
+                        data = []
+            else:
+                # 如果不存在，创建一个新的日志列表
+                data = []
+
+            # 添加新的日志记录
+            data.append(log_data)
+
+            # 将数据写回到log.json文件
+            with open(log_file, 'w', encoding='utf-8') as f:
+                json.dump(data, f, indent=4, ensure_ascii=False)
+
         # 宽松匹配分数计算函数
-        def loose_match_score(expected_output: str, prediction: str, tolerance: float = 1e-6) -> int:
-            expected_number = extract_number(expected_output)
-            predicted_number = extract_number(prediction)
-
-            print(predicted_number)
-
-            # 如果预期输出或预测输出为空，返回不匹配
-            if expected_number is None or predicted_number is None:
+        def loose_match_score(expected_output: float, prediction: float, tolerance: float = 1e-6) -> int:
+            # 如果预测输出为空，返回不匹配
+            if prediction is None:
                 return 0
 
+            a = expected_output
+            b = prediction
+
             # 比较两个提取出的数字，允许一定的容差
-            if abs(expected_number - predicted_number) <= tolerance:
+            if abs(a - b) <= tolerance:
                 return 1  # 数字相近，认为匹配成功
             else:
                 return 0  # 数字不匹配
 
         # 异步评估单个问题
-        async def _evaluate_problem(input: str, graph, expected_output: str) -> Tuple[str, str, str, int, str]:
-            prompt = input
-            max_retries = 50
+        async def _evaluate_problem(input: str, graph, expected_output: str, path) -> tuple[
+            str, str | None, float, int, str | None]:
+
+            max_retries = 10
             retries = 0
+            uni_score = 0
 
             while retries < max_retries:
                 try:
-                    # 假设模型有一个异步生成函数
-                    prediction = await graph(prompt) if graph else "None"  # 这是一个占位符，替换成实际的模型生成逻辑
+                    prediction = await graph(input) if graph else "None"  # 这是一个占位符，替换成实际的模型生成逻辑
                     cost = prediction[1]
                     output = prediction[0]
+                    if output is not None:
+                        predicted_number = extract_number(output)
+                        expected_output = extract_number(expected_output)
+                    else:
+                        predicted_number = None
 
-                    score = loose_match_score(expected_output, prediction[0])
+                    uni_score = loose_match_score(expected_output, predicted_number)
+
+                    if uni_score == 0:
+                        log_mismatch(input, expected_output, output, predicted_number, path)
+                    else:
+                        pass
+
                     break
 
                 except Exception as e:
                     retries += 1
                     print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
+                    time.sleep(5*retries)
 
                     if retries == max_retries:
                         print("Maximum retries reached. Skipping this sample.")
-                        output = None
+                        output = e
                         cost = None
-                        score = 0
+                        uni_score = 0
                         break
 
-            return input, output, expected_output, score, cost
+            return input, output, expected_output, uni_score, cost
 
         # 异步读取JSONL文件
-        async def load_data(file_path: str, samples=samples, specific_indices: List[int] = None) -> List[dict]:
+        async def load_data(file_path: str, specific_indices: List[int] = None) -> List[dict]:
             data = []
             # 异步读取文件内容
-            async with aiofiles.open(file_path, mode="r") as file:
+            async with aiofiles.open(file_path, mode="r", encoding='utf-8') as file:
                 async for line in file:
                     data.append(json.loads(line))
 
-            # 首先随机选择样本
-            random_indices = self._generate_random_indices(len(data), samples, is_test)
-            random_data = [data[i] for i in random_indices]
-
             # 然后在随机选择的样本中基于特定索引列表进行进一步筛选
             if specific_indices is not None:
-                filtered_data = [random_data[i] for i in specific_indices if i < len(random_data)]
+                filtered_data = [data[i] for i in specific_indices if i < len(data)]
                 return filtered_data
 
-            return random_data
+            return data
 
         # 并行评估所有问题
-        async def evaluate_all_problems(data: List[dict], graph, max_concurrent_tasks: int = 500):
+        async def evaluate_all_problems(data: List[dict], graph, path, max_concurrent_tasks: int = 100):
             semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
             async def sem_evaluate(problem):
                 async with semaphore:
                     input_text = problem["question"]
                     expected_output = problem["answer"]
-                    return await _evaluate_problem(input_text, graph, expected_output)
+                    return await _evaluate_problem(input_text, graph, expected_output, path)
 
             tasks = [sem_evaluate(problem) for problem in data]
 
@@ -208,18 +251,25 @@ class Evaluator:
 
             return avg_score, a_cost, t_cost
 
-        async def gsm8k():
+        async def gsm8k(test=is_test):
 
-            # va_list = [155, 230, 137, 225, 96, 50, 130, 26, 79, 259, 131, 1, 242, 247, 191, 94, 185, 38, 104, 64, 68, 92, 118, 31, 107, 42, 141, 125, 18, 100, 135, 236, 145, 11, 217, 65, 170, 210, 82, 162, 235, 234, 186, 182, 190, 180, 189, 152, 181, 151, 187, 150, 183, 149, 147, 179, 188, 148, 184, 175, 178, 177, 160, 161, 158, 163, 164, 157, 156, 165, 166, 192, 167, 168, 154, 169, 171, 172, 153, 173, 174, 159, 176, 0, 202, 193, 194, 229, 231, 232, 233, 237, 238, 239, 240, 241, 243, 244, 245, 246]
+            if test:
+                file_path = "examples/ags/w_action_node/data/gsm8k_test.jsonl"  # 替换为您的JSONL文件路径
+                va_list = None
+            else:
+                file_path = "examples/ags/w_action_node/data/gsm8k_validation.jsonl"  # 替换为您的JSONL文件路径
+                va_list = [155, 230, 137, 225, 96, 50, 130, 26, 79, 259, 131, 1, 242, 247, 191, 94, 185, 38, 104, 64,
+                           68, 92, 118, 31, 107, 42, 141, 125, 18, 100, 135, 236, 145, 11, 217, 65, 170, 210, 82, 162,
+                           235, 234, 186, 182, 190, 180, 189, 152, 181, 151, 187, 150, 183, 149, 147, 179, 188, 148,
+                           184, 175, 178, 177, 160, 161, 158, 163, 164, 157, 156, 165, 166, 192, 167, 168, 154, 169,
+                           171, 172, 153, 173, 174, 159, 176, 0, 202, 193, 194, 229, 231, 232, 233, 237, 238, 239, 240,
+                           241, 243, 244, 245, 246]
 
-            va_list = None
-
-            file_path = "examples/ags/w_action_node/data/gsm8k.jsonl"  # 替换为您的JSONL文件路径
             data = await load_data(file_path, specific_indices=va_list)
 
             graph = await load_graph()
 
-            results = await evaluate_all_problems(data, graph)
+            results = await evaluate_all_problems(data, graph, path)
 
             # 保存结果到CSV文件并获取平均分
             avg_score, a_cost, t_cost = save_results_to_csv(results, path=path)

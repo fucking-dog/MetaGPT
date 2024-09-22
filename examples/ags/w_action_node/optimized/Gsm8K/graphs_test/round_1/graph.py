@@ -22,7 +22,6 @@ class SolveGraph:
         self.dataset = dataset
         self.llm = create_llm_instance(llm_config)
         self.llm.cost_manager = CostManager()
-        self.format = operator.Format(self.llm)
         self.custom = operator.Custom(self.llm)
 
     async def __call__(self, problem: str):
@@ -30,5 +29,4 @@ class SolveGraph:
         Implementation of the graph
         """
         solution = await self.custom(input=problem, instruction="")
-        format_solution = await self.format(problem=problem, solution=solution['response'])
-        return format_solution['response'], self.llm.cost_manager.total_cost
+        return solution['response'], self.llm.cost_manager.total_cost

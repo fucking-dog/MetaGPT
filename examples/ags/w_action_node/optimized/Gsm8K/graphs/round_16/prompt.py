@@ -1,31 +1,34 @@
-SOLVE_PROMPT1 = """
-Solve the given math problem step by step, focusing on algebraic methods. Show your work and explain each step clearly.
+EXTRACT_KEY_INFO_PROMPT = """
+You are an expert at analyzing math problems. Your task is to extract and summarize the key information from the given problem. Follow these guidelines:
+
+1. Identify all numerical values and their associated units.
+2. Recognize any mathematical operations or relationships mentioned (e.g., percentages, fractions, multiples).
+3. Note any time-related information (days, weeks, hours, etc.).
+4. Identify any conditions or scenarios that need to be considered.
+5. Summarize the main question or what needs to be calculated.
+
+Provide a concise summary of the key information in bullet points.
+
+Extract key information from the following problem:
+
 """
 
-SOLVE_PROMPT2 = """
-Solve the given math problem step by step, using geometric or visual approaches when applicable. Show your work and explain each step clearly.
-"""
+SOLVE_PROMPT = """
+You are an expert math problem solver. Your task is to solve the given math problem step by step, using the provided key information. Follow these guidelines:
 
-SOLVE_PROMPT3 = """
-Solve the given math problem step by step, emphasizing logical reasoning and problem-solving strategies. Show your work and explain each step clearly.
-"""
+1. Review the problem and the extracted key information carefully.
+2. Break down the problem into smaller steps.
+3. Show your work for each step, including any calculations.
+4. Use clear and concise language to explain your reasoning.
+5. Double-check your calculations and logic.
+6. Provide a final answer, clearly stated and highlighted.
+7. Ensure your solution addresses all aspects of the problem, including multiple conditions or scenarios if present.
+8. Pay special attention to unit conversions, especially with time-related problems.
+9. When dealing with percentages, carefully calculate the correct base amount.
+10. Make sure your final answer matches the type requested in the question (e.g., number of people, total cost).
+11. For time-based problems, be extra careful with calculations involving hours and minutes.
+12. When dealing with sequences or patterns, verify that your solution accounts for all steps or iterations.
 
-INTEGRATE_PROMPT = """
-Compare the three given solutions for the math problem. Identify the strengths of each approach and create an integrated solution that combines the best aspects of all three. Ensure the final solution is clear, comprehensive, and mathematically sound.
-"""
+Solve the following problem using the provided key information:
 
-THEOREM_CHECK_PROMPT = """
-Examine the integrated solution and identify any mathematical properties or theorems that could be applied to simplify or enhance the solution. If applicable, apply these properties or theorems to refine the solution, making it more elegant or efficient. Explain the reasoning behind using these mathematical concepts and how they improve the solution.
-"""
-
-REVIEW_PROMPT = """
-Review the solution after the theorem check. Verify the correct application of any mathematical properties or theorems. Check for any errors or areas that need improvement. If you find any issues, provide a corrected and improved solution. If the solution is correct, confirm its accuracy, completeness, and efficiency.
-"""
-
-NUMERICAL_CHECK_PROMPT = """
-Examine the reviewed solution and determine if it contains a clear numerical answer. If a numerical answer is present, return the solution as is. If not, attempt to derive a numerical answer from the given solution and add it to the end of the solution. Ensure the final output includes both the detailed solution and a clear numerical answer if applicable to the problem.
-"""
-
-SELF_REFLECTION_PROMPT = """
-Carefully review the solution after the numerical check. Ensure that all aspects of the original problem have been addressed, the solution is logically consistent, and any applied mathematical properties or theorems are correctly used. If any part of the problem has been overlooked or if there are any logical inconsistencies, revise the solution accordingly. Provide a final, comprehensive solution that fully answers the original problem, is logically sound, and demonstrates an advanced understanding of mathematical concepts.
 """

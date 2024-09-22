@@ -1,0 +1,121 @@
+{
+    "1": {
+        "score": 0.784,
+        "success": {
+            "2": {
+                "modification": "Add a review step to validate and potentially improve the initial solution, utilizing a separate prompt for the review process.",
+                "score": 0.82
+            }
+        },
+        "failure": {}
+    },
+    "6": {
+        "score": 0.9019999999999999,
+        "success": {
+            "16": {
+                "modification": "Add a step to perform unit analysis and context verification after the ensemble step. This will help catch errors in complex problems and improve accuracy, especially for problems involving unit conversions or multi-step calculations.",
+                "score": 0.9099999999999999
+            }
+        },
+        "failure": {
+            "10": {
+                "modification": "Add a verification step after the ensemble to double-check the final answer using unit analysis and problem context. This will help catch errors in complex problems and improve accuracy.",
+                "score": 0.8959999999999999
+            },
+            "11": {
+                "modification": "Add a verification step after the ensemble to double-check the final answer using unit analysis and problem context. This will help catch errors in complex problems and improve accuracy.",
+                "score": 0.8859999999999999
+            },
+            "12": {
+                "modification": "Add a step to calculate the total number of pencils and introduce error checking for the final answer. This will help address issues like the one in the first example where the model output was incorrect.",
+                "score": 0.8859999999999999
+            },
+            "14": {
+                "modification": "Add a verification step after the ensemble to check if the final answer is reasonable within the context of the problem. This will help catch errors in complex problems and improve accuracy.",
+                "score": 0.8960000000000001
+            },
+            "15": {
+                "modification": "Add a step to perform unit analysis and context verification after the ensemble step. This will help catch errors in complex problems and improve accuracy, especially for problems involving unit conversions or multi-step calculations.",
+                "score": 0.8879999999999999
+            },
+            "7": {
+                "modification": "Add a verification step after the ensemble to double-check the final answer and perform any necessary corrections. This will help catch errors in complex problems and improve accuracy.",
+                "score": 0.8959999999999999
+            }
+        }
+    },
+    "9": {
+        "score": 0.908,
+        "success": {},
+        "failure": {
+            "13": {
+                "modification": "Add a verification step after the initial solutions to catch and correct potential errors in calculation. This will be implemented using the Custom operator with a new VERIFY_INITIAL_SOLUTIONS_PROMPT.",
+                "score": 0.898
+            },
+            "17": {
+                "modification": "Add a step to handle edge cases and special scenarios in the problem-solving process. This will be implemented using the Custom operator with a new EDGE_CASE_PROMPT.",
+                "score": 0.8939999999999999
+            },
+            "18": {
+                "modification": "Add a step to perform numerical reasoning and sanity checks on the final answer before extracting it. This will help catch errors in calculation and ensure the answer makes sense in the context of the problem.",
+                "score": 0.9
+            },
+            "19": {
+                "modification": "Add a step to perform numerical reasoning and sanity checks on the final answer before extracting it. This will help catch errors in calculation and ensure the answer makes sense in the context of the problem.",
+                "score": 0.8939999999999999
+            },
+            "20": {
+                "modification": "Add a step to perform numerical reasoning and sanity checks on the final answer before extracting it. This will help catch errors in calculation and ensure the answer makes sense in the context of the problem.",
+                "score": 0.8800000000000001
+            },
+            "21": {
+                "modification": "Add a step to perform numerical reasoning and sanity checks on the extracted answer before returning it. This will help catch errors in calculation and ensure the answer makes sense in the context of the problem.",
+                "score": 0.0
+            }
+        }
+    },
+    "2": {
+        "score": 0.82,
+        "success": {
+            "3": {
+                "modification": "Add a step to extract the final numerical answer from the solution, and implement error handling to ensure a valid numerical output.",
+                "score": 0.8940000000000001
+            },
+            "5": {
+                "modification": "Add a step to extract the final numerical answer from the solution using a regular expression, and implement error handling to ensure a valid numerical output. This modification aims to improve the accuracy of the extracted answer without changing the core problem-solving process.",
+                "score": 0.844
+            }
+        },
+        "failure": {
+            "4": {
+                "modification": "Add a new step to extract the final numerical answer from the solution using regular expressions, and implement error handling to ensure a valid numerical output.",
+                "score": 0.8140000000000001
+            }
+        }
+    },
+    "3": {
+        "score": 0.8939999999999999,
+        "success": {
+            "6": {
+                "modification": "Add a step to double-check the calculation using a different approach, and implement an ensemble method to compare and validate the results.",
+                "score": 0.9019999999999999
+            }
+        },
+        "failure": {}
+    },
+    "7": {
+        "score": 0.8960000000000001,
+        "success": {
+            "9": {
+                "modification": "Introduce a step-by-step solution breakdown and validation process using the Programmer operator to catch calculation errors and improve accuracy.",
+                "score": 0.908
+            }
+        },
+        "failure": {
+            "8": {
+                "modification": "Add a step to check and correct the final answer by comparing it with the original problem context. This will help catch errors in calculation or reasoning that led to incorrect answers in the given examples.",
+                "score": 0.734
+            }
+        }
+    }
+}

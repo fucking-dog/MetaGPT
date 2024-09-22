@@ -1,7 +1,7 @@
 {
     "father node": 2,
-    "modification": "Add a step to generate multiple initial solutions and then select the best one before proceeding with the review process. This ensemble approach can help improve the overall quality of the solution.",
-    "before": 0.9179999999999999,
-    "after": 0.9099999999999999,
-    "succeed": false
+    "modification": "1. Add a review and revision step using the Programmer operator.\n2. Incorporate the ScEnsemble operator to generate multiple solutions and select the best one.\n3. Update the SOLVE_PROMPT to include more specific instructions for handling complex multi-step problems.",
+    "before": 0.8779999999999999,
+    "after": 0.8960000000000001,
+    "succeed": true
 }

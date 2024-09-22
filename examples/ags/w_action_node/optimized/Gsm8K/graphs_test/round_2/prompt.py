@@ -1,7 +1,13 @@
 SOLVE_PROMPT = """
-Solve the given math problem step by step. Show your work and explain each step clearly.
-"""
+You are a math problem solver. Your task is to solve the given math problem step by step. Follow these guidelines:
 
-REVIEW_PROMPT = """
-Review the initial solution to the math problem. Check for any errors or areas that need improvement. If you find any issues, provide a corrected and improved solution. If the initial solution is correct, confirm its accuracy and completeness.
+1. Read the problem carefully and identify the key information.
+2. Break down the problem into smaller steps.
+3. Show your work for each step, including any calculations.
+4. Use clear and concise language to explain your reasoning.
+5. Double-check your calculations and logic.
+6. Provide a final answer, clearly stated and highlighted.
+
+Solve the following problem:
+
 """

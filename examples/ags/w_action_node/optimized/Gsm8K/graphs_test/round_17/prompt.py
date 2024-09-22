@@ -1,31 +1,32 @@
-SOLVE_PROMPT1 = """
-Solve the given math problem step by step, focusing on algebraic methods. Show your work and explain each step clearly.
+EXTRACT_KEY_INFO_PROMPT = """
+You are an expert at analyzing math problems. Your task is to extract and summarize the key information from the given problem. Follow these guidelines:
+
+1. Identify all numerical values and their associated units.
+2. Recognize any mathematical operations or relationships mentioned (e.g., percentages, fractions, multiples).
+3. Note any time-related information (days, weeks, hours, etc.).
+4. Identify any conditions or scenarios that need to be considered.
+5. Summarize the main question or what needs to be calculated.
+
+Provide a concise summary of the key information in bullet points.
+
+Extract key information from the following problem:
+
 """
 
-SOLVE_PROMPT2 = """
-Solve the given math problem step by step, using geometric or visual approaches when applicable. Show your work and explain each step clearly.
-"""
+SOLVE_PROMPT = """
+You are an expert math problem solver. Your task is to solve the given math problem step by step, using the provided key information. Follow these guidelines:
 
-SOLVE_PROMPT3 = """
-Solve the given math problem step by step, emphasizing logical reasoning and problem-solving strategies. Show your work and explain each step clearly.
-"""
+1. Review the problem and the extracted key information carefully.
+2. Break down the problem into smaller steps.
+3. Show your work for each step, including any calculations.
+4. Use clear and concise language to explain your reasoning.
+5. Double-check your calculations and logic.
+6. Provide a final answer, clearly stated and highlighted.
+7. Ensure your solution addresses all aspects of the problem, including multiple conditions or scenarios if present.
+8. Pay special attention to unit conversions, especially with time-related problems.
+9. When dealing with percentages, carefully calculate the correct base amount.
+10. Make sure your final answer matches the type requested in the question (e.g., number of people, total cost).
 
-FORMULA_CHECK_PROMPT = """
-Analyze the given problem and the three solution approaches. Identify any relevant mathematical formulas or equations that could be applied to simplify or solve the problem more efficiently. If applicable, explain how these formulas could be used in the context of the problem and how they might improve the solution process.
-"""
+Solve the following problem using the provided key information:
 
-INTEGRATE_PROMPT = """
-Compare the three given solutions and the formula check for the math problem. Identify the strengths of each approach and create an integrated solution that combines the best aspects of all three, incorporating any relevant formulas or equations identified. Ensure the final solution is clear, comprehensive, and mathematically sound.
-"""
-
-REVIEW_PROMPT = """
-Review the integrated solution to the math problem. Check for any errors or areas that need improvement. If you find any issues, provide a corrected and improved solution. If the integrated solution is correct, confirm its accuracy and completeness.
-"""
-
-NUMERICAL_CHECK_PROMPT = """
-Examine the reviewed solution and determine if it contains a clear numerical answer. If a numerical answer is present, return the solution as is. If not, attempt to derive a numerical answer from the given solution and add it to the end of the solution. Ensure the final output includes both the detailed solution and a clear numerical answer if applicable to the problem.
-"""
-
-SELF_REFLECTION_PROMPT = """
-Carefully review the solution after the numerical check. Ensure that all aspects of the original problem have been addressed and that the solution is logically consistent. If any part of the problem has been overlooked or if there are any logical inconsistencies, revise the solution accordingly. Provide a final, comprehensive solution that fully answers the original problem and is logically sound.
 """

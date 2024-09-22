@@ -12,7 +12,9 @@ import time
 from collections import defaultdict
 from typing import List, Literal
 import datetime
+import random
 import pandas as pd
+import traceback
 
 import numpy as np
 from pydantic import BaseModel, Field
@@ -71,8 +73,8 @@ class Optimizer:
         opt_llm_config,
         exec_llm_config,
         operators: List,
+        sample: int ,
         optimized_path: str = None,
-        sample: int = 6,
         q_type: str = "math",  # math,code,quiz
         op: str = "Generator",  # 需要优化的Operator
     ) -> None:
@@ -91,9 +93,9 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 1  # 起始轮次
+        self.round = 3  # 起始轮次
 
-    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 30):
+    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 15):
         """
         Optimize the graph and operator for the dataset.
         """
@@ -112,13 +114,10 @@ class Optimizer:
             return None
 
         elif mode == "Test":
-            for i in range(4):
+            for i in range(3):
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
-                try:
-                    score = loop.run_until_complete(self.test())
-                finally:
-                    loop.close()
+                score = loop.run_until_complete(self.test())
 
             return None
 
@@ -138,10 +137,10 @@ class Optimizer:
                     if retry_count == max_retries:
                         print("Max retries reached. Moving to next round.")
                         score = None  # 或者设置一个默认分数
-                    time.sleep(5)  # 在重试之前等待一段时间
-                # finally:
-                #     # 每次尝试后都关闭当前的事件循环
-                #     loop.close()
+
+                    wait_time = 5 * retry_count
+                    time.sleep(wait_time)  # 在重试之前等待一段时间
+
 
                 if retry_count < max_retries:
                     # 如果还需要重试，创建新的事件循环
@@ -217,27 +216,79 @@ class Optimizer:
 
         return self.top_scores
 
-    def _exponential_decay(self, ranks, alpha=0.3):
-        # 根据ranks计算权重
-        weights = np.exp(-alpha * ranks)
-        # 归一化权重使其总和为1
-        prob = weights / np.sum(weights)
-        return prob
+    def _compute_probabilities(self, scores, alpha=0.2, lambda_=0.3):
+        """
+        计算混合概率分布，结合基础概率和分数加权概率。
+
+        Args:
+            scores (list or np.ndarray): 分数列表或数组。
+            alpha (float): 控制分数权重敏感度的参数。
+            lambda_ (float): 控制基础概率与分数加权概率的混合比例。取值范围 [0, 1]。
+
+        Returns:
+            np.ndarray: 归一化后的混合概率分布。
+        """
+        scores = np.array(scores, dtype=np.float64)
+        n = len(scores)
+
+        if n == 0:
+            raise ValueError("分数列表为空。")
+
+        # 基础概率（均匀分布）
+        uniform_prob = np.full(n, 1.0 / n, dtype=np.float64)
+
+        # 分数加权概率
+        max_score = np.max(scores)
+        shifted_scores = scores - max_score
+        exp_weights = np.exp(alpha * shifted_scores)
+
+        sum_exp_weights = np.sum(exp_weights)
+        if sum_exp_weights == 0:
+            raise ValueError("所有指数权重的和为0，无法归一化。")
+
+        score_prob = exp_weights / sum_exp_weights
+
+        # 混合概率分布
+        mixed_prob = lambda_ * uniform_prob + (1 - lambda_) * score_prob
+
+        # 归一化混合概率
+        total_prob = np.sum(mixed_prob)
+        if not np.isclose(total_prob, 1.0):
+            mixed_prob = mixed_prob / total_prob
+
+        return mixed_prob
 
     def _select_round(self, items):
-        # 首先根据'score'字段对items列表进行降序排序
+        """
+        从项列表中基于混合概率分布选择一个项。
+
+        Args:
+            items (list of dict): 包含'round'和'score'键的项列表。
+            alpha (float): 控制分数权重敏感度的参数。
+            lambda_ (float): 控制基础概率与分数加权概率的混合比例。取值范围 [0, 1]。
+
+        Returns:
+            dict: 被选中的项。
+        """
+        if not items:
+            raise ValueError("项列表为空。")
+
+        # 根据'score'字段对项进行降序排序
         sorted_items = sorted(items, key=lambda x: x["score"], reverse=True)
 
-        # 提取排序后的位次（从1开始）
-        ranks = np.array([i for i in range(1, len(sorted_items) + 1)])
+        # 提取分数列表
+        scores = [item["score"] * 100 for item in sorted_items]
 
-        # 计算概率分布
-        probabilities = self._exponential_decay(ranks)
 
-        # 选择一个索引
+        # 计算混合概率分布
+        probabilities = self._compute_probabilities(scores)
+        print("\n混合概率分布: ", probabilities)
+
+        # 基于概率分布选择一个索引
         selected_index = np.random.choice(len(sorted_items), p=probabilities)
+        print(f"\n选择的索引: {selected_index}，选择的项: {sorted_items[selected_index]}")
 
-        # 返回选定的条目
+        # 返回被选中的项
         return sorted_items[selected_index]
 
     def _get_top_rounds(self, path=None, mode="Graph"):
@@ -262,7 +313,7 @@ class Optimizer:
                 unique_rounds.add(item["round"])
 
                 # 如果已经收集到了足够的唯一轮次，则提前终止循环
-                if len(unique_top_scores) == self.sample:
+                if len(unique_top_scores) >= self.sample:
                     break
 
         return unique_top_scores
@@ -322,6 +373,28 @@ class Optimizer:
 
         print(f"Processed experience data saved to {output_path}")
         return experience_data
+
+
+    def _load_log(self,cur_round, path=None, mode: str = "Graph"):
+        if mode == "Graph":
+            log_dir = os.path.join(self.root_path, "graphs", f"round_{cur_round}", "log.json")
+        else:
+            log_dir = path  # 这个path对应的是具体的operator的路径
+
+        # 读取 JSON 文件
+        with open(log_dir, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        # 随机选择三个元素
+        random_samples = random.sample(data, 3)
+
+        # 组装为一个文本
+        log = ""
+        for sample in random_samples:
+            log += json.dumps(sample, indent=4, ensure_ascii=False) + "\n\n"
+
+        # 最终结果存储在 assembled_text 中
+        return log
 
     def _load_operator_description(self, id, operator_name, file_path):
         """
@@ -443,30 +516,31 @@ class Optimizer:
             # 获取当前轮次的 experience 数据
             current_round = int(sample["round"])  # 确保是字符串类型
             experience_data = processed_experience.get(current_round)
+            log_data = self._load_log(current_round)
 
             if experience_data:
                 # 构建 experience 字符串
                 experience = f"Original Score: {experience_data['score']}\n"
-                experience += "Failed modifications:\n"
+                experience += "Here are some incorrect paths that should not be attempted again:\n```\n"
                 for key, value in experience_data["failure"].items():
                     experience += f"- {value['modification']} (Score: {value['score']})\n"
                 for key, value in experience_data["success"].items():
                     experience += f"- {value['modification']} \n"
-                experience += "\n\nNote: Take into account past failures and avoid repeating the same mistakes, as these failures indicate that those approaches are wrong. Try to change your thinking, not limited to using more advanced Python syntax like for, if, else, etc., or modifying the Prompt part."
+                experience += "\n```\n\nNote: Take into account past failures and avoid repeating the same mistakes, as these failures indicate that these approaches are ineffective. You must fundamentally change your way of thinking, rather than simply using more advanced Python syntax like for, if, else, etc., or modifying the prompt."
             else:
                 experience = f"No experience data found for round {current_round}."
 
             operator_description = self._load_operators_description()
 
-            prompt_description = self._load_prompts_description()
-
             graph_input = GRAPH_INPUT.format(
-                experience=experience, score=score, graph=graph[0], prompt=prompt, operator_description=operator_description, type=self.type, prompt_lib=prompt_description
+                experience=experience, score=score, graph=graph[0], prompt=prompt, operator_description=operator_description, type=self.type, log=log_data
             )
 
             graph_system = GRAPH_OPTIMIZE_PROMPT.format(type=self.type)
 
             graph_optimize_prompt = graph_input+GRAPH_CUSTOM_USE+graph_system
+
+            print(graph_optimize_prompt)
 
             # TODO 从这里开始，Graph Optimize 可以作为一个Operator放入 Operator.py 之中
             graph_optimize_node = await ActionNode.from_pydantic(GraphOptimize).fill(
@@ -484,10 +558,10 @@ class Optimizer:
                 except Exception as e:
                     retries += 1
                     print(f"Error generating prediction: {e}. Retrying... ({retries}/{max_retries})")
-
                     if retries == max_retries:
                         print("Maximum retries reached. Skipping this sample.")
                         break
+                    traceback.print_exc()  # 打印堆栈信息以查看报错的具体位置
                     time.sleep(5)
 
             graph_match = response["graph"]
@@ -931,7 +1005,7 @@ class Optimizer:
         # rounds = list(range(1, 20))
         # print(rounds)
 
-        rounds = [1, 2, 6, 8, 10, 11, 17]
+        rounds = [3,9,10]
         data = []
 
         # 获取项目的根目录

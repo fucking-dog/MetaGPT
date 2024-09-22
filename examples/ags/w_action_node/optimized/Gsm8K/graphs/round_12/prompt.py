@@ -1,31 +1,19 @@
-ANALYZE_PROMPT = """
-Analyze the given math problem. Determine if it requires a numerical answer or a more conceptual/theoretical response. Identify key components of the problem, including given information, unknowns, and any specific mathematical concepts or formulas that may be relevant.
-"""
+STEP_SOLVE_PROMPT = """
+You are an expert math problem solver. Your task is to solve the given math problem step by step, paying close attention to complex multi-step problems. Follow these guidelines:
 
-SOLVE_PROMPT1 = """
-Solve the given math problem step by step, focusing on algebraic methods. Show your work and explain each step clearly.
-"""
+1. Read the problem carefully and identify all key information and variables.
+2. Break down the problem into smaller, manageable steps.
+3. Show your work for each step, including all calculations and intermediate results.
+4. Use clear and concise language to explain your reasoning for each step.
+5. Pay special attention to unit conversions and time-based calculations.
+6. For problems involving multiple items or time periods, ensure you account for all components.
+7. Double-check your calculations and logic, especially for problems with multiple parts.
+8. Provide a final answer, clearly stated and highlighted.
+9. If the problem involves money, always round to two decimal places.
+10. For time-based problems, convert all time units to hours for consistency.
+11. When dealing with fractions, convert them to decimals for easier calculations.
+12. For problems involving rates or speeds, clearly state the units (e.g., dollars per hour, miles per gallon).
 
-SOLVE_PROMPT2 = """
-Solve the given math problem step by step, using geometric or visual approaches when applicable. Show your work and explain each step clearly.
-"""
+Solve the following problem, showing all steps and calculations:
 
-SOLVE_PROMPT3 = """
-Solve the given math problem step by step, emphasizing logical reasoning and problem-solving strategies. Show your work and explain each step clearly.
-"""
-
-INTEGRATE_PROMPT = """
-Compare the three given solutions and the problem analysis for the math problem. Identify the strengths of each approach and create an integrated solution that combines the best aspects of all three, taking into account the initial problem analysis. Ensure the final solution is clear, comprehensive, and mathematically sound.
-"""
-
-REVIEW_PROMPT = """
-Review the integrated solution to the math problem. Check for any errors or areas that need improvement. If you find any issues, provide a corrected and improved solution. If the integrated solution is correct, confirm its accuracy and completeness.
-"""
-
-NUMERICAL_CHECK_PROMPT = """
-Based on the problem analysis and the reviewed solution, determine if a numerical answer is required. If a numerical answer is needed and present, verify its correctness. If a numerical answer is needed but not provided, derive it from the solution. If the problem doesn't require a numerical answer, ensure the solution adequately addresses the conceptual aspects of the problem. Adjust the solution as necessary to fully address the problem's requirements.
-"""
-
-SELF_REFLECTION_PROMPT = """
-Carefully review the solution after the numerical check. Ensure that all aspects of the original problem have been addressed and that the solution is logically consistent. If any part of the problem has been overlooked or if there are any logical inconsistencies, revise the solution accordingly. Provide a final, comprehensive solution that fully answers the original problem and is logically sound.
 """
