@@ -93,7 +93,7 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 1  # 起始轮次
+        self.round = 5  # 起始轮次
 
     def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 20):
         """
@@ -470,7 +470,7 @@ class Optimizer:
             else:
                 data = []
 
-            if self.round == 1:
+            if self.round == 0:
                 # 创建文件夹（如果不存在）
                 directory = os.path.join(graph_path, f"round_{self.round}")
                 os.makedirs(directory, exist_ok=True)
