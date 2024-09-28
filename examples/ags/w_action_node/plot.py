@@ -227,7 +227,7 @@ def plot_score_evolution(json_data, round_0_score, validation, test):
     ax1.set_xlabel('Round', fontsize=12)
     ax1.set_ylabel('Score', fontsize=12)
     ax1.set_title('Highest Score Evolution', fontsize=14)
-    ax1.set_ylim(0.7, 1)
+    # ax1.set_ylim(0.7, 1)
     ax1.set_xlim(1, 20)
     ax1.set_xticks(range(1, 20))  # 明确指定刻度为 1 到 19
     ax1.legend()
@@ -352,9 +352,9 @@ def plot_pareto(results, save_path=None):
     plt.show()
 
 
-experience = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\processed_experience.json"
-validation_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\results.json"
-test_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\Gsm8K\graphs\results.json"
+experience = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\MATH\graphs\processed_experience.json"
+validation_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\MATH\graphs\results.json"
+test_result = r"D:\PythonProject\MetaGPT-MathAI\examples\ags\w_action_node\optimized\MATH\graphs\results.json"
 
 # 打开文件并加载 JSON 数据
 with open(experience, 'r', encoding='utf-8') as file:

@@ -1,7 +1,7 @@
 import numpy as np
 
 
-def compute_mixed_probabilities(scores, alpha=0.2, lambda_=0.4):
+def compute_mixed_probabilities(scores, alpha=0.2, lambda_=0.3):
     """
     计算混合概率分布，结合基础概率和分数加权概率。
 
@@ -54,7 +54,7 @@ def compute_mixed_probabilities(scores, alpha=0.2, lambda_=0.4):
     return mixed_prob
 
 
-def select_item(items, alpha=0.2, lambda_=0.4):
+def select_item(items, alpha=0.2, lambda_=0.3):
     """
     从项列表中基于混合概率分布选择一个项。
 

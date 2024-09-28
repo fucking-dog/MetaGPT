@@ -41,7 +41,7 @@ from metagpt.provider.llm_provider_registry import create_llm_instance
 
 config_iterate_path = "iterate"
 
-DatasetType = Literal["HumanEval", "MMBP", "Gsm8K", "MATH", "HotpotQa", "MMLU"]
+DatasetType = Literal["HumanEval", "MBPP", "Gsm8K", "MATH", "HotpotQA", "DROP"]
 OptimizerType = Literal["Complete", "Graph", "Operator"]
 
 
@@ -93,9 +93,9 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 5  # 起始轮次
+        self.round = 18  # 起始轮次
 
-    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 20):
+    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 5):
         """
         Optimize the graph and operator for the dataset.
         """
@@ -481,9 +481,9 @@ class Optimizer:
 
                 for i in range(validation_n):
 
-                    score, avg_cost, total_cost = await evaluator.graph_evaluate(
+                    score, avg_cost, total_cost = await evaluator.validation_evaluate(
                         self.dataset, self.graph, {"dataset": self.dataset, "llm_config": self.execute_llm_config},
-                        directory, is_test=False
+                        directory
                     )
 
                     now = datetime.datetime.now()
@@ -532,11 +532,11 @@ class Optimizer:
             if experience_data:
                 # 构建 experience 字符串
                 experience = f"Original Score: {experience_data['score']}\n"
-                experience += "Here are some incorrect paths that should not be attempted again:\n```\n"
+                experience += "These are some conclusions drawn from experience:\n```\n"
                 for key, value in experience_data["failure"].items():
-                    experience += f"- {value['modification']} (Score: {value['score']})\n"
+                    experience += f"-Absolutely prohibit {value['modification']} (Score: {value['score']})\n"
                 for key, value in experience_data["success"].items():
-                    experience += f"- {value['modification']} \n"
+                    experience += f"-Absolutely prohibit {value['modification']} \n"
                 experience += "\n```\n\nNote: Take into account past failures and avoid repeating the same mistakes, as these failures indicate that these approaches are ineffective. You must fundamentally change your way of thinking, rather than simply using more advanced Python syntax like for, if, else, etc., or modifying the prompt."
             else:
                 experience = f"No experience data found for round {current_round}."
@@ -629,6 +629,9 @@ class Optimizer:
                     json.dump(data, json_file, default=str, indent=4)
 
                 sum_score += score
+
+                if score == 0:
+                    break
 
             avg_score = sum_score/validation_n
 
@@ -1016,7 +1019,7 @@ class Optimizer:
         # rounds = list(range(1, 20))
         # print(rounds)
 
-        rounds = [3,9,10]
+        rounds = [20, 21]
         data = []
 
         # 获取项目的根目录
@@ -1060,8 +1063,6 @@ class Optimizer:
             # 将更新后的数据写入 JSON 文件
             with open(json_file_path, 'w') as json_file:
                 json.dump(data, json_file, default=str, indent=4)
-
-
 
 
 

@@ -14,13 +14,13 @@ import aiofiles
 import numpy as np
 import pandas as pd
 import regex
-from scipy.optimize import linear_sum_assignment
 from sympy import N, simplify
 from sympy.parsing.latex import parse_latex
 from sympy.parsing.sympy_parser import parse_expr
 from tqdm.asyncio import tqdm_asyncio
 
 from examples.ags.benchmark.gsm8k import optimize_gsm8k_evaluation
+from examples.ags.benchmark.Math import optimize_math_evaluation
 
 DatasetType = Literal["HumanEval", "MBPP", "Gsm8K", "MATH", "HotpotQA", "DROP"]
 
@@ -82,7 +82,7 @@ class Evaluator:
 
         if test:
             data_path = "examples/ags/w_action_node/data/gsm8k_test.jsonl"  # 替换为您的JSONL文件路径
-            va_list = [0]
+            va_list = None
         else:
             data_path = "examples/ags/w_action_node/data/gsm8k_validation.jsonl"  # 替换为您的JSONL文件路径
             va_list = [155, 230, 137, 225, 96, 50, 130, 26, 79, 259, 131, 1, 242, 247, 191, 94, 185, 38, 104, 64,
@@ -106,17 +106,19 @@ class Evaluator:
             dataset = params["dataset"]
             llm_config = params["llm_config"]
             return graph_class(name="MATH", llm_config=llm_config, dataset=dataset)
-        
+
         if test:
-            data_path = "examples/ags/data/math_test.jsonl"
+            data_path = "examples/ags/w_action_node/data/math_test.jsonl"  # 替换为您的JSONL文件路径
+            va_list = None
         else:
-            data_path = "examples/ags/data/math_validate.jsonl"
+            data_path = "examples/ags/w_action_node/data/math_validation.jsonl"  # 替换为您的JSONL文件路径
+            va_list = None
 
         graph = await load_graph()
-        
-        score, cost = await optimize_math_evaluation(graph, data_path, path)
-        
-        return score, cost
+
+        avg_score, avg_cost, total_cost = await optimize_math_evaluation(graph, data_path, path, va_list)
+
+        return avg_score, avg_cost, total_cost
 
     async def _humaneval_eval(self, graph_class, params, path, test=False):
         """
