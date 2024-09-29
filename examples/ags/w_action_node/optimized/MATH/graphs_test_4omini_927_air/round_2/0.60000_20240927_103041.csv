@@ -1,0 +1,701 @@
+question,prediction,expected_output,score,cost
+"A particular convex pentagon has two congruent, acute angles. The measure of each of the other interior angles is equal to the sum of the measures of the two acute angles. What is the common measure of the large angles, in degrees?","To solve the problem, we need to analyze the properties of the convex pentagon described. Let's break down the solution step-by-step.
+
+### Step 1: Understanding the Angles
+We have a convex pentagon with:
+- Two congruent acute angles, which we will denote as \( x \).
+- Three other angles, each of which is equal to the sum of the two acute angles. Since the two acute angles are both \( x \), the measure of each of the three larger angles will be \( 2x \).
+
+### Step 2: Sum of Interior Angles
+The sum of the interior angles of a pentagon is given by the formula:
+\[
+\text{Sum of interior angles} = (n - 2) \times 180^\circ
+\]
+where \( n \) is the number of sides. For a pentagon (\( n = 5 \)):
+\[
+\text{Sum of interior angles} = (5 - 2) \times 180^\circ = 3 \times 180^\circ = 540^\circ
+\]
+
+### Step 3: Setting Up the Equation
+The total measure of the angles in the pentagon can be expressed as:
+\[
+2x + 3(2x) = 540^\circ
+\]
+This simplifies to:
+\[
+2x + 6x = 540^\circ
+\]
+\[
+8x = 540^\circ
+\]
+
+### Step 4: Solving for \( x \)
+Now, we can solve for \( x \):
+\[
+x = \frac{540^\circ}{8} = 67.5^\circ
+\]
+
+### Step 5: Finding the Common Measure of the Large Angles
+The common measure of the large angles, which we denoted as \( 2x \), can now be calculated:
+\[
+2x = 2 \times 67.5^\circ = 135^\circ
+\]
+
+### Final Answer
+Thus, the common measure of the large angles in the pentagon is:
+\[
+\boxed{135}
+\]","If $x$ is the measure in degrees of each of the acute angles, then each of the larger angles measures $2x$ degrees.  Since the number of degrees in the sum of the interior angles of an $n$-gon is $180(n-2)$, we have \[
+x+x+2x+2x+2x=540 \implies 8x = 540 \implies x=135/2.
+\] The large angles each measure $2x=\boxed{135}$ degrees.",1,0.006887849999999999
+"Below is a magic square, meaning that the sum of the numbers in each row, in each column, and in each of the $2$ main diagonals are equal. What is the value of $n$?
+
+[asy]size(125);
+for(int i = 0; i<4; ++i)
+{
+
+draw((0,i)--(3,i),linewidth(1));
+}
+
+for(int j = 0; j<4; ++j)
+{
+
+draw((j,0)--(j,3),linewidth(1));
+}
+
+label(""$n-3$"",(.5,.5));
+label(""3"",(.5,1.5));
+label(""$n+1$"",(.5,2.5));
+
+label(""$n+2$"",(1.5,.5));
+label(""$2n-9$"",(1.5,1.5));
+label(""$1$"",(1.5,2.5));
+
+label(""$2$"",(2.5,.5));
+label(""$n$"",(2.5,1.5));
+label(""$n-1$"",(2.5,2.5));
+[/asy]","To solve the problem, we need to find the value of \( n \) in the given magic square. A magic square is defined such that the sums of the numbers in each row, each column, and both main diagonals are equal.
+
+Let's denote the entries of the magic square as follows:
+
+\[
+\begin{array}{|c|c|c|}
+\hline
+n-3 & n+2 & 2 \\
+\hline
+3 & 2n-9 & n \\
+\hline
+n+1 & 1 & n-1 \\
+\hline
+\end{array}
+\]
+
+### Step 1: Calculate the sum of the first row
+
+The first row is:
+\[
+(n-3) + (n+2) + 2 = n - 3 + n + 2 + 2 = 2n + 1
+\]
+
+### Step 2: Calculate the sum of the second row
+
+The second row is:
+\[
+3 + (2n-9) + n = 3 + 2n - 9 + n = 3n - 6
+\]
+
+### Step 3: Calculate the sum of the third row
+
+The third row is:
+\[
+(n+1) + 1 + (n-1) = n + 1 + 1 + n - 1 = 2n + 1
+\]
+
+### Step 4: Set the sums of the rows equal
+
+Since the sums of the rows must be equal, we can set the first row equal to the second row:
+\[
+2n + 1 = 3n - 6
+\]
+
+### Step 5: Solve for \( n \)
+
+Rearranging the equation:
+\[
+2n + 1 + 6 = 3n \\
+7 = 3n - 2n \\
+n = 7
+\]
+
+### Step 6: Verify the value of \( n \)
+
+Now, we will substitute \( n = 7 \) back into the magic square to verify that all rows, columns, and diagonals sum to the same value.
+
+Substituting \( n = 7 \):
+- First row: 
+\[
+(7-3) + (7+2) + 2 = 4 + 9 + 2 = 15
+\]
+- Second row:
+\[
+3 + (2 \cdot 7 - 9) + 7 = 3 + 5 + 7 = 15
+\]
+- Third row:
+\[
+(7+1) + 1 + (7-1) = 8 + 1 + 6 = 15
+\]
+
+Now, check the columns:
+- First column:
+\[
+(7-3) + 3 + (7+1) = 4 + 3 + 8 = 15
+\]
+- Second column:
+\[
+(7+2) + (2 \cdot 7 - 9) + 1 = 9 + 5 + 1 = 15
+\]
+- Third column:
+\[
+2 + 7 + (7-1) = 2 + 7 + 6 = 15
+\]
+
+Finally, check the diagonals:
+- Main diagonal:
+\[
+(n-3) + (2n-9) + (n-1) = 4 + 5 + 6 = 15
+\]
+- Other diagonal:
+\[
+2 + (2n-9) + (n+1) = 2 + 5 + 8 = 15
+\]
+
+Since all rows, columns, and diagonals sum to 15, our solution is verified.
+
+### Final Answer
+
+Thus, the value of \( n \) is:
+
+\[
+\boxed{7}
+\]","First, we can evaluate the sum across the first row, which gives $(n+1)+1+(n-1)=2n+1$.  Evaluate the sum of the entries across the second row, $3+(2n-9)+n=3n-6$. Now, since we have a magic square, these two sums are equal.  So $2n+1=3n-6$. Isolating $n$, we obtain $n = \boxed{7}$.
+
+The square will look like: [asy] size(2cm);
+draw((0,0)--(3,0)--(3,3)--(0,3)--cycle,linewidth(1));
+draw((1,0)--(1,3),linewidth(1));
+draw((2,0)--(2,3),linewidth(1));
+draw((0,1)--(3,1),linewidth(1));
+draw((0,2)--(3,2),linewidth(1));
+label(""8"",(.5,2.5));
+label(""1"",(1.5,2.5));
+label(""6"",(2.5,2.5));
+label(""3"",(.5,1.5));
+label(""5"",(1.5,1.5));
+label(""7"",(2.5,1.5));
+label(""4"",(.5,.5));
+label(""9"",(1.5,.5));
+label(""2"",(2.5,.5));
+[/asy]",1,0.00438675
+"Each good worker can paint my new house alone in 12 hours.  Each bad worker can paint my house alone in 36 hours.  I need my house painted in 3 hours.  If I can only find 3 good workers, how many bad workers must I also find in order to have my house painted on time?","To solve the problem of how many bad workers are needed to paint the house in 3 hours, given that good workers can paint the house in 12 hours and bad workers can do it in 36 hours, we will follow these steps:
+
+### Step 1: Determine the Work Rate of Each Worker
+
+1. **Good Worker:**
+   - A good worker can paint the house in 12 hours.
+   - Therefore, the work rate of one good worker is:
+     \[
+     \text{Work rate of good worker} = \frac{1 \text{ house}}{12 \text{ hours}} = \frac{1}{12} \text{ houses per hour}
+     \]
+
+2. **Bad Worker:**
+   - A bad worker can paint the house in 36 hours.
+   - Therefore, the work rate of one bad worker is:
+     \[
+     \text{Work rate of bad worker} = \frac{1 \text{ house}}{36 \text{ hours}} = \frac{1}{36} \text{ houses per hour}
+     \]
+
+### Step 2: Calculate the Total Work Done by Good Workers
+
+- We have 3 good workers available.
+- The total work done by the good workers in 3 hours is:
+  \[
+  \text{Total work by good workers} = \text{Number of good workers} \times \text{Work rate of good worker} \times \text{Time available}
+  \]
+  \[
+  = 3 \times \frac{1}{12} \times 3 = \frac{3}{12} \times 3 = \frac{9}{12} = \frac{3}{4} \text{ houses}
+  \]
+
+### Step 3: Determine the Remaining Work
+
+- The total work needed to paint the house is 1 house.
+- The remaining work that needs to be done by bad workers is:
+  \[
+  \text{Remaining work} = \text{Total work needed} - \text{Total work by good workers}
+  \]
+  \[
+  = 1 - \frac{3}{4} = \frac{1}{4} \text{ houses}
+  \]
+
+### Step 4: Calculate the Number of Bad Workers Needed
+
+- Let \( x \) be the number of bad workers needed.
+- The work done by \( x \) bad workers in 3 hours is:
+  \[
+  x \times \text{Work rate of bad worker} \times \text{Time available} = x \times \frac{1}{36} \times 3
+  \]
+  \[
+  = \frac{3x}{36} = \frac{x}{12} \text{ houses}
+  \]
+- We need this to equal the remaining work:
+  \[
+  \frac{x}{12} = \frac{1}{4}
+  \]
+
+### Step 5: Solve for \( x \)
+
+- To find \( x \), we can cross-multiply:
+  \[
+  x = \frac{1}{4} \times 12 = 3
+  \]
+
+### Conclusion
+
+Thus, the number of bad workers needed to ensure the house is painted in 3 hours, alongside the 3 good workers, is:
+
+\[
+\boxed{3}
+\]","Each good worker can paint $1/12$ of my house in an hour, so three of them together can  paint $3/12 =1/4$ of my house in an hour.  So, in 3 hours, the three good workers will  paint $3(1/4)=3/4$ of my house.  The bad workers have to paint the other $1/4$ of the house.  Each bad worker paints $1/36$ of the house in an hour, so each bad worker can paint $3(1/36)=1/12$  of the house in three hours.  Since the bad workers together need to paint $1/4$ of the house, and  each bad worker can paint $1/12$ of the house in three hours, I need $(1/4)/(1/12) = \boxed{3}$ bad workers.",1,0.007393799999999999
+"Let A = 1, B = 2, C = 3, ..., Z = 26. The product value of a word is equal to the product of the values of its letters. For example, CAB has a product value of 3 $\times$ 1 $\times$ 2 = 6. What common English word has a product value of 715? It does not have to be of length 3.","To solve the problem of finding a common English word with a product value of 715, we will follow a systematic approach. The product value of a word is calculated by multiplying the values assigned to each letter, where A = 1, B = 2, C = 3, ..., Z = 26.
+
+### Step-by-Step Explanation
+
+1. **Understanding Letter Values**:
+   Each letter corresponds to a numerical value:
+   - A = 1
+   - B = 2
+   - C = 3
+   - ...
+   - Z = 26
+
+2. **Calculating Product Value**:
+   The product value of a word is the product of the values of its letters. For example, for the word ""CAB"":
+   \[
+   \text{Product Value} = C \times A \times B = 3 \times 1 \times 2 = 6
+   \]
+
+3. **Target Product**:
+   We are looking for a word whose product value equals 715.
+
+4. **Finding Factors of 715**:
+   To find a word that has a product value of 715, we can start by factorizing 715:
+   \[
+   715 = 5 \times 143
+   \]
+   Continuing to factor 143:
+   \[
+   143 = 11 \times 13
+   \]
+   Thus, the complete factorization of 715 is:
+   \[
+   715 = 5 \times 11 \times 13
+   \]
+
+5. **Mapping Factors to Letters**:
+   Now we need to map these factors to letters:
+   - 5 corresponds to E
+   - 11 corresponds to K
+   - 13 corresponds to M
+
+   Therefore, one possible combination of letters that gives a product value of 715 is ""EKM"".
+
+6. **Checking Common Words**:
+   We need to check if ""EKM"" or any other combination of letters that yields the same product value is a common English word. 
+
+7. **Iterating Through Common Words**:
+   The provided code iterates through a list of common words to find one that matches the product value of 715. However, ""EKM"" is not a common word. We need to check other combinations of letters that multiply to 715.
+
+8. **Finding Other Combinations**:
+   We can also consider other combinations of letters that could yield the same product. For example:
+   - ""E"" (5), ""K"" (11), ""M"" (13) gives us ""EKM"".
+   - We can also check combinations like ""E"", ""O"" (15), and ""D"" (4) which gives us \(5 \times 15 \times 4 = 300\) (not valid).
+   - We can also check ""A"" (1), ""B"" (2), ""C"" (3), etc., but we need to ensure the product equals 715.
+
+9. **Final Check**:
+   After checking various combinations, we find that the word ""ME"" (13 and 5) does not yield 715. 
+
+### Conclusion
+After checking the common words and their product values, we find that the word ""ME"" does not yield 715. 
+
+The correct answer is that there is no common English word in the provided list that has a product value of 715. 
+
+Thus, the final answer is:
+\[
+\text{No common English word found with a product value of 715.}
+\] 
+
+If we were to state this in the required format, it would be:
+\[
+\boxed{\text{No common English word found with a product value of 715.}}
+\]","Prime factorize 715 to find $715=5\cdot11\cdot13$.  The only ways to write 715 as a product of positive integers greater than 1 are the distinct ways of grouping the prime factors: \begin{align*}
+(5)\cdot (11) \cdot (13) &= 5\cdot 11\cdot 13 \\
+(5\cdot11)\cdot 13&=55\cdot 13 \\
+5\cdot(11\cdot 13) &= 5\cdot 143 \\
+(5\cdot 13) \cdot 11 &= 65 \cdot 11\text{, and}\\
+(5\cdot11\cdot13)&=715,
+\end{align*} where the last one is a product with only one factor.  Since the letters cannot represent numbers greater than 26, only $5\cdot11\cdot 13$ could come from calculating the product value of a word. The 5th, 11th, and 13th letters of the alphabet are E, K, and M.  Since E, K, and M do not form a word, we introduce the letter A (which doesn't affect the product since its value is 1) to form the word $\boxed{\text{MAKE}}$.",0,0.0079239
+Estimate $14.7923412^2$ to the nearest hundred.,"To solve the problem of estimating \( 14.7923412^2 \) to the nearest hundred, we will follow a step-by-step approach.
+
+### Step 1: Calculate the Square
+First, we need to calculate the square of \( 14.7923412 \).
+
+\[
+14.7923412^2 = 14.7923412 \times 14.7923412
+\]
+
+Using a calculator or performing the multiplication, we find:
+
+\[
+14.7923412^2 \approx 219.999999
+\]
+
+### Step 2: Round to the Nearest Hundred
+Next, we need to round this squared value to the nearest hundred. The value \( 219.999999 \) is closer to \( 200 \) than to \( 300 \).
+
+To round to the nearest hundred, we look at the tens digit (which is \( 1 \) in this case). Since \( 1 < 5 \), we round down.
+
+Thus, rounding \( 219.999999 \) to the nearest hundred gives us:
+
+\[
+\text{Rounded value} = 200
+\]
+
+### Final Answer
+The final answer, after performing the calculations and rounding, is:
+
+\[
+\boxed{200}
+\] 
+
+### Review of the Code
+The generated code correctly calculates the square of \( 14.7923412 \) and rounds it to the nearest hundred. The output of \( 200.0 \) is indeed correct, as it matches our manual calculation and rounding process. 
+
+Thus, there are no errors in the code or its output. The final answer remains:
+
+\[
+\boxed{200}
+\]","We know $14^2=196$ and $15^2=225.$ So both $14^2$ and $15^2,$ estimated to the nearest hundred, are 200. Therefore, the square of any number between 14 and 15 will also be $\boxed{200},$ when rounded to the nearest hundred.",1,0.0038527500000000003
+"A square piece of paper is folded once so that one pair of opposite corners coincide. When the paper is unfolded, two congruent triangles have been formed. Given that the area of the original square is $49$ square inches, what is the number of inches in the perimeter of one of these triangles? Express your answer in simplest radical form.","To solve the problem, we need to analyze the situation step-by-step, ensuring all calculations are correct and the final answer is expressed in the required format.
+
+### Step 1: Determine the Side Length of the Square
+The area of the square is given as \(49\) square inches. The formula for the area of a square is:
+
+\[
+\text{Area} = \text{side length}^2
+\]
+
+Let \(s\) be the side length of the square. We can find \(s\) by taking the square root of the area:
+
+\[
+s = \sqrt{49} = 7 \text{ inches}
+\]
+
+### Step 2: Understand the Folding Process
+When the square is folded such that one pair of opposite corners coincide, it creates two congruent right triangles. Each triangle has legs that are half the side length of the square.
+
+### Step 3: Calculate the Length of the Legs of the Triangle
+Since the square's side length is \(7\) inches, the length of each leg of the triangle (which is half the side length) is:
+
+\[
+\text{leg length} = \frac{s}{2} = \frac{7}{2} = 3.5 \text{ inches}
+\]
+
+### Step 4: Calculate the Hypotenuse of the Triangle
+Using the Pythagorean theorem, the hypotenuse \(h\) of the triangle can be calculated as follows:
+
+\[
+h = \sqrt{(\text{leg length})^2 + (\text{leg length})^2} = \sqrt{(3.5)^2 + (3.5)^2}
+\]
+
+Calculating \( (3.5)^2 \):
+
+\[
+(3.5)^2 = 12.25
+\]
+
+Thus,
+
+\[
+h = \sqrt{12.25 + 12.25} = \sqrt{24.5} = \sqrt{24.5} = \sqrt{4 \cdot 6.125} = 2\sqrt{6.125}
+\]
+
+### Step 5: Calculate the Perimeter of One Triangle
+The perimeter \(P\) of one triangle is the sum of the lengths of its three sides:
+
+\[
+P = \text{leg length} + \text{leg length} + \text{hypotenuse}
+\]
+
+Substituting the values we have:
+
+\[
+P = 3.5 + 3.5 + 2\sqrt{6.125} = 7 + 2\sqrt{6.125}
+\]
+
+### Step 6: Simplify the Hypotenuse
+To express \( \sqrt{6.125} \) in simplest radical form, we can rewrite \(6.125\) as:
+
+\[
+6.125 = \frac{49}{8} \quad \text{(since } 6.125 = 6 + 0.125 = 6 + \frac{1}{8} = \frac{48}{8} + \frac{1}{8} = \frac{49}{8}\text{)}
+\]
+
+Thus,
+
+\[
+\sqrt{6.125} = \sqrt{\frac{49}{8}} = \frac{7}{\sqrt{8}} = \frac{7}{2\sqrt{2}} = \frac{7\sqrt{2}}{4}
+\]
+
+Now substituting back into the perimeter:
+
+\[
+P = 7 + 2 \cdot \frac{7\sqrt{2}}{4} = 7 + \frac{7\sqrt{2}}{2}
+\]
+
+### Final Answer
+The perimeter of one of the triangles is:
+
+\[
+\boxed{7 + \frac{7\sqrt{2}}{2}}
+\]","Since the area of the square is 49 square inches, the side length of the square is $\sqrt{49} = 7$ square inches.  Each triangle formed by the fold is a 45-45-90 triangle whose legs are sides of the square and whose hypotenuse is the fold.  So, two sides of the triangle have length 7 and the hypotenuse has length $7\sqrt{2}$.  Therefore, the perimeter of the triangle is $7+7+7\sqrt{2} = \boxed{14+7\sqrt{2}}$.",0,0.0057266999999999995
+"At the national curling championships, there are three teams of four players each. After the championships are over, the very courteous participants each shake hands three times with every member of the opposing teams, and once with each member of their own team.
+
+How many handshakes are there in total?","To solve the problem of counting the total number of handshakes at the national curling championships, we will break down the calculations step-by-step.
+
+### Step 1: Understand the Setup
+- There are **3 teams**.
+- Each team has **4 players**.
+- Each player shakes hands:
+  - **Once** with each member of their own team (3 handshakes).
+  - **Three times** with each member of the opposing teams.
+
+### Step 2: Calculate Handshakes with Own Team
+Each player shakes hands with the other 3 members of their own team:
+\[
+\text{Handshakes with own team} = 3 \text{ (one handshake with each of the 3 teammates)}
+\]
+
+### Step 3: Calculate Handshakes with Opposing Teams
+Each player shakes hands with the members of the two opposing teams. Since there are 4 players in each opposing team, the total number of players in the opposing teams is:
+\[
+\text{Total opposing players} = 2 \text{ teams} \times 4 \text{ players/team} = 8 \text{ players}
+\]
+Each player shakes hands **three times** with each of these 8 players:
+\[
+\text{Handshakes with opposing teams} = 8 \text{ (opposing players)} \times 3 \text{ (handshakes each)} = 24
+\]
+
+### Step 4: Total Handshakes per Player
+Now, we can calculate the total handshakes for each player:
+\[
+\text{Total handshakes per player} = \text{Handshakes with own team} + \text{Handshakes with opposing teams} = 3 + 24 = 27
+\]
+
+### Step 5: Calculate Total Handshakes for All Players
+Now, we need to find the total number of players:
+\[
+\text{Total players} = 3 \text{ teams} \times 4 \text{ players/team} = 12 \text{ players}
+\]
+Thus, the total number of handshakes for all players is:
+\[
+\text{Total handshakes} = \text{Total handshakes per player} \times \text{Total players} = 27 \times 12 = 324
+\]
+
+### Final Answer
+The total number of handshakes at the national curling championships is:
+\[
+\boxed{324}
+\] 
+
+This confirms that the calculations in the generated code are correct, and the final answer is indeed \( \boxed{324} \).","For each participant, there are 8 opponents to shake hands with, and 3 team members to shake hands with, giving $3\times8+3=27$ handshakes for each individual participant.
+
+There are 12 players in total, which offers $12\times27=324$ handshakes, but since a handshake takes place between two people, we've counted every handshake twice.
+
+The final answer is $\dfrac{324}{2}=\boxed{162}$ handshakes.",0,0.0065799
+"The expression $2\cdot 3 \cdot 4\cdot 5+1$ is equal to 121, since multiplication is carried out before addition. However, we can obtain values other than 121 for this expression if we are allowed to change it by inserting parentheses. For example, we can obtain 144 by writing \[
+(2\cdot (3\cdot 4)) \cdot (5+1) = 144.
+\]In total, how many values can be obtained from the expression $2\cdot 3\cdot 4 \cdot 5 + 1$ by inserting parentheses? (Note that rearranging terms is not allowed, only inserting parentheses).","To solve the problem of how many distinct values can be obtained from the expression \(2 \cdot 3 \cdot 4 \cdot 5 + 1\) by inserting parentheses, we need to explore all possible ways to group the numbers using parentheses while adhering to the order of operations.
+
+### Step-by-Step Explanation
+
+1. **Understanding the Expression**:
+   The original expression is \(2 \cdot 3 \cdot 4 \cdot 5 + 1\). The multiplication is performed first, followed by the addition of 1. The goal is to find different results by changing the grouping of the multiplication.
+
+2. **Possible Groupings**:
+   We can group the numbers in various ways. The key is to consider all possible ways to insert parentheses. For four numbers, we can group them in several ways:
+   - \((a \cdot b) \cdot (c \cdot d)\)
+   - \((a \cdot (b \cdot c)) \cdot d\)
+   - \(a \cdot (b \cdot (c \cdot d))\)
+   - And other combinations.
+
+3. **Calculating Distinct Results**:
+   We will evaluate the expression for all possible groupings of the numbers \(2, 3, 4, 5\):
+   - **Grouping 1**: \((2 \cdot 3) \cdot (4 \cdot 5)\)
+     \[
+     (2 \cdot 3) = 6, \quad (4 \cdot 5) = 20 \quad \Rightarrow \quad 6 \cdot 20 = 120
+     \]
+   - **Grouping 2**: \((2 \cdot (3 \cdot 4)) \cdot 5\)
+     \[
+     (3 \cdot 4) = 12 \quad \Rightarrow \quad (2 \cdot 12) \cdot 5 = 24 \cdot 5 = 120
+     \]
+   - **Grouping 3**: \(2 \cdot (3 \cdot (4 \cdot 5))\)
+     \[
+     (4 \cdot 5) = 20 \quad \Rightarrow \quad 3 \cdot 20 = 60 \quad \Rightarrow \quad 2 \cdot 60 = 120
+     \]
+   - **Grouping 4**: \((2 \cdot 3) \cdot 4 \cdot 5\)
+     \[
+     (2 \cdot 3) = 6 \quad \Rightarrow \quad 6 \cdot 4 = 24 \quad \Rightarrow \quad 24 \cdot 5 = 120
+     \]
+   - **Grouping 5**: \(2 \cdot (3 \cdot 4 \cdot 5)\)
+     \[
+     (3 \cdot 4 \cdot 5) = 60 \quad \Rightarrow \quad 2 \cdot 60 = 120
+     \]
+   - **Grouping 6**: \((2 \cdot 3 \cdot 4) \cdot 5\)
+     \[
+     (2 \cdot 3 \cdot 4) = 24 \quad \Rightarrow \quad 24 \cdot 5 = 120
+     \]
+
+   After evaluating all possible groupings, we find that all combinations yield the same result of \(120\).
+
+4. **Final Calculation**:
+   Since all distinct results from the multiplication yield \(120\), we add \(1\) to this result as per the original expression:
+   \[
+   120 + 1 = 121
+   \]
+
+5. **Conclusion**:
+   The only distinct value obtained from the expression \(2 \cdot 3 \cdot 4 \cdot 5 + 1\) by inserting parentheses is \(121\).
+
+Thus, the final answer is:
+
+\[
+\boxed{1}
+\] 
+
+This indicates that there is only one distinct value obtainable from the expression by inserting parentheses.","By the associative property of multiplication, it doesn't help to insert parentheses that specify the order of multiplication. For example, the associative property tells us that $(2\cdot(3\cdot 4))\cdot (5+1)$ is the same as $2\cdot3\cdot4\cdot (5+1)$. So the only way to get different values is to group +1 with a different number of factors. We get \begin{align*}
+2\cdot 3 \cdot 4 \cdot (5 + 1) &= 144, \\
+2\cdot 3 \cdot (4 \cdot 5 + 1) &= 126,\\
+2\cdot (3 \cdot 4 \cdot 5 + 1) &= 122, \\
+(2\cdot 3 \cdot 4 \cdot 5) + 1 \hphantom{)} &= 121.
+\end{align*}In total there are $\boxed{4}$ possible values for the expression.",0,0.0085437
+"Tom got a Mr. Potato Head for his birthday. It came with 3 hairstyles, 2 sets of eyebrows, 1 pair of googly eyes, 2 sets of ears, and 2 sets of lips, a pair of regular shoes, and a bonus pair of clown shoes. If a complete Mr. Potato Head personality includes eyebrows, eyes, ears, lips, shoes and optionally hair, how many different wacky personalities can Tom come up with? Note that Mr. Potato Head can be bald.
+
+Note: You cannot ""mix and match"".  For example, you cannot take the left eyebrow from one pair and the right eyebrow from the other pair.","To solve the problem of how many different wacky personalities Tom can create with his Mr. Potato Head, we need to consider the various features and their combinations. Let's break down the solution step-by-step.
+
+### Step 1: Identify the Features and Their Options
+Tom's Mr. Potato Head has the following features:
+- **Hairstyles**: 3 options (plus the option to be bald)
+- **Eyebrows**: 2 options
+- **Eyes**: 1 option (googly eyes)
+- **Ears**: 2 options
+- **Lips**: 2 options
+- **Shoes**: 2 options (1 pair of regular shoes and 1 pair of clown shoes)
+
+### Step 2: Calculate the Options for Each Feature
+1. **Hairstyles**: There are 3 hairstyles, and we can also choose to have no hair (bald). Thus, the total options for hairstyles is:
+   \[
+   \text{Total hairstyles} = 3 + 1 = 4
+   \]
+
+2. **Eyebrows**: There are 2 sets of eyebrows, so:
+   \[
+   \text{Total eyebrows} = 2
+   \]
+
+3. **Eyes**: There is only 1 pair of googly eyes, so:
+   \[
+   \text{Total eyes} = 1
+   \]
+
+4. **Ears**: There are 2 sets of ears, so:
+   \[
+   \text{Total ears} = 2
+   \]
+
+5. **Lips**: There are 2 sets of lips, so:
+   \[
+   \text{Total lips} = 2
+   \]
+
+6. **Shoes**: There are 2 options for shoes, so:
+   \[
+   \text{Total shoes} = 2
+   \]
+
+### Step 3: Calculate the Total Combinations
+To find the total number of different personalities, we multiply the number of options for each feature together:
+\[
+\text{Total personalities} = (\text{Total hairstyles}) \times (\text{Total eyebrows}) \times (\text{Total eyes}) \times (\text{Total ears}) \times (\text{Total lips}) \times (\text{Total shoes})
+\]
+
+Substituting the values we calculated:
+\[
+\text{Total personalities} = 4 \times 2 \times 1 \times 2 \times 2 \times 2
+\]
+
+### Step 4: Perform the Calculation
+Now, we perform the multiplication step-by-step:
+1. \(4 \times 2 = 8\)
+2. \(8 \times 1 = 8\)
+3. \(8 \times 2 = 16\)
+4. \(16 \times 2 = 32\)
+5. \(32 \times 2 = 64\)
+
+Thus, the total number of different wacky personalities Tom can create is:
+\[
+\text{Total personalities} = 64
+\]
+
+### Final Answer
+The final answer, formatted in LaTeX notation, is:
+\[
+\boxed{64}
+\]","There are 2 choices of eyebrows, 1 choice for eyes, 2 choices for ears, 2 choices for lips, 2 choices for shoes, and 4 choices for hair (3 choices of hairstyles, or bald), and each can be picked independent of the others, so the number of combinations is the product of those, $2\cdot 1\cdot 2\cdot 2\cdot 2\cdot 4 = \boxed{64}$.",1,0.006193049999999999
+How many whole numbers between 99 and 999 contain exactly one 0?,"To solve the problem of finding how many whole numbers between 99 and 999 contain exactly one '0', we can break down the solution step-by-step.
+
+### Step 1: Define the Range
+We are interested in whole numbers between 100 and 999 (inclusive). This means we will consider all three-digit numbers.
+
+### Step 2: Identify the Structure of Three-Digit Numbers
+A three-digit number can be represented as \(abc\), where:
+- \(a\) is the hundreds place (can be from 1 to 9),
+- \(b\) is the tens place (can be from 0 to 9),
+- \(c\) is the units place (can be from 0 to 9).
+
+### Step 3: Conditions for Exactly One '0'
+To have exactly one '0' in the number \(abc\), we can have the following scenarios:
+1. \(a = 1, 2, \ldots, 9\) (not '0'), \(b = 0\), \(c \neq 0\)
+2. \(a = 1, 2, \ldots, 9\) (not '0'), \(b \neq 0\), \(c = 0\)
+
+### Step 4: Count Valid Combinations
+#### Case 1: \(b = 0\)
+- \(a\) can be any digit from 1 to 9 (9 options).
+- \(c\) can be any digit from 1 to 9 (9 options).
+- Total for this case: \(9 \times 9 = 81\).
+
+#### Case 2: \(c = 0\)
+- \(a\) can be any digit from 1 to 9 (9 options).
+- \(b\) can be any digit from 1 to 9 (9 options).
+- Total for this case: \(9 \times 9 = 81\).
+
+### Step 5: Combine the Counts
+Now, we add the counts from both cases:
+\[
+81 + 81 = 162
+\]
+
+### Conclusion
+The total number of whole numbers between 100 and 999 that contain exactly one '0' is:
+
+\[
+\boxed{162}
+\] 
+
+This confirms that the output from the generated code is correct, and the calculations are accurate.","Numbers with exactly one zero have the form $\_ 0 \_$ or $\_ \_ 0$, where the blanks are not zeros.  There are $(9\cdot1\cdot9)+(9\cdot9\cdot1) = 81+81 = \boxed{162}$ such numbers.",1,0.00471585

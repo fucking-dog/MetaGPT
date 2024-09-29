@@ -1,0 +1,15 @@
+question,prediction,expected_output,score,cost
+"In the diagram, the three concentric circles have radii of $4,$ $6,$ and $7.$ Three regions are labeled $X,$ $Y,$ or $Z$ below. Of these three regions, what is the difference between the area of the region with the greatest area and the area of the region with the smallest area? Express your answer in exact form.
+
+[asy]
+import graph;
+filldraw(circle((0,0),7), lightgray, black+linewidth(1));
+filldraw(circle((0,0),6), gray, black+linewidth(1));
+filldraw(circle((0,0),4), white, black+linewidth(1));
+dot((0,0));
+label(""$X$"",(2,0));
+label(""$Y$"",(5,0));
+label(""$Z$"",(6.5,0));
+[/asy]",21.991148575128562,"The area of the inside circle (region $X$) is $\pi\cdot 4^2=16\pi.$
+
+Using a similar technique, the area of the middle ring (region $Y$) is $$\pi\cdot 6^2-\pi\cdot 4^2=36\pi-16\pi = 20\pi.$$ Also, the area of the outer ring (region $Z$) is $$\pi\cdot 7^2-\pi\cdot 6^2=49\pi - 36\pi = 13\pi.$$ Therefore, region $Y$ has the largest area and region $Z$ has the smallest area. The difference in their areas is $20\pi-13\pi = \boxed{7\pi}.$",0,0.00041069999999999995

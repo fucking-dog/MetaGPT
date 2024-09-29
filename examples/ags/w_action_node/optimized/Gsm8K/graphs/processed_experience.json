@@ -1,0 +1,138 @@
+{
+    "8": {
+        "score": 0.8880000000000001,
+        "success": {
+            "10": {
+                "modification": "Modify the custom prompt to emphasize step-by-step problem-solving and include a final verification step. Add a loop to generate multiple solutions and use the ScEnsemble operator to select the best one.",
+                "score": 0.898
+            }
+        },
+        "failure": {
+            "11": {
+                "modification": "Modify the custom prompt to include a step for unit conversion and emphasize the importance of providing the final answer as a single numerical value without units. Additionally, adjust the graph to use the Programmer operator for a final verification step.",
+                "score": 0.852
+            },
+            "12": {
+                "modification": "Modify the custom prompt to emphasize step-by-step problem-solving and include a final verification step. Add a loop to generate multiple solutions and use the ScEnsemble operator to select the best one. Implement a final review step using the Programmer operator to catch potential calculation errors.",
+                "score": 0.8800000000000001
+            },
+            "14": {
+                "modification": "Modify the custom prompt to include a step for unit conversion and emphasize the importance of providing the final answer as a single numerical value. Add a verification step using the Programmer operator to double-check the final answer before returning it.",
+                "score": 0.8699999999999999
+            },
+            "18": {
+                "modification": "Modify the custom prompt to include explicit instructions for unit conversion and calculation steps. Add a verification step using the Programmer operator to double-check the final answer, focusing on unit conversions and complex calculations.",
+                "score": 0.8880000000000001
+            },
+            "19": {
+                "modification": "Modify the custom prompt to include explicit instructions for unit conversion and calculation steps. Add a verification step using the Programmer operator to double-check the final answer, focusing on unit conversions and complex calculations. Implement a final review step using the ScEnsemble operator to select the best solution from multiple attempts.",
+                "score": 0.8539999999999999
+            },
+            "22": {
+                "modification": "Modify the custom prompt to include explicit instructions for unit conversion and time calculations. Add a verification step using the Programmer operator to double-check the final answer, focusing on time-based calculations and unit conversions. Implement a final review step using the Custom operator to ensure the answer is formatted correctly as a single numerical value.",
+                "score": 0.884
+            },
+            "24": {
+                "modification": "Modify the custom prompt to include explicit instructions for handling time-based calculations and unit conversions. Add a verification step using the Programmer operator to double-check the final answer, focusing on time-based calculations and unit conversions. Implement a final review step using the Custom operator to ensure the answer is formatted correctly as a single numerical value.",
+                "score": 0.86
+            },
+            "9": {
+                "modification": "Add a verification step using the Programmer operator to double-check the final answer before returning it. This will help catch potential errors in the calculation process.",
+                "score": 0.8800000000000001
+            }
+        }
+    },
+    "10": {
+        "score": 0.898,
+        "success": {
+            "13": {
+                "modification": "Add a verification step using the Programmer operator to double-check the final answer and potentially correct any errors. This will be implemented after the sc_ensemble step.",
+                "score": 0.906
+            }
+        },
+        "failure": {}
+    },
+    "13": {
+        "score": 0.906,
+        "success": {},
+        "failure": {
+            "15": {
+                "modification": "1. Add a verification step using the Programmer operator to double-check the final answer.\n2. Modify the MATH_SOLVE_PROMPT to emphasize the importance of reading the entire problem and considering all given information.\n3. Add a step to explicitly calculate the total cost, including any discounts mentioned in the problem.",
+                "score": 0.8800000000000001
+            },
+            "16": {
+                "modification": "Add a verification step using the Programmer operator to double-check the final answer, focusing on total cost calculation and considering all given information, including discounts and multiple time periods.",
+                "score": 0.874
+            },
+            "17": {
+                "modification": "Modify the MATH_SOLVE_PROMPT to emphasize the importance of considering all given information, including discounts and multiple time periods. Add a verification step using the Programmer operator to double-check the final answer, focusing on total cost calculation.",
+                "score": 0.8779999999999999
+            },
+            "20": {
+                "modification": "Modify the MATH_SOLVE_PROMPT to emphasize the importance of considering all given information, including multiple steps and potential calculations. Add a step to explicitly calculate the total cost, including any additional costs or percentages mentioned in the problem.",
+                "score": 0.8779999999999999
+            },
+            "21": {
+                "modification": "Modify the MATH_SOLVE_PROMPT to emphasize the importance of time calculations and total cost considerations. Add a verification step using the Programmer operator to double-check the final answer, focusing on time-based calculations and total cost calculations including discounts.",
+                "score": 0.874
+            },
+            "23": {
+                "modification": "Modify the MATH_SOLVE_PROMPT to emphasize the importance of considering all given information, including multiple items and discounts. Add a step to explicitly calculate the total cost, considering all items and applying any discounts mentioned in the problem.",
+                "score": 0.8140000000000001
+            }
+        }
+    },
+    "1": {
+        "score": 0.778,
+        "success": {
+            "2": {
+                "modification": "Add a ScEnsemble operator to improve the solution selection process by generating multiple solutions and choosing the most frequent one.",
+                "score": 0.826
+            }
+        },
+        "failure": {}
+    },
+    "2": {
+        "score": 0.826,
+        "success": {
+            "3": {
+                "modification": "Add a review step using the Programmer operator to verify and potentially correct the final solution.",
+                "score": 0.8720000000000001
+            }
+        },
+        "failure": {}
+    },
+    "3": {
+        "score": 0.8720000000000001,
+        "success": {
+            "8": {
+                "modification": "Modify the custom prompt to include explicit instructions for formatting the final answer as a single numerical value without units or additional text. This addresses the issue of incorrect answer formats seen in the logs.",
+                "score": 0.8880000000000001
+            }
+        },
+        "failure": {
+            "4": {
+                "modification": "Add a review step using the Programmer operator to double-check calculations and potentially correct errors in the final answer.",
+                "score": 0.868
+            },
+            "6": {
+                "modification": "Modify the custom prompt to include a step for formatting the final answer as a single numerical value without units or additional text. This addresses the issue of incorrect answer formats seen in the logs.",
+                "score": 0.868
+            }
+        }
+    },
+    "4": {
+        "score": 0.868,
+        "success": {},
+        "failure": {
+            "5": {
+                "modification": "Add a new Custom operator to perform a final check and correction of the solution, focusing on common errors like discount calculations and multiple item purchases.",
+                "score": 0.758
+            },
+            "7": {
+                "modification": "Modify the custom prompt to include explicit instructions for handling discounts and multiple item purchases, and add a final verification step using the Programmer operator.",
+                "score": 0.868
+            }
+        }
+    }
+}

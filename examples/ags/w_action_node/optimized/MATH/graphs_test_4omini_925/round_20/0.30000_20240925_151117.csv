@@ -1,0 +1,134 @@
+question,prediction,expected_output,score,cost
+Find the smallest positive integer that is greater than $1$ and relatively prime to the product of the first 20 positive integers.  Reminder: two numbers are relatively prime if their greatest common divisor is 1.,23,"Two numbers are relatively prime if they share no prime factors.  Therefore, the desired positive integer must not share any prime factors with the product of the first 20 positive integers.  So, every prime in the prime factorization of the desired positive integer is greater than 20, which means the smallest possible integer is $\boxed{23}$.",1,0.0039571499999999996
+"In the diagram, the three concentric circles have radii of $4,$ $6,$ and $7.$ Three regions are labeled $X,$ $Y,$ or $Z$ below. Of these three regions, what is the difference between the area of the region with the greatest area and the area of the region with the smallest area? Express your answer in exact form.
+
+[asy]
+import graph;
+filldraw(circle((0,0),7), lightgray, black+linewidth(1));
+filldraw(circle((0,0),6), gray, black+linewidth(1));
+filldraw(circle((0,0),4), white, black+linewidth(1));
+dot((0,0));
+label(""$X$"",(2,0));
+label(""$Y$"",(5,0));
+label(""$Z$"",(6.5,0));
+[/asy]",21.991148575128562,"The area of the inside circle (region $X$) is $\pi\cdot 4^2=16\pi.$
+
+Using a similar technique, the area of the middle ring (region $Y$) is $$\pi\cdot 6^2-\pi\cdot 4^2=36\pi-16\pi = 20\pi.$$ Also, the area of the outer ring (region $Z$) is $$\pi\cdot 7^2-\pi\cdot 6^2=49\pi - 36\pi = 13\pi.$$ Therefore, region $Y$ has the largest area and region $Z$ has the smallest area. The difference in their areas is $20\pi-13\pi = \boxed{7\pi}.$",0,0.0039571499999999996
+How many positive integers less than 103 have an odd number of positive divisors?,10,"The only positive integers that have an odd number of positive divisors are perfect squares, so the only positive integers less than 103 that have an odd number of positive divisors are $1, 4, 9, \ldots, 100$.  There are $\boxed{10}$ of these numbers.",1,0.0039571499999999996
+What is the value of $x$ if $-\frac23(x-5) = \frac32(x+1)$?,2.1999999999999997,"First we get rid of the fractions by multiplying both sides by 6.  This gives us  \[6\left(-\frac{2}{3}(x-5)\right) = 6\left(\frac32(x+1)\right),\] so  \[-4(x-5) = 9(x+1).\] Expanding both sides gives $-4x + 20 = 9x + 9$.  Adding $4x$ to both sides and subtracting 9 from both sides gives $11 = 13x$, so $x = \boxed{\frac{11}{13}}$.",0,0.0039571499999999996
+"The exam grades of a pre-algebra class were arranged in a stem and leaf plot as illustrated. What is the arithmetic mean of the median and the mode of the given data?
+
+\begin{tabular}{ c | c c c ccc c c c}
+4&1&&&&&&&&\\
+5&2&&&&&&&&\\
+6&7&8&8&&&&&&\\
+7&1&1&2&3&3&3&5&6&8\\
+8&0&4&4&6&6&6&6&8&\\
+9&1&3&5&5&7&&&&\\
+\end{tabular}",error,"Each digit to the right of the vertical bar represents (the units digit of) one exam grade. Counting the digits, we see that there are $27$ exam grades in all. Thus, the $14^{\rm th}$ grade in increasing order is the median (since there are $13$ grades smaller than it and $13$ grades larger than it). The chart makes it easy to read off the grades in increasing order -- we just read across the rows, from top to bottom. The $14^{\rm th}$ entry is $78,$ so that's the median grade.
+
+The mode is the most frequently occurring grade. In this case, it's $86,$ which appears four times in the chart.
+
+The arithmetic mean of the median and mode of the data is $\dfrac{1}{2}(78+86),$ or $\boxed{82}.$",0,0.0048115499999999995
+"Side $CD$ of rectangle $ABCD$ measures 12 meters, as shown. Each of the three triangles with a side along segment $CD$ is an equilateral triangle. What is the total area of the shaded regions? Express your answer in simplest radical form. [asy]
+import olympiad; size(150); defaultpen(linewidth(0.8));
+fill((2,2*sqrt(3))--(4,0)--(6,2*sqrt(3))--cycle^^(6,2*sqrt(3))--(8,0)--(10,2*sqrt(3))--cycle,gray(0.7));
+draw((0,0)--(12,0)--(12,2*sqrt(3))--(0,2*sqrt(3))--cycle);
+draw((0,0)--(2,2*sqrt(3))--(4,0)--(6,2*sqrt(3))--(8,0)--(10,2*sqrt(3))--(12,0));
+label(""$A$"",(0,2*sqrt(3)),NW); label(""$B$"",(12,2*sqrt(3)),NE); label(""$C$"",(12,0),SE); label(""$D$"",(0,0),SW);
+draw(""12 meters"", (0,2*sqrt(3) + 1)--(12,2*sqrt(3) + 1),N);
+[/asy]",13.856406460551018,"The two right triangles on the ends of the rectangle can be pushed together to form an equilateral triangle that is identical to each of the other equilateral triangles in the diagram.  So, $AB$ is equal to the total length of 3 side lengths of an equilateral triangle.  Therefore, each side of each equilateral triangle has length $12/3 = 4$.  Therefore, our problem is to find the total area of two equilateral triangles with side length 4.
+
+Drawing an altitude of an equilateral triangle splits it into two 30-60-90 right triangles: [asy]
+unitsize(0.6inch);
+pair A, B, C, F;
+A = (0,1);
+B = rotate(120)*A;
+C = rotate(120)*B;
+F = foot(A,B,C);
+draw(A--B--C--A,linewidth(1));
+draw(A--F);
+[/asy]
+
+An altitude of an equilateral triangle is therefore $\sqrt{3}$ times the length of half the side length of the triangle.  Therefore, an equilateral triangle with side length 4 has altitude length $\sqrt{3}(4/2) = 2\sqrt{3}$, and area $(2\sqrt{3})(4)/2 = 4\sqrt{3}$ square units.  The shaded regions consist of two of these equilateral triangles, so their total area is $2(4\sqrt{3}) = \boxed{8\sqrt{3}}$.",0,0.0039571499999999996
+"$P$ is the midpoint of $\overline{BD}$. $AP = BP = 4$, $\overline{AP} \perp \overline{BD}$, $\overline{BD} \perp \overline{DC}$, $\overline{AB} \perp \overline{BC}$. In simple radical form, what is the perimeter of pentagon $ABCDP$? [asy]
+size(150); defaultpen(linewidth(0.8)); import geometry;
+pair A = origin, B = (4,4), C = (12,-4), D = (4,-4), P = (4,0);
+draw(A--P--B--cycle);
+draw(B--D--C--cycle);
+draw(rightanglemark(A,B,C,15));
+draw(rightanglemark(A,P,B,15));
+draw(rightanglemark(B,D,C,15));
+label(""$A$"",A,SW); label(""$B$"",B,N); label(""$C$"",C,SE); label(""$D$"",D,SW); label(""$P$"",P,E); label(""$4$"",A--P,S); label(""$4$"",B--P,E);
+
+[/asy]",36.90709104965744,"Since $AP = BP$, right triangle $APB$ is a 45-45-90 triangle.  Therefore, $AB = AP\sqrt{2} = 4\sqrt{2}$ and $\angle ABP = 45^\circ$, so $\angle DBC = 90^\circ - 45^\circ = 45^\circ$, which means $DBC$ is a 45-45-90 triangle as well.  Since $P$ is the midpoint of $\overline{BD}$, we have $BD = 2BP = 8$ and $PD = BP = 4$.  Since $DBC$ is a 45-45-90 triangle, we have $CD = BD = 8$ and $BC =CD\sqrt{2} = 8\sqrt{2}$.  Finally, the perimeter of $ABCDP$ is \[AB+BC+CD+DP + AP = 4\sqrt{2}+8\sqrt{2}+8+4+4 = \boxed{16+12\sqrt{2}}.\]",0,0.0039571499999999996
+How many integer divisors does $7$ have?,2,"The factors of $7$ are $-7, -1, 1,$ and $7$, for a total of $\boxed{4}$ factors.",0,0.0039571499999999996
+"In quadrilateral $ABCD$, angle $BAD$ and angle $CDA$ are trisected as shown. What is the degree measure of angle $AFD$?
+
+[asy]
+size(150);
+pair A , B, C, D; A = (0,0); B = (2, 4); C = (7,4); D = (7, -2);
+draw( (0,0)--(2,4) -- (7,4) -- (7, -2)-- cycle);
+label(""$A$"", A, SW);
+label(""$B$"", B, NW);
+label(""$C$"", C, NE);
+label(""$D$"", D, SE);
+pair E, F;
+E = (4.5-.2,1-.2); F = (5, 3);
+draw(A--E--D); draw(A--F--D);
+label(""$E$"", E, N); label(""$F$"", F, NW);
+dot(A);dot(B);dot(C);dot(D);dot(E);dot(F);
+label(""$x$"", (1, 1.5), S); label(""$x$"", (2, 1), S+W); label(""$x$"", (2, -1), N+N+N+W);
+label(""$y$"", (5.5+.3, .5-.3), S); label(""$y$"", (6.5+.3, 0)); label(""$y$"", (5+.5, -1.5+.3));
+label(""$110^{\circ}$"",(2.5,3.5)); label(""$100^{\circ}$"",(6.5-.2,3.5));
+[/asy]",130.0,"Triangle $AFD$ must have a total angle measure of $180^\circ$. We know that the other two angles have measures of $2x$ and $2y$, so angle $AFD$ must have a measure of $180-2x-2y=180-(2x+2y)$ degrees. We now look at quadrilateral $ABCD$, whose interior angle measures must sum to $360^\circ$. Therefore, we have that $110^\circ +100^\circ +3y+3x=360^\circ$, so $3x+3y=150^\circ$. We want to find $2x+2y$, so we multiply both sides of the equation by $2/3$ to get that $2x+2y=100^\circ$. We can now substitute in $100^\circ$ for $2x+2y$ to find that the measure of angle $AFD$ is $180-(2x+2y)=180-100=\boxed{80}$ degrees.",0,0.0039571499999999996
+"Each triangle is a 30-60-90 triangle, and the hypotenuse of one triangle is the longer leg of an adjacent triangle. The hypotenuse of the larger triangle is 16 centimeters. What is the number of centimeters in the length of the longer leg of the smaller triangle?
+
+[asy]size(150); pair O; for(int i = 2; i < 5; ++i){
+draw(O--((2/sqrt(3))^i)*dir(30*i));
+}
+for(int g = 2; g < 4; ++g){
+draw( ((2/sqrt(3))^g)*dir(30*g)-- ((2/sqrt(3))^(g+1))*dir(30*g+30));
+}
+label(""16 cm"", O--(16/9)*dir(120), W);
+//label(""$30^{\circ}$"",.4*dir(0),dir(90));
+//label(""$30^{\circ}$"",.4*dir(25),dir(115));
+label(""$30^{\circ}$"",.4*dir(50),dir(140));
+label(""$30^{\circ}$"",.4*dir(85),dir(175));
+real t = (2/(sqrt(3)));
+//draw(rightanglemark((1,.1),(1,0),(.9,0),s=3));
+draw(rightanglemark(rotate(30)*(0,t**4),rotate(0)*(0,t**3),O,s=3));
+draw(rightanglemark(rotate(0)*(0,t**3),rotate(-30)*(0,t**2),O,s=3));
+//draw(rightanglemark(rotate(-30)*(0,t**2),rotate(-60)*(0,t**1),O,s=3));
+[/asy]",11.999999999999998,"First, we label the diagram as shown below:
+
+[asy] size(170);
+pair O; for(int i = 2; i < 5; ++i){
+draw(O--((2/sqrt(3))^i)*dir(30*i));
+}
+for(int g = 2; g < 4; ++g){
+draw( ((2/sqrt(3))^g)*dir(30*g)-- ((2/sqrt(3))^(g+1))*dir(30*g+30));
+}
+label(""16 cm"", O--(16/9)*dir(120), W);
+//label(""$30^{\circ}$"",.4*dir(0),dir(90));
+//label(""$30^{\circ}$"",.4*dir(25),dir(115));
+label(""$30^{\circ}$"",.4*dir(50),dir(140));
+label(""$30^{\circ}$"",.4*dir(85),dir(175));
+real t = (2/(sqrt(3)));
+label(""$B$"",(0,t**3),N);
+label(""$A$"",rotate(30)*(0,t**4),NW);
+label(""$C$"",rotate(-30)*(0,t*t),NE);
+//label(""$D$"",rotate(-60)*(0,t),NE);
+//label(""$E$"",(1,0),E);
+label(""$O$"",O,S);
+//draw(rightanglemark((1,.1),(1,0),(.9,0),s=3));
+draw(rightanglemark(rotate(30)*(0,t**4),rotate(0)*(0,t**3),O,s=3));
+draw(rightanglemark(rotate(0)*(0,t**3),rotate(-30)*(0,t**2),O,s=3));
+//draw(rightanglemark(rotate(-30)*(0,t**2),rotate(-60)*(0,t**1),O,s=3));
+[/asy]
+
+Both right triangles are 30-60-90 triangles. Therefore, the length of the shorter leg in each triangle is half the hypotenuse, and the length of the longer leg is $\sqrt{3}$ times the length of the shorter leg.  We apply these facts to each triangle, starting with $\triangle AOB$ and working clockwise.
+
+From $\triangle AOB$, we find $AB = AO/2 = 8$ and $BO = AB\sqrt{3}=8\sqrt{3}$.
+
+From $\triangle BOC$, we find $BC = BO/2 =4\sqrt{3}$ and $CO = BC\sqrt{3} =4\sqrt{3}\cdot\sqrt{3} = \boxed{12}$.",1,0.0039571499999999996

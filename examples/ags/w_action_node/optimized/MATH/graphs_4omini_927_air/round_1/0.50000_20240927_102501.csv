@@ -1,0 +1,575 @@
+question,prediction,expected_output,score,cost
+"A particular convex pentagon has two congruent, acute angles. The measure of each of the other interior angles is equal to the sum of the measures of the two acute angles. What is the common measure of the large angles, in degrees?","Let the measure of each of the two congruent acute angles be denoted as \( x \). Since there are two such angles, their total contribution to the sum of the interior angles of the pentagon is \( 2x \).
+
+According to the problem, the measure of each of the other three interior angles is equal to the sum of the measures of the two acute angles. Therefore, each of the three remaining angles measures \( 2x \).
+
+Now, we can express the total sum of the interior angles of the pentagon. The formula for the sum of the interior angles of a polygon with \( n \) sides is given by:
+
+\[
+\text{Sum of interior angles} = (n - 2) \times 180^\circ
+\]
+
+For a pentagon (\( n = 5 \)):
+
+\[
+\text{Sum of interior angles} = (5 - 2) \times 180^\circ = 3 \times 180^\circ = 540^\circ
+\]
+
+Now, we can set up the equation for the sum of the angles in our pentagon:
+
+\[
+2x + 3(2x) = 540^\circ
+\]
+
+This simplifies to:
+
+\[
+2x + 6x = 540^\circ
+\]
+
+Combining like terms gives:
+
+\[
+8x = 540^\circ
+\]
+
+To find \( x \), we divide both sides by 8:
+
+\[
+x = \frac{540^\circ}{8} = 67.5^\circ
+\]
+
+Now, we can find the measure of the larger angles, which are \( 2x \):
+
+\[
+2x = 2 \times 67.5^\circ = 135^\circ
+\]
+
+Thus, the common measure of the large angles in the pentagon is:
+
+\[
+\boxed{135}
+\]","If $x$ is the measure in degrees of each of the acute angles, then each of the larger angles measures $2x$ degrees.  Since the number of degrees in the sum of the interior angles of an $n$-gon is $180(n-2)$, we have \[
+x+x+2x+2x+2x=540 \implies 8x = 540 \implies x=135/2.
+\] The large angles each measure $2x=\boxed{135}$ degrees.",1,0.00036449999999999997
+"Below is a magic square, meaning that the sum of the numbers in each row, in each column, and in each of the $2$ main diagonals are equal. What is the value of $n$?
+
+[asy]size(125);
+for(int i = 0; i<4; ++i)
+{
+
+draw((0,i)--(3,i),linewidth(1));
+}
+
+for(int j = 0; j<4; ++j)
+{
+
+draw((j,0)--(j,3),linewidth(1));
+}
+
+label(""$n-3$"",(.5,.5));
+label(""3"",(.5,1.5));
+label(""$n+1$"",(.5,2.5));
+
+label(""$n+2$"",(1.5,.5));
+label(""$2n-9$"",(1.5,1.5));
+label(""$1$"",(1.5,2.5));
+
+label(""$2$"",(2.5,.5));
+label(""$n$"",(2.5,1.5));
+label(""$n-1$"",(2.5,2.5));
+[/asy]","To solve for \( n \) in the given magic square, we first denote the entries of the square as follows:
+
+\[
+\begin{bmatrix}
+n-3 & n+2 & 2 \\
+3 & 2n-9 & n \\
+n+1 & 1 & n-1
+\end{bmatrix}
+\]
+
+In a magic square, the sum of the numbers in each row, each column, and each diagonal must be equal. We will calculate the sums of the rows and set them equal to each other.
+
+**Row 1:**
+\[
+(n-3) + (n+2) + 2 = n - 3 + n + 2 + 2 = 2n + 1
+\]
+
+**Row 2:**
+\[
+3 + (2n-9) + n = 3 + 2n - 9 + n = 3n - 6
+\]
+
+**Row 3:**
+\[
+(n+1) + 1 + (n-1) = n + 1 + 1 + n - 1 = 2n + 1
+\]
+
+Setting the sums of Row 1 and Row 2 equal:
+\[
+2n + 1 = 3n - 6
+\]
+Rearranging gives:
+\[
+1 + 6 = 3n - 2n \implies 7 = n \implies n = 7
+\]
+
+Next, we will verify if this value of \( n \) satisfies the sums of the rows, columns, and diagonals.
+
+Substituting \( n = 7 \) into the square:
+\[
+\begin{bmatrix}
+7-3 & 7+2 & 2 \\
+3 & 2(7)-9 & 7 \\
+7+1 & 1 & 7-1
+\end{bmatrix}
+=
+\begin{bmatrix}
+4 & 9 & 2 \\
+3 & 5 & 7 \\
+8 & 1 & 6
+\end{bmatrix}
+\]
+
+Now we calculate the sums:
+
+**Row Sums:**
+- Row 1: \( 4 + 9 + 2 = 15 \)
+- Row 2: \( 3 + 5 + 7 = 15 \)
+- Row 3: \( 8 + 1 + 6 = 15 \)
+
+**Column Sums:**
+- Column 1: \( 4 + 3 + 8 = 15 \)
+- Column 2: \( 9 + 5 + 1 = 15 \)
+- Column 3: \( 2 + 7 + 6 = 15 \)
+
+**Diagonal Sums:**
+- Main diagonal: \( 4 + 5 + 6 = 15 \)
+- Other diagonal: \( 2 + 5 + 8 = 15 \)
+
+Since all rows, columns, and diagonals sum to 15, the value of \( n \) is confirmed to be correct.
+
+Thus, the value of \( n \) is:
+\[
+\boxed{7}
+\]","First, we can evaluate the sum across the first row, which gives $(n+1)+1+(n-1)=2n+1$.  Evaluate the sum of the entries across the second row, $3+(2n-9)+n=3n-6$. Now, since we have a magic square, these two sums are equal.  So $2n+1=3n-6$. Isolating $n$, we obtain $n = \boxed{7}$.
+
+The square will look like: [asy] size(2cm);
+draw((0,0)--(3,0)--(3,3)--(0,3)--cycle,linewidth(1));
+draw((1,0)--(1,3),linewidth(1));
+draw((2,0)--(2,3),linewidth(1));
+draw((0,1)--(3,1),linewidth(1));
+draw((0,2)--(3,2),linewidth(1));
+label(""8"",(.5,2.5));
+label(""1"",(1.5,2.5));
+label(""6"",(2.5,2.5));
+label(""3"",(.5,1.5));
+label(""5"",(1.5,1.5));
+label(""7"",(2.5,1.5));
+label(""4"",(.5,.5));
+label(""9"",(1.5,.5));
+label(""2"",(2.5,.5));
+[/asy]",1,0.0025468499999999994
+"Each good worker can paint my new house alone in 12 hours.  Each bad worker can paint my house alone in 36 hours.  I need my house painted in 3 hours.  If I can only find 3 good workers, how many bad workers must I also find in order to have my house painted on time?","To determine how many bad workers you need, we first need to calculate the work rates of both good and bad workers.
+
+1. **Work Rate of Good Workers:**
+   Each good worker can paint the house in 12 hours. Therefore, the work rate of one good worker is:
+   \[
+   \text{Work rate of one good worker} = \frac{1 \text{ house}}{12 \text{ hours}} = \frac{1}{12} \text{ houses per hour}
+   \]
+   If you have 3 good workers, their combined work rate is:
+   \[
+   \text{Combined work rate of 3 good workers} = 3 \times \frac{1}{12} = \frac{3}{12} = \frac{1}{4} \text{ houses per hour}
+   \]
+
+2. **Work Rate of Bad Workers:**
+   Each bad worker can paint the house in 36 hours. Therefore, the work rate of one bad worker is:
+   \[
+   \text{Work rate of one bad worker} = \frac{1 \text{ house}}{36 \text{ hours}} = \frac{1}{36} \text{ houses per hour}
+   \]
+
+3. **Total Work Required:**
+   You need to paint 1 house in 3 hours. Therefore, the required work rate to complete the house in that time is:
+   \[
+   \text{Required work rate} = \frac{1 \text{ house}}{3 \text{ hours}} = \frac{1}{3} \text{ houses per hour}
+   \]
+
+4. **Setting Up the Equation:**
+   Let \( x \) be the number of bad workers. The combined work rate of the bad workers is:
+   \[
+   \text{Combined work rate of } x \text{ bad workers} = x \times \frac{1}{36} = \frac{x}{36} \text{ houses per hour}
+   \]
+   The total work rate from both good and bad workers must equal the required work rate:
+   \[
+   \frac{1}{4} + \frac{x}{36} = \frac{1}{3}
+   \]
+
+5. **Solving the Equation:**
+   To solve for \( x \), first find a common denominator for the fractions. The least common multiple of 4, 36, and 3 is 36. Rewrite the equation:
+   \[
+   \frac{1}{4} = \frac{9}{36}, \quad \frac{1}{3} = \frac{12}{36}
+   \]
+   Substitute these values into the equation:
+   \[
+   \frac{9}{36} + \frac{x}{36} = \frac{12}{36}
+   \]
+   Multiply through by 36 to eliminate the denominators:
+   \[
+   9 + x = 12
+   \]
+   Solving for \( x \):
+   \[
+   x = 12 - 9 = 3
+   \]
+
+Thus, you need to find **3 bad workers** to ensure that your house is painted in time.","Each good worker can paint $1/12$ of my house in an hour, so three of them together can  paint $3/12 =1/4$ of my house in an hour.  So, in 3 hours, the three good workers will  paint $3(1/4)=3/4$ of my house.  The bad workers have to paint the other $1/4$ of the house.  Each bad worker paints $1/36$ of the house in an hour, so each bad worker can paint $3(1/36)=1/12$  of the house in three hours.  Since the bad workers together need to paint $1/4$ of the house, and  each bad worker can paint $1/12$ of the house in three hours, I need $(1/4)/(1/12) = \boxed{3}$ bad workers.",0,0.002958599999999999
+"Let A = 1, B = 2, C = 3, ..., Z = 26. The product value of a word is equal to the product of the values of its letters. For example, CAB has a product value of 3 $\times$ 1 $\times$ 2 = 6. What common English word has a product value of 715? It does not have to be of length 3.","To find a common English word with a product value of 715, we first need to factor 715 into its prime factors. 
+
+The prime factorization of 715 is:
+- 715 = 5 × 143
+- 143 = 11 × 13
+
+Thus, the complete factorization is:
+- 715 = 5 × 11 × 13
+
+Next, we can map these factors to their corresponding letters:
+- 5 corresponds to E
+- 11 corresponds to K
+- 13 corresponds to M
+
+Now, we can form the word using these letters. The letters E, K, and M can be arranged to form the word ""MEK"" or ""KEM"", but these are not common English words.
+
+However, if we consider the letters in different combinations, we can also check for other combinations of letters that might yield the same product value. 
+
+After checking various combinations, we find that the word ""ME"" (M = 13, E = 5) does not yield the product of 715, but if we include the letter ""A"" (A = 1), we can check:
+
+- M (13) × E (5) × A (1) = 65, which is not 715.
+
+Continuing this process, we can also check for other combinations of letters that might yield the product of 715.
+
+After checking various combinations, we find that the word ""JUMP"" (J = 10, U = 21, M = 13, P = 16) does not yield the product of 715, but if we include the letter ""A"" (A = 1), we can check:
+
+- J (10) × U (21) × M (13) × P (16) = 715.
+
+Thus, the common English word with a product value of 715 is ""JUMP"".","Prime factorize 715 to find $715=5\cdot11\cdot13$.  The only ways to write 715 as a product of positive integers greater than 1 are the distinct ways of grouping the prime factors: \begin{align*}
+(5)\cdot (11) \cdot (13) &= 5\cdot 11\cdot 13 \\
+(5\cdot11)\cdot 13&=55\cdot 13 \\
+5\cdot(11\cdot 13) &= 5\cdot 143 \\
+(5\cdot 13) \cdot 11 &= 65 \cdot 11\text{, and}\\
+(5\cdot11\cdot13)&=715,
+\end{align*} where the last one is a product with only one factor.  Since the letters cannot represent numbers greater than 26, only $5\cdot11\cdot 13$ could come from calculating the product value of a word. The 5th, 11th, and 13th letters of the alphabet are E, K, and M.  Since E, K, and M do not form a word, we introduce the letter A (which doesn't affect the product since its value is 1) to form the word $\boxed{\text{MAKE}}$.",0,0.0008519999999999999
+Estimate $14.7923412^2$ to the nearest hundred.,"To estimate \( 14.7923412^2 \) to the nearest hundred, we can first round \( 14.7923412 \) to a simpler number. 
+
+Rounding \( 14.7923412 \) to the nearest whole number gives us \( 15 \).
+
+Next, we calculate \( 15^2 \):
+
+\[
+15^2 = 225
+\]
+
+Now, we need to check if this estimate is reasonable by considering the actual value of \( 14.7923412^2 \). 
+
+Calculating \( 14.7923412^2 \) directly:
+
+\[
+14.7923412^2 \approx 219.999
+\]
+
+This value is indeed closer to \( 225 \) than to \( 200 \).
+
+Thus, the estimate of \( 14.7923412^2 \) to the nearest hundred is:
+
+\[
+\boxed{200}
+\]","We know $14^2=196$ and $15^2=225.$ So both $14^2$ and $15^2,$ estimated to the nearest hundred, are 200. Therefore, the square of any number between 14 and 15 will also be $\boxed{200},$ when rounded to the nearest hundred.",1,0.00012059999999999999
+"A square piece of paper is folded once so that one pair of opposite corners coincide. When the paper is unfolded, two congruent triangles have been formed. Given that the area of the original square is $49$ square inches, what is the number of inches in the perimeter of one of these triangles? Express your answer in simplest radical form.","Let the side length of the square be \( s \). Given that the area of the square is \( 49 \) square inches, we can find \( s \) as follows:
+
+\[
+s^2 = 49 \implies s = 7 \text{ inches}
+\]
+
+When the square is folded such that one pair of opposite corners coincide, we can visualize the square as having corners at \( (0, 0) \), \( (7, 0) \), \( (7, 7) \), and \( (0, 7) \). Let's say we fold the square so that the corner at \( (0, 0) \) coincides with the corner at \( (7, 7) \).
+
+The midpoint of the line segment connecting these two corners is:
+
+\[
+\left( \frac{0 + 7}{2}, \frac{0 + 7}{2} \right) = \left( \frac{7}{2}, \frac{7}{2} \right)
+\]
+
+When the square is folded, the line segment connecting \( (0, 0) \) and \( (7, 7) \) becomes the crease of the fold. The crease is the line \( y = x \).
+
+The vertices of the square that are not involved in the fold are \( (7, 0) \) and \( (0, 7) \). The triangles formed by the fold are \( (0, 0) \), \( (7, 0) \), and the midpoint \( \left( \frac{7}{2}, \frac{7}{2} \right) \) and \( (0, 7) \), \( (7, 7) \), and the same midpoint.
+
+Now, we will calculate the lengths of the sides of one of the triangles, say triangle \( A(0, 0) \), \( B(7, 0) \), and \( M\left( \frac{7}{2}, \frac{7}{2} \right) \).
+
+1. **Length of side \( AB \)**:
+   \[
+   AB = 7 - 0 = 7 \text{ inches}
+   \]
+
+2. **Length of side \( AM \)**:
+   \[
+   AM = \sqrt{\left( \frac{7}{2} - 0 \right)^2 + \left( \frac{7}{2} - 0 \right)^2} = \sqrt{\left( \frac{7}{2} \right)^2 + \left( \frac{7}{2} \right)^2} = \sqrt{2 \left( \frac{7}{2} \right)^2} = \sqrt{2 \cdot \frac{49}{4}} = \sqrt{\frac{98}{4}} = \frac{\sqrt{98}}{2} = \frac{7\sqrt{2}}{2} \text{ inches}
+   \]
+
+3. **Length of side \( BM \)**:
+   \[
+   BM = \sqrt{\left( \frac{7}{2} - 7 \right)^2 + \left( \frac{7}{2} - 0 \right)^2} = \sqrt{\left( \frac{7}{2} - \frac{14}{2} \right)^2 + \left( \frac{7}{2} \right)^2} = \sqrt{\left( -\frac{7}{2} \right)^2 + \left( \frac{7}{2} \right)^2} = \sqrt{\frac{49}{4} + \frac{49}{4}} = \sqrt{\frac{98}{4}} = \frac{7\sqrt{2}}{2} \text{ inches}
+   \]
+
+Now, we can find the perimeter \( P \) of triangle \( ABM \):
+
+\[
+P = AB + AM + BM = 7 + \frac{7\sqrt{2}}{2} + \frac{7\sqrt{2}}{2} = 7 + 7\sqrt{2}
+\]
+
+Thus, the perimeter of one of the triangles is:
+
+\[
+\boxed{7 + 7\sqrt{2}} \text{ inches}
+\]","Since the area of the square is 49 square inches, the side length of the square is $\sqrt{49} = 7$ square inches.  Each triangle formed by the fold is a 45-45-90 triangle whose legs are sides of the square and whose hypotenuse is the fold.  So, two sides of the triangle have length 7 and the hypotenuse has length $7\sqrt{2}$.  Therefore, the perimeter of the triangle is $7+7+7\sqrt{2} = \boxed{14+7\sqrt{2}}$.",0,0.0021125999999999996
+"At the national curling championships, there are three teams of four players each. After the championships are over, the very courteous participants each shake hands three times with every member of the opposing teams, and once with each member of their own team.
+
+How many handshakes are there in total?","To find the total number of handshakes at the national curling championships, we first need to determine the number of players and how handshakes occur.
+
+There are three teams, each consisting of four players. Therefore, the total number of players is:
+
+\[
+3 \text{ teams} \times 4 \text{ players/team} = 12 \text{ players}
+\]
+
+Next, we analyze the handshakes. Each player shakes hands with every member of the opposing teams three times and once with each member of their own team.
+
+### Handshakes with Own Team
+Each player shakes hands once with each of their own team members. Since there are 4 players on a team, each player shakes hands with the other 3 members of their team:
+
+\[
+\text{Handshakes with own team} = 3 \text{ handshakes/player}
+\]
+
+Since there are 4 players on each team, the total handshakes within one team is:
+
+\[
+4 \text{ players} \times 3 \text{ handshakes/player} = 12 \text{ handshakes}
+\]
+
+However, since each handshake is counted for both players involved, we need to divide this by 2 to avoid double counting:
+
+\[
+\text{Total handshakes within one team} = \frac{12}{2} = 6
+\]
+
+Since there are 3 teams, the total handshakes within all teams is:
+
+\[
+3 \text{ teams} \times 6 \text{ handshakes/team} = 18 \text{ handshakes}
+\]
+
+### Handshakes with Opposing Teams
+Each player shakes hands with every member of the opposing teams three times. Each team has 4 players, and there are 2 opposing teams. Therefore, each player shakes hands with:
+
+\[
+4 \text{ players/team} \times 2 \text{ teams} = 8 \text{ players}
+\]
+
+Since each handshake occurs three times, the total handshakes for one player with opposing teams is:
+
+\[
+8 \text{ players} \times 3 \text{ handshakes/player} = 24 \text{ handshakes}
+\]
+
+Now, since there are 12 players in total, the total handshakes with opposing teams is:
+
+\[
+12 \text{ players} \times 24 \text{ handshakes/player} = 288 \text{ handshakes}
+\]
+
+### Total Handshakes
+Finally, we add the handshakes within teams and the handshakes with opposing teams:
+
+\[
+\text{Total handshakes} = 18 \text{ (within teams)} + 288 \text{ (with opposing teams)} = 306
+\]
+
+Thus, the total number of handshakes at the national curling championships is:
+
+\[
+\boxed{306}
+\]","For each participant, there are 8 opponents to shake hands with, and 3 team members to shake hands with, giving $3\times8+3=27$ handshakes for each individual participant.
+
+There are 12 players in total, which offers $12\times27=324$ handshakes, but since a handshake takes place between two people, we've counted every handshake twice.
+
+The final answer is $\dfrac{324}{2}=\boxed{162}$ handshakes.",0,0.0015518999999999997
+"The expression $2\cdot 3 \cdot 4\cdot 5+1$ is equal to 121, since multiplication is carried out before addition. However, we can obtain values other than 121 for this expression if we are allowed to change it by inserting parentheses. For example, we can obtain 144 by writing \[
+(2\cdot (3\cdot 4)) \cdot (5+1) = 144.
+\]In total, how many values can be obtained from the expression $2\cdot 3\cdot 4 \cdot 5 + 1$ by inserting parentheses? (Note that rearranging terms is not allowed, only inserting parentheses).","To find the different values that can be obtained from the expression \(2 \cdot 3 \cdot 4 \cdot 5 + 1\) by inserting parentheses, we first need to analyze the multiplication part of the expression, which is \(2 \cdot 3 \cdot 4 \cdot 5\).
+
+The multiplication can be grouped in various ways by inserting parentheses. The possible groupings can be represented as binary trees, where each internal node represents a multiplication operation. The expression can be grouped in the following ways:
+
+1. **Single grouping of all four numbers**:
+   \[
+   (2 \cdot 3 \cdot 4 \cdot 5) + 1
+   \]
+
+2. **Group two pairs**:
+   \[
+   (2 \cdot 3) \cdot (4 \cdot 5) + 1
+   \]
+   \[
+   (2 \cdot 4) \cdot (3 \cdot 5) + 1
+   \]
+   \[
+   (2 \cdot 5) \cdot (3 \cdot 4) + 1
+   \]
+
+3. **Group one number with a pair**:
+   \[
+   2 \cdot (3 \cdot 4) \cdot 5 + 1
+   \]
+   \[
+   2 \cdot (3 \cdot 5) \cdot 4 + 1
+   \]
+   \[
+   2 \cdot (4 \cdot 5) \cdot 3 + 1
+   \]
+   \[
+   (2 \cdot 3) \cdot 4 \cdot 5 + 1
+   \]
+   \[
+   2 \cdot (4 \cdot 5) \cdot 3 + 1
+   \]
+   \[
+   (2 \cdot 5) \cdot 3 \cdot 4 + 1
+   \]
+
+Now, we will calculate the values for each grouping:
+
+1. **All together**:
+   \[
+   2 \cdot 3 \cdot 4 \cdot 5 = 120 \quad \Rightarrow \quad 120 + 1 = 121
+   \]
+
+2. **Two pairs**:
+   - \( (2 \cdot 3) \cdot (4 \cdot 5) = 6 \cdot 20 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( (2 \cdot 4) \cdot (3 \cdot 5) = 8 \cdot 15 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( (2 \cdot 5) \cdot (3 \cdot 4) = 10 \cdot 12 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+
+3. **One number with a pair**:
+   - \( 2 \cdot (3 \cdot 4) \cdot 5 = 2 \cdot 12 \cdot 5 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( 2 \cdot (3 \cdot 5) \cdot 4 = 2 \cdot 15 \cdot 4 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( 2 \cdot (4 \cdot 5) \cdot 3 = 2 \cdot 20 \cdot 3 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( (2 \cdot 3) \cdot 4 \cdot 5 = 6 \cdot 4 \cdot 5 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( 2 \cdot (4 \cdot 5) \cdot 3 = 2 \cdot 20 \cdot 3 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+   - \( (2 \cdot 5) \cdot 3 \cdot 4 = 10 \cdot 3 \cdot 4 = 120 \quad \Rightarrow \quad 120 + 1 = 121 \)
+
+After evaluating all possible groupings, we find that they all yield the same result of \(121\).
+
+Thus, the only value that can be obtained from the expression \(2 \cdot 3 \cdot 4 \cdot 5 + 1\) by inserting parentheses is:
+
+\[
+\boxed{1}
+\]","By the associative property of multiplication, it doesn't help to insert parentheses that specify the order of multiplication. For example, the associative property tells us that $(2\cdot(3\cdot 4))\cdot (5+1)$ is the same as $2\cdot3\cdot4\cdot (5+1)$. So the only way to get different values is to group +1 with a different number of factors. We get \begin{align*}
+2\cdot 3 \cdot 4 \cdot (5 + 1) &= 144, \\
+2\cdot 3 \cdot (4 \cdot 5 + 1) &= 126,\\
+2\cdot (3 \cdot 4 \cdot 5 + 1) &= 122, \\
+(2\cdot 3 \cdot 4 \cdot 5) + 1 \hphantom{)} &= 121.
+\end{align*}In total there are $\boxed{4}$ possible values for the expression.",0,0.0036178499999999993
+"Tom got a Mr. Potato Head for his birthday. It came with 3 hairstyles, 2 sets of eyebrows, 1 pair of googly eyes, 2 sets of ears, and 2 sets of lips, a pair of regular shoes, and a bonus pair of clown shoes. If a complete Mr. Potato Head personality includes eyebrows, eyes, ears, lips, shoes and optionally hair, how many different wacky personalities can Tom come up with? Note that Mr. Potato Head can be bald.
+
+Note: You cannot ""mix and match"".  For example, you cannot take the left eyebrow from one pair and the right eyebrow from the other pair.","To determine the total number of different wacky personalities Tom can create with his Mr. Potato Head, we need to consider each component and how many choices he has for each.
+
+1. **Hairstyles**: Tom has 3 options (including the option to be bald, which counts as a hairstyle). Therefore, he has:
+   \[
+   3 \text{ hairstyles} + 1 \text{ bald option} = 4 \text{ total options for hair}
+   \]
+
+2. **Eyebrows**: There are 2 sets of eyebrows, so he has:
+   \[
+   2 \text{ options for eyebrows}
+   \]
+
+3. **Eyes**: There is 1 pair of googly eyes, so he has:
+   \[
+   1 \text{ option for eyes}
+   \]
+
+4. **Ears**: There are 2 sets of ears, so he has:
+   \[
+   2 \text{ options for ears}
+   \]
+
+5. **Lips**: There are 2 sets of lips, so he has:
+   \[
+   2 \text{ options for lips}
+   \]
+
+6. **Shoes**: Tom has a pair of regular shoes and a bonus pair of clown shoes, giving him:
+   \[
+   2 \text{ options for shoes}
+   \]
+
+Now, to find the total number of different personalities, we multiply the number of options for each component together:
+
+\[
+\text{Total personalities} = (\text{options for hair}) \times (\text{options for eyebrows}) \times (\text{options for eyes}) \times (\text{options for ears}) \times (\text{options for lips}) \times (\text{options for shoes})
+\]
+
+Substituting in the values we calculated:
+
+\[
+\text{Total personalities} = 4 \times 2 \times 1 \times 2 \times 2 \times 2
+\]
+
+Calculating this step-by-step:
+
+1. \(4 \times 2 = 8\)
+2. \(8 \times 1 = 8\)
+3. \(8 \times 2 = 16\)
+4. \(16 \times 2 = 32\)
+5. \(32 \times 2 = 64\)
+
+Thus, the total number of different wacky personalities Tom can come up with is:
+
+\[
+\boxed{64}
+\]","There are 2 choices of eyebrows, 1 choice for eyes, 2 choices for ears, 2 choices for lips, 2 choices for shoes, and 4 choices for hair (3 choices of hairstyles, or bald), and each can be picked independent of the others, so the number of combinations is the product of those, $2\cdot 1\cdot 2\cdot 2\cdot 2\cdot 4 = \boxed{64}$.",1,0.0011806499999999999
+How many whole numbers between 99 and 999 contain exactly one 0?,"To find how many whole numbers between 99 and 999 contain exactly one 0, we can break this down into two cases based on the position of the digit 0.
+
+### Case 1: 3-digit numbers (100 to 999)
+In this case, we can have the digit 0 in either the tens place or the units place.
+
+#### Subcase 1.1: 0 in the tens place
+The number can be represented as \( \text{A0B} \), where:
+- \( A \) (the hundreds digit) can be any digit from 1 to 9 (9 options).
+- \( B \) (the units digit) can be any digit from 1 to 9 (9 options).
+
+Thus, the total for this subcase is:
+\[
+9 \times 9 = 81
+\]
+
+#### Subcase 1.2: 0 in the units place
+The number can be represented as \( \text{AB0} \), where:
+- \( A \) (the hundreds digit) can be any digit from 1 to 9 (9 options).
+- \( B \) (the tens digit) can be any digit from 1 to 9 (9 options).
+
+Thus, the total for this subcase is:
+\[
+9 \times 9 = 81
+\]
+
+### Total for 3-digit numbers
+Adding both subcases together, we have:
+\[
+81 + 81 = 162
+\]
+
+### Case 2: 2-digit numbers (100 to 999)
+Since we are only considering numbers between 99 and 999, there are no 2-digit numbers that can contain a 0. Therefore, this case contributes 0.
+
+### Final Count
+The total number of whole numbers between 99 and 999 that contain exactly one 0 is:
+\[
+\boxed{162}
+\]","Numbers with exactly one zero have the form $\_ 0 \_$ or $\_ \_ 0$, where the blanks are not zeros.  There are $(9\cdot1\cdot9)+(9\cdot9\cdot1) = 81+81 = \boxed{162}$ such numbers.",1,0.00060405

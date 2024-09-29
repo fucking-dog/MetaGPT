@@ -93,9 +93,9 @@ class Optimizer:
         self.score = "None"
         self.top_scores = []
         self.type = q_type
-        self.round = 18  # 起始轮次
+        self.round = 1  # 起始轮次
 
-    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 5):
+    def optimize(self, mode: OptimizerType = "Complete", max_rounds: int = 24):
         """
         Optimize the graph and operator for the dataset.
         """

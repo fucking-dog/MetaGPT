@@ -173,7 +173,7 @@ async def optimize_gsm8k_evaluation(graph: Callable, file_path: str, path: str, 
     Any, float | int | Any, Any]:
     """Optimize GSM8K evaluation main function"""
     data = await load_data(file_path, va_list)
-    results = await evaluate_all_problems(data, graph, path, max_concurrent_tasks=50)
+    results = await evaluate_all_problems(data, graph, path, max_concurrent_tasks=20)
     average_score, average_cost, total_cost = save_results_to_csv(results, path=path)
     print(f"Average score: {average_score:.5f}")
     print(f"Total Cost: {total_cost:.5f}")
