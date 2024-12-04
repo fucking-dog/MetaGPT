@@ -44,8 +44,8 @@ from metagpt.logs import logger
 
 class Operator:
     def __init__(self, llm: LLM, name: str):
-        self.name = name
         self.llm = llm
+        self.name = name
 
     def __call__(self, *args, **kwargs):
         raise NotImplementedError

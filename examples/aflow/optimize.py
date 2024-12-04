@@ -43,6 +43,7 @@ EXPERIMENT_CONFIGS: Dict[str, ExperimentConfig] = {
         dataset="MBPP",
         question_type="code",
         operators=["Custom", "CustomCodeGenerate", "ScEnsemble", "Test"],
+        # operators=["Custom", "CustomCodeGenerate"]
     ),
     "HumanEval": ExperimentConfig(
         dataset="HumanEval",
@@ -70,7 +71,9 @@ def parse_args():
     )
     parser.add_argument("--initial_round", type=int, default=1, help="Initial round")
     parser.add_argument("--max_rounds", type=int, default=20, help="Max iteration rounds")
-    parser.add_argument("--check_convergence", type=bool, default=True, help="Whether to enable early stop")
+    parser.add_argument(
+        "--check_convergence", type=lambda x: x.lower() == "true", default=True, help="Whether to enable early stop"
+    )
     parser.add_argument("--validation_rounds", type=int, default=5, help="Validation rounds")
     parser.add_argument(
         "--if_first_optimize",
@@ -87,6 +90,7 @@ if __name__ == "__main__":
     download(["datasets", "initial_rounds"], if_first_download=args.if_first_optimize)
     config = EXPERIMENT_CONFIGS[args.dataset]
 
+    four_o_llm_config = ModelsConfig.default().get("gpt-4o")
     mini_llm_config = ModelsConfig.default().get("gpt-4o-mini")
     claude_llm_config = ModelsConfig.default().get("claude-3-5-sonnet-20240620")
 

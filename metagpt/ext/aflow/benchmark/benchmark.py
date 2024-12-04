@@ -84,7 +84,7 @@ class BaseBenchmark(ABC):
     def get_result_columns(self) -> List[str]:
         pass
 
-    async def evaluate_all_problems(self, data: List[dict], graph: Callable, max_concurrent_tasks: int = 50):
+    async def evaluate_all_problems(self, data: List[dict], graph: Callable, max_concurrent_tasks: int = 25):
         semaphore = asyncio.Semaphore(max_concurrent_tasks)
 
         async def sem_evaluate(problem):
@@ -93,6 +93,14 @@ class BaseBenchmark(ABC):
 
         tasks = [sem_evaluate(problem) for problem in data]
         return await tqdm_asyncio.gather(*tasks, desc=f"Evaluating {self.name} problems", total=len(data))
+
+    async def baseline_evaluation(self, graph: Callable, max_concurrent_tasks: int = 50):
+        data = await self.load_data()
+        results = await self.evaluate_all_problems(data, graph, max_concurrent_tasks)
+        columns = self.get_result_columns()
+        df = pd.DataFrame(results, columns=columns)
+        avg_score = df["score"].mean()
+        logger.info(f"Average score on {self.name} dataset: {avg_score:.5f}")
 
     async def run_evaluation(self, graph: Callable, va_list: List[int], max_concurrent_tasks: int = 50):
         data = await self.load_data(va_list)
