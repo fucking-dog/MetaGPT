@@ -100,8 +100,10 @@ class BaseBenchmark(ABC):
         columns = self.get_result_columns()
         df = pd.DataFrame(results, columns=columns)
         avg_score = df["score"].mean()
+        total_cost = df["cost"].max()
         logger.info(f"Average score on {self.name} dataset: {avg_score:.5f}")
-
+        logger.info(f"Total Cost: {total_cost:.5f}")
+        
     async def run_evaluation(self, graph: Callable, va_list: List[int], max_concurrent_tasks: int = 50):
         data = await self.load_data(va_list)
         results = await self.evaluate_all_problems(data, graph, max_concurrent_tasks)

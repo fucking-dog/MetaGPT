@@ -13,10 +13,6 @@ from metagpt.llm import LLM
 # 应该放开Node调整的条件，还是放开Operator的条件？
 
 
-class GenerateOp(BaseModel):
-    response: str = Field(default="", description="Your solution for this problem")
-
-
 class Custom(Operator):
     def __init__(self, model: LLM):
         super().__init__(model, "Custom")
@@ -33,12 +29,12 @@ class Custom(Operator):
 class CodeGenerate(Operator):
     def __init__(self, model: LLM):
         super().__init__(model, "CodeGenerate")
-        self.schema = [{"name": "response", "type": "str", "description": "Your solution for this problem"}]
+        self.schema = [{"name": "solution", "type": "str", "description": "Your solution for this problem"}]
 
     async def __call__(self, problem: str, function_name: str, model: LLM = None):
         prompt = GENERATE_PROMPT.format(problem=problem)
         response = await self._fill_node(
-            op_schema=GenerateOp, prompt=prompt, format="xml_fill", model=model, function_name=function_name
+            op_schema=self.schema, prompt=prompt, format="xml_fill", model=model, function_name=function_name
         )
         return response
 

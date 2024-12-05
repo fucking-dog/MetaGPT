@@ -1,7 +1,5 @@
 from typing import Dict, List
-
-from pydantic import BaseModel, Field
-
+from pydantic import BaseModel, Field, create_model
 from metagpt.actions.action_node import ActionNode
 from metagpt.configs.models_config import ModelsConfig
 from metagpt.ext.aflow.scripts.evaluator import DatasetType
@@ -11,14 +9,31 @@ from metagpt.utils.cost_manager import CostManager
 
 
 class Schema(BaseModel):
-    def __init__(self, attributes: List[Dict]):
-        self._create_schemas(attributes)
 
-    def _create_schemas(self, attributes: List[Dict]):
-        for attribute in attributes:
-            self.model_fields[attribute["name"]] = Field(
-                default="", description=attribute["description"], type=attribute["type"]
-            )
+    @classmethod
+    def create(cls, attributes: List[Dict])-> BaseModel:
+        field_definitions = {
+            attr["name"]: (str, Field(
+                default="",
+                description=attr.get("description", ""),
+                # 可以在这里添加更多字段配置
+            ))
+            for attr in attributes
+        }
+
+        DynamicModel = create_model(
+            "DynamicModel",
+            __base__=cls,  # 使用 Schema 作为基类
+            **field_definitions
+        )
+        
+        return DynamicModel
+    
+    def __init__(self, **data):
+        """
+        初始化方法，处理模型实例的创建
+        """
+        super().__init__(**data)
 
 
 class Operator:
@@ -30,14 +45,15 @@ class Operator:
         raise NotImplementedError
 
     async def _fill_node(self, op_schema, prompt, format=None, model: LLM = None, **extra_kwargs):
+        op_class = Schema.create(op_schema)
         fill_kwargs = {"context": prompt, "llm": model}
         if model is None:
-            model = self.default_model
+            fill_kwargs["llm"] = self.default_model
         if format:
             fill_kwargs["mode"] = format
 
         fill_kwargs.update(extra_kwargs)
-        node = await ActionNode.from_pydantic(op_schema).fill(**fill_kwargs)
+        node = await ActionNode.from_pydantic(op_class).fill(**fill_kwargs)
         return node.instruct_content.model_dump()
 
 

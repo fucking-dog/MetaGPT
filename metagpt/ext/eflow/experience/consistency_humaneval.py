@@ -24,12 +24,14 @@ class MutliLLMWorkflow(Workflow):
         ]
         claude_solution, four_o_mini_solution, four_o_solution, deepseek_solution = await asyncio.gather(*tasks)
 
-        solutions.append(claude_solution)
-        solutions.append(four_o_mini_solution)
-        solutions.append(four_o_solution)
-        solutions.append(deepseek_solution)
+        solutions.append(claude_solution["solution"])
+        solutions.append(four_o_mini_solution["solution"])
+        solutions.append(four_o_solution["solution"])
+        solutions.append(deepseek_solution["solution"])
 
         solution = await self.sc_ensemble(solutions, problem)
+
+        print("response:", solution["response"])
 
         return solution["response"], self.get_cost()
 
@@ -41,9 +43,15 @@ if __name__ == "__main__":
         benchmark = HumanEvalBenchmark(
             name="HumanEval", file_path="metagpt/ext/aflow/data/humaneval_validate.jsonl", log_path=""
         )
-        avg_score = await benchmark.baseline_evaluation(graph, max_concurrent_tasks=5)
+        avg_score = await benchmark.baseline_evaluation(graph, max_concurrent_tasks=1)
         return avg_score
+    
+    async def single_task():
+        graph = MutliLLMWorkflow(name="SelfConsistency", llm_names=llm_name_list, dataset="HumanEval")
+        task = "\n\ndef sum_to_n(n: int):\n    \"\"\"sum_to_n is a function that sums numbers from 1 to n.\n    >>> sum_to_n(30)\n    465\n    >>> sum_to_n(100)\n    5050\n    >>> sum_to_n(5)\n    15\n    >>> sum_to_n(10)\n    55\n    >>> sum_to_n(1)\n    1\n    \"\"\"\n"
+        function_name = "sum_to_n" 
+        solution, cost = await graph(task, function_name)
+        print(solution)
+        print(cost)
 
-    import asyncio
-
-    asyncio.run(main())
+    asyncio.run(single_task())
