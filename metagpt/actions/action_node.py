@@ -25,6 +25,8 @@ from metagpt.provider.postprocess.llm_output_postprocess import llm_output_postp
 from metagpt.utils.common import OutputParser, general_after_log
 from metagpt.utils.human_interaction import HumanInteraction
 from metagpt.utils.sanitize import sanitize
+from metagpt.utils.common import encode_image
+from pathlib import Path
 
 
 class ReviewMode(Enum):
@@ -627,6 +629,9 @@ class ActionNode:
         self.set_context(context)
         if self.schema:
             schema = self.schema
+
+        if images:
+            images = [encode_image(Path(image)) for image in images]
 
         if mode == FillMode.CODE_FILL.value:
             result = await self.code_fill(context, function_name, timeout)

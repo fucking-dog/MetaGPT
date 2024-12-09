@@ -136,6 +136,7 @@ def run_code(code):
             "PyQt5",
             "wx",
             "pyglet",
+            "matplotlib",
         ]
 
         # Check for prohibited imports

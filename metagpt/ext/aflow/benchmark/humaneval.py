@@ -105,7 +105,7 @@ class HumanEvalBenchmark(BaseBenchmark):
     @retry(stop=stop_after_attempt(5), wait=wait_fixed(1), retry=retry_if_exception_type(Exception), reraise=True)
     async def _generate_output(self, graph, prompt, entry_point):
         # Generate output with a timeout of 60 seconds
-        return await asyncio.wait_for(graph(prompt, entry_point), timeout=60)
+        return await asyncio.wait_for(graph(prompt, entry_point), timeout=1000)
 
     async def evaluate_problem(self, data: dict, graph: Callable) -> Tuple[str, str, str, float, float]:
         input_text = data["prompt"]

@@ -30,7 +30,7 @@ class MoaAflowWorkflow(Workflow):
             return test_result['solution'], self.get_cost()
         else:
             # If the test fails, try to generate a new solution with MOA
-            problem = problem + "\n" + IMPROVE_CODE_PROMPT 
+            problem = problem + "\n" + IMPROVE_CODE_PROMPT
             new_solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
             return new_solution['solution'], self.get_cost()
         
@@ -59,7 +59,7 @@ class MoaAflowTestWorkflow(Workflow):
             return test_result['solution'], self.get_cost()
         else:
             # If the test fails, try to generate a new solution with MOA
-            # problem = IMPROVE_CODE_PROMPT + "\n" + problem
+            problem = problem + "\n" + IMPROVE_CODE_PROMPT
             new_solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
             return new_solution['solution'], self.get_cost()
 
@@ -93,19 +93,6 @@ if __name__ == "__main__":
         print(solution)
         print(cost)
 
-    async def main_test():
-        graph = MoaAflowTestWorkflow(name="MoaTest", llm_names=llm_name_list, dataset="HumanEval")
-        benchmark = HumanEvalBenchmark(
-            name="HumanEval", 
-            file_path="metagpt/ext/aflow/data/humaneval_incremental.jsonl", 
-            log_path=""
-        )
-        score, cost, total_cost = await benchmark.baseline_evaluation(graph, max_concurrent_tasks=5)
-        return score, cost, total_cost
-
-    # asyncio.run(single_task_test())
-
+    asyncio.run(single_task_test())
     # score, cost, total_cost = asyncio.run(main())
-    test_score, test_cost, test_total_cost = asyncio.run(main_test())
     # print(f"Moa: {score}, {cost}, {total_cost}")
-    print(f"MoaTest: {test_score}, {test_cost}, {test_total_cost}")
