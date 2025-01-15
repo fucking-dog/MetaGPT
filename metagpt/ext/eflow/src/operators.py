@@ -8,7 +8,7 @@ from pydantic import BaseModel, Field
 from tenacity import retry, stop_after_attempt, wait_fixed
 
 from metagpt.ext.eflow.src.abstract import Operator
-from metagpt.ext.eflow.src.prompt import GENERATE_PROMPT, SC_ENSEMBLE_PROMPT, AGGREGATE_PROMPT, REFLECTION_ON_PUBLIC_TEST_PROMPT, VISUAL_FEEDBACK_PROMPT, PYTHON_VISUALIZATION_PROMPT
+from metagpt.ext.eflow.src.prompts.op_prompt import GENERATE_PROMPT, SC_ENSEMBLE_PROMPT, AGGREGATE_PROMPT, REFLECTION_ON_PUBLIC_TEST_PROMPT, VISUAL_FEEDBACK_PROMPT, PYTHON_VISUALIZATION_PROMPT
 from metagpt.ext.aflow.scripts.utils import extract_test_cases_from_jsonl, test_case_2_test_function
 from metagpt.llm import LLM
 from metagpt.utils.sanitize import sanitize

@@ -70,7 +70,7 @@ class Optimizer:
 
     def optimize(self, mode: OptimizerType = "Graph"):
         if mode == "Test":
-            test_n = 3  # validation datasets's execution number
+            test_n = 1  # test datasets's execution number
             for i in range(test_n):
                 loop = asyncio.new_event_loop()
                 asyncio.set_event_loop(loop)
@@ -179,7 +179,7 @@ class Optimizer:
         return avg_score
 
     async def test(self):
-        rounds = [5]  # You can choose the rounds you want to test here.
+        rounds = [21]  # You can choose the rounds you want to test here.
         data = []
 
         graph_path = f"{self.root_path}/workflows_test"

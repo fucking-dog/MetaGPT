@@ -67,6 +67,9 @@ class Workflow:
         self.name = name
         self.dataset = dataset
         self.llm_dict = self.create_llms(llm_names)
+    
+    def save_reason_process(self):
+        pass
 
     def get_cost(self):
         # 累计所有llm的cost

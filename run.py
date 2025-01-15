@@ -1,111 +1,119 @@
-from metagpt.ext.eflow.src.abstract import Workflow
-from metagpt.ext.eflow.src.operators import Custom, Test, MOAGenerate, MOATest
+import pandas as pd
+import json
+import asyncio
 
-llm_name_list = ["claude-3-5-sonnet-20240620", "gpt-4o-mini", "gpt-4o", "deepseek-chat"]
+from metagpt.ext.eflow.src.optimizer import Attributor
+from metagpt.logs import logger
 
-IMPROVE_CODE_PROMPT = """
-The previous solution failed some test cases. Please analyze the problem carefully and provide an improved solution that addresses all edge cases and requirements. Ensure your code is efficient and follows best practices.
-"""
+test_attribute_model = "gpt-4o-mini"
+test_attribute_overall_model = "gpt-4o"
+test_score_threshold = 0.5
+dataset = "HumanEval"
 
-class MoaAflowWorkflow(Workflow):
-    def __init__(
-        self,
-        name: str,
-        llm_names: list,
-        dataset: str,
-    ) -> None:
-        super().__init__(name, llm_names, dataset)
-        self.custom = Custom(self.llm_dict["gpt-4o-mini"])
-        self.test = Test(self.llm_dict["gpt-4o"])
-        self.moa_generate = MOAGenerate(self.llm_dict["gpt-4o"])
+test_attributor = Attributor(dataset, test_attribute_model, test_attribute_overall_model, test_score_threshold)
+
+test_dataset_path = "metagpt/ext/aflow/data/humaneval_incremental.jsonl"
+raw_workflow_data_path = "raw_workflow_data.csv"
+opt_workflow_data_path = "opt_workflow_data.csv"
+
+raw_workflow = """
+GENERATE_PROMPT = "{{problem}}\nGenerate an answer to this question, without any additional test cases. "
+REFLECTION_ON_PUBLIC_TEST_PROMPT = "
+Given a code problem and a python code solution which failed to pass test or execute, you need to analyze the reason for the failure and propose a better code solution.: 
+### problem
+{{problem}}
+
+### Code Solution
+{{solution}}
+
+### Execution Result
+{{exec_pass}}
+
+#### Failed Test Case
+{{test_fail}}
+
+Please provide a reflection on the failed test cases and code solution, followed by a better code solution without any additional text or test cases.
+"
 
     async def __call__(self, problem: str, entry_point: str):
-        """
-        Implementation of the MOA workflow
-        """
-        solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
+        solution = await self.code_generate(problem, entry_point)
         test_result = await self.test(problem=problem, solution=solution['solution'], entry_point=entry_point)
         
         if test_result['result']:
             return test_result['solution'], self.get_cost()
         else:
             # If the test fails, try to generate a new solution with MOA
-            problem = problem + "\n" + IMPROVE_CODE_PROMPT 
-            new_solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
+            problem = problem + "\n" + IMPROVE_CODE_PROMPT
+            new_solution = await self.code_generate(problem, entry_point)
             return new_solution['solution'], self.get_cost()
-        
+"""
 
-class MoaAflowTestWorkflow(Workflow):
-    def __init__(
-        self,
-        name: str,
-        llm_names: list,
-        dataset: str,
-    ) -> None:
-        super().__init__(name, llm_names, dataset)
-        self.custom = Custom(self.llm_dict["gpt-4o-mini"])
-        self.test = Test(self.llm_dict["gpt-4o"])
-        self.moa_generate = MOAGenerate(self.llm_dict["gpt-4o"])
-        self.moa_test = MOATest(self.llm_dict["gpt-4o"])
+opt_workflow = """
+GENERATE_PROMPT = "{{problem}}\nGenerate an answer to this question, without any additional test cases. "
+REFLECTION_ON_PUBLIC_TEST_PROMPT = "
+Given a code problem and a python code solution which failed to pass test or execute, you need to analyze the reason for the failure and propose a better code solution.: 
+### problem
+{{problem}}
 
+### Code Solution
+{{solution}}
+
+### Execution Result
+{{exec_pass}}
+
+#### Failed Test Case
+{{test_fail}}
+
+Please provide a reflection on the failed test cases and code solution, followed by a better code solution without any additional text or test cases.
+"
     async def __call__(self, problem: str, entry_point: str):
-        """
-        Implementation of the MOA workflow
-        """
-        solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
-        test_result = await self.moa_test(problem=problem, solution=solution['solution'], entry_point=entry_point, models=self.llm_dict.values())
+        solution = await self.code_generate(problem, entry_point)
+        test_result = await self.test(problem=problem, solution=solution['solution'], entry_point=entry_point)
+        
+        for _ in range(3):
+            if test_result['result']:
+                return test_result['solution'], self.get_cost()
+            
+            problem = problem + "\n" + IMPROVE_CODE_PROMPT
+            new_solution = await self.code_generate(problem, entry_point)
+            test_result = await self.test(problem=problem, solution=new_solution['solution'], entry_point=entry_point)
         
         if test_result['result']:
             return test_result['solution'], self.get_cost()
-        else:
-            # If the test fails, try to generate a new solution with MOA
-            # problem = IMPROVE_CODE_PROMPT + "\n" + problem
-            new_solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
-            return new_solution['solution'], self.get_cost()
+        return new_solution['solution'], self.get_cost()
+
+"""
+
+def load_case_table(path, workflow):
+    case_table = {}
+    case_table["workflow"] = workflow
+    case_table["cases"] = {}
+    
+
+    df = pd.read_csv(path)
+    
+    for _, row in df.iterrows():
+        case_id = str(row['id'])
+        case_table["cases"][case_id] = {
+            "question": row['inputs'],
+            "answer": row['prediction'], 
+            "score": row['score']
+        }
+
+    return case_table
+
+
+
 
 if __name__ == "__main__":
-    import asyncio
-    from metagpt.ext.aflow.benchmark.humaneval import HumanEvalBenchmark
 
-    async def main():
-        graph = MoaAflowWorkflow(name="Moa", llm_names=llm_name_list, dataset="HumanEval")
-        benchmark = HumanEvalBenchmark(
-            name="HumanEval", 
-            file_path="metagpt/ext/aflow/data/humaneval_incremental.jsonl", 
-            log_path=""
-        )
-        avg_score, avg_cost, total_cost = await benchmark.baseline_evaluation(graph, max_concurrent_tasks=5)
-        return avg_score, avg_cost, total_cost
+    async def main(raw_case_table, opt_case_table):
+        attribute_table, attribute_cost, overall_cost = await test_attributor.attribute(raw_case_table, opt_case_table)
+        logger.info(json.dumps(attribute_table, indent=4))
+        logger.info(attribute_cost)
+        logger.info(overall_cost)
 
-    async def single_task():
-        graph = MoaAflowWorkflow(name="Moa", llm_names=llm_name_list, dataset="HumanEval")
-        task = "\ndef sort_array(arr):\n    \"\"\"\n    In this Kata, you have to sort an array of non-negative integers according to\n    number of ones in their binary representation in ascending order.\n    For similar number of ones, sort based on decimal value.\n\n    It must be implemented like this:\n    >>> sort_array([1, 5, 2, 3, 4]) == [1, 2, 3, 4, 5]\n    >>> sort_array([-2, -3, -4, -5, -6]) == [-6, -5, -4, -3, -2]\n    >>> sort_array([1, 0, 2, 3, 4]) [0, 1, 2, 3, 4]\n    \"\"\"\n"
-        function_name = "sort_array" 
-        solution, cost = await graph(task, function_name)
-        print(solution)
-        print(cost)
+    raw_case_table = load_case_table(raw_workflow_data_path, raw_workflow)
+    opt_case_table = load_case_table(opt_workflow_data_path, opt_workflow)
 
-    async def single_task_test():
-        graph = MoaAflowTestWorkflow(name="MoaTest", llm_names=llm_name_list, dataset="HumanEval")
-        task = "\ndef sort_array(arr):\n    \"\"\"\n    In this Kata, you have to sort an array of non-negative integers according to\n    number of ones in their binary representation in ascending order.\n    For similar number of ones, sort based on decimal value.\n\n    It must be implemented like this:\n    >>> sort_array([1, 5, 2, 3, 4]) == [1, 2, 3, 4, 5]\n    >>> sort_array([-2, -3, -4, -5, -6]) == [-6, -5, -4, -3, -2]\n    >>> sort_array([1, 0, 2, 3, 4]) [0, 1, 2, 3, 4]\n    \"\"\"\n"
-        function_name = "sort_array" 
-        solution, cost = await graph(task, function_name)
-        print(solution)
-        print(cost)
-
-    async def main_test():
-        graph = MoaAflowTestWorkflow(name="MoaTest", llm_names=llm_name_list, dataset="HumanEval")
-        benchmark = HumanEvalBenchmark(
-            name="HumanEval", 
-            file_path="metagpt/ext/aflow/data/humaneval_incremental.jsonl", 
-            log_path=""
-        )
-        score, cost, total_cost = await benchmark.baseline_evaluation(graph, max_concurrent_tasks=5)
-        return score, cost, total_cost
-
-    # asyncio.run(single_task_test())
-
-    # score, cost, total_cost = asyncio.run(main())
-    test_score, test_cost, test_total_cost = asyncio.run(main_test())
-    # print(f"Moa: {score}, {cost}, {total_cost}")
-    print(f"MoaTest: {test_score}, {test_cost}, {test_total_cost}")
+    asyncio.run(main(raw_case_table, opt_case_table))

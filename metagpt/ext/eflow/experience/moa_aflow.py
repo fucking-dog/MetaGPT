@@ -62,6 +62,7 @@ class MoaAflowTestWorkflow(Workflow):
             problem = problem + "\n" + IMPROVE_CODE_PROMPT
             new_solution = await self.moa_generate(problem, entry_point, models=self.llm_dict.values())
             return new_solution['solution'], self.get_cost()
+        
 
 if __name__ == "__main__":
     import asyncio

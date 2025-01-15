@@ -133,7 +133,7 @@ class HumanEvalBenchmark(BaseBenchmark):
             if score == 0:
                 self.log_mismatch(input_text, expected_output, prediction, score)
 
-            return input_text, prediction, expected_output, score, cost
+            return input_text, prediction, expected_output, score, cost, data["task_id"]
 
         except asyncio.TimeoutError:
             logger.info("Timeout error. Skipping this sample.")
@@ -148,4 +148,4 @@ class HumanEvalBenchmark(BaseBenchmark):
         return 0.0, prediction
 
     def get_result_columns(self) -> List[str]:
-        return ["inputs", "prediction", "expected_output", "score", "cost"]
+        return ["inputs", "prediction", "expected_output", "score", "cost", "id"]
