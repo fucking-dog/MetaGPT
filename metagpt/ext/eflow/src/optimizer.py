@@ -42,18 +42,22 @@ class OptimizeNode:
         pass
 
     def _combine_optimize_signals(self):
-        optimize_signals = "对当前Workflow的改进信号:\n" + self.optimize_signal_compared_with_father + "\n"
+        optimize_signals = "Error Attribution and Optimization Signals for Current Workflow:\n" + self.optimize_signal_compared_with_father + "\nFailure Improvement Attribution under Current Workflow:" 
         for child_node in self.child_nodes:
-            optimize_signals += child_node.optimize_signal_compared_with_father
+            optimize_signals += child_node.optimize_signal_compared_with_father + "\n"
         return optimize_signals
 
 class Optimizer:
-    def __init__(self, dataset, optimize_model, operator_description:str, max_round:int =10):
+    def __init__(self, dataset, optimize_model, operator_description:str, root_path:str, max_round:int =10):
         self.dataset = dataset
         self.optimize_model = optimize_model
+        optimize_llm_config = ModelsConfig.default().get(optimize_model)
+        self.optimize_model = create_llm_instance(optimize_llm_config)
+        self.optimize_model.cost_manager = CostManager()
         self.workflow_optimize_operator = WorkflowOptimizeOperator(self.optimize_model)
         self.operator_description = operator_description # TODO 这里我写死了，之后你用Graph utils 应该就有，我看你之前有写
         self.max_round = max_round
+        self.root_path = root_path
 
     def optimize_on_model_choice(self, workflow: Workflow, model_choices: List):
         """
@@ -62,7 +66,7 @@ class Optimizer:
         """
         pass
 
-    def optimize_on_workflow_structure(self, workflow, prompts, optimize_signal):
+    async def optimize_on_workflow_structure(self, workflow, prompts, optimize_signal):
         """
         optimize the workflow's structure.
         optimize signal is from the attributor.
@@ -74,34 +78,35 @@ class Optimizer:
         2. attribute_table
         3. optimize_signal
         """
-        response = self.workflow_optimize_operator(
+        response = await self.workflow_optimize_operator(
             optimize_signal=optimize_signal, 
             raw_workflow=workflow, 
             custom_prompt=prompts, 
             operator_description=self.operator_description
         )
-        modification = response["modification"]
-        optimize_workflow = response["workflow"]
-        optimize_prompts = response["prompt"]
-        
-        logger.info(json.dumps(modification, indent=4))
-        logger.info(json.dumps(optimize_workflow, indent=4))
-        logger.info(json.dumps(optimize_prompts, indent=4))
-        
+    
+        # TODO 这里记得写入OptimizeNode，或者写入对应的ID的文件夹，让OptimizeNode做Load
         return response
 
     def optimize(self):
         """
         full process of workflow optimization. 
         """
+        depth = 0
+        layer_id = 0
         for _ in range(self.max_round):
-        
-        pass
+            if depth ==0:
+                cur_optimize_node = OptimizeNode(depth=depth, layer_id=layer_id, save_path=self.root_path)
+                # TODO 这里读取空白Workflow模板
+            else:
+                cur_save_path = f"{self.root_path}/{depth}_{layer_id}"
+                cur_optimize_node = OptimizeNode(depth=depth, layer_id=layer_id, save_path=cur_save_path)
+                # TODO 这里做树结构搜索
 
 
-
-
+            
 class Attributor:
+
     def __init__(self, dataset, attribute_query_model_name, attribute_overall_model_name, score_threshold=0.5):
         self.dataset = dataset
         self.score_threshold = score_threshold

@@ -1,37 +1,43 @@
 import pandas as pd
 import json
 import asyncio
-
-from metagpt.ext.eflow.src.optimizer import Attributor
+from typing import List
+from metagpt.ext.eflow.src.optimizer import Attributor, Optimizer
 from metagpt.logs import logger
 
 test_attribute_model = "gpt-4o-mini"
 test_attribute_overall_model = "gpt-4o"
+optimize_model = "claude-3-5-sonnet-20240620"
 test_score_threshold = 0.5
 dataset = "HumanEval"
 
+def load_operators_description(operators: List[str]) -> str:
+    path = f"op_desc.json"
+    operators_description = ""
+    for id, operator in enumerate(operators):
+        operator_description = load_operator_description(id + 1, operator, path)
+        operators_description += f"{operator_description}\n"
+    return operators_description
+
+def load_operator_description(id: int, operator_name: str, file_path: str) -> str:
+    with open(file_path, "r") as f:
+        operator_data = json.load(f)
+        matched_data = operator_data[operator_name]
+        desc = matched_data["description"]
+        interface = matched_data["interface"]
+        return f"{id}. {operator_name}: {desc}, with interface {interface})."
+
+
 test_attributor = Attributor(dataset, test_attribute_model, test_attribute_overall_model, test_score_threshold)
+operator_desc = load_operators_description(["CodeGenerate", "Test", "Custom", "CustomCodeGenerate", "ScEnsemble"])
+test_optimizer = Optimizer(dataset=dataset, optimize_model=optimize_model, operator_description=operator_desc, root_path="")
+
 
 test_dataset_path = "metagpt/ext/aflow/data/humaneval_incremental.jsonl"
 raw_workflow_data_path = "raw_workflow_data.csv"
 opt_workflow_data_path = "opt_workflow_data.csv"
 
 raw_workflow = """
-GENERATE_PROMPT = "{{problem}}\nGenerate an answer to this question, without any additional test cases. "
-REFLECTION_ON_PUBLIC_TEST_PROMPT = "
-Given a code problem and a python code solution which failed to pass test or execute, you need to analyze the reason for the failure and propose a better code solution.: 
-### problem
-{{problem}}
-
-### Code Solution
-{{solution}}
-
-### Execution Result
-{{exec_pass}}
-
-#### Failed Test Case
-{{test_fail}}
-
 Please provide a reflection on the failed test cases and code solution, followed by a better code solution without any additional text or test cases.
 "
 
@@ -49,21 +55,6 @@ Please provide a reflection on the failed test cases and code solution, followed
 """
 
 opt_workflow = """
-GENERATE_PROMPT = "{{problem}}\nGenerate an answer to this question, without any additional test cases. "
-REFLECTION_ON_PUBLIC_TEST_PROMPT = "
-Given a code problem and a python code solution which failed to pass test or execute, you need to analyze the reason for the failure and propose a better code solution.: 
-### problem
-{{problem}}
-
-### Code Solution
-{{solution}}
-
-### Execution Result
-{{exec_pass}}
-
-#### Failed Test Case
-{{test_fail}}
-
 Please provide a reflection on the failed test cases and code solution, followed by a better code solution without any additional text or test cases.
 "
     async def __call__(self, problem: str, entry_point: str):
@@ -103,15 +94,16 @@ def load_case_table(path, workflow):
     return case_table
 
 
-
-
 if __name__ == "__main__":
 
     async def main(raw_case_table, opt_case_table):
-        attribute_table, attribute_cost, overall_cost = await test_attributor.attribute(raw_case_table, opt_case_table)
-        logger.info(json.dumps(attribute_table, indent=4))
+        opt_signal, attribute_cost, overall_cost = await test_attributor.attribute(raw_case_table, opt_case_table)
+        logger.info(json.dumps(opt_signal, indent=4))
         logger.info(attribute_cost)
         logger.info(overall_cost)
+
+        response = await test_optimizer.optimize_on_workflow_structure(workflow=opt_workflow, prompts="", optimize_signal=opt_signal)
+        logger.info(json.dumps(response, indent=4))
 
     raw_case_table = load_case_table(raw_workflow_data_path, raw_workflow)
     opt_case_table = load_case_table(opt_workflow_data_path, opt_workflow)
